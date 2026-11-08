@@ -7,6 +7,8 @@ const $ = (id) => document.getElementById(id);
 // Mode embed (?embed=1): hanya model 3D, dipakai landing page. Kamera berputar mengikuti pesan 'irri-orbit' dari halaman induk.
 const q = new URLSearchParams(location.search);
 const embed = q.get('embed') === '1';
+// Mode embed hanya butuh kanvas: panel samping, toolbar, kartu, dan catatan dibuang dari DOM agar ringan.
+if (embed) document.querySelectorAll('aside, .toolbar, #card, .note').forEach((el) => el.remove());
 const vec = (str, def) => { const a = (str || '').split(',').map(Number); return a.length === 3 && a.every(Number.isFinite) ? a : def; };
 const clamp = (v, lo, hi) => Math.min(hi, Math.max(lo, v));
 
@@ -267,7 +269,7 @@ const items = [
   ['Kabel jumper, PCB prototipe', 'di dalam casing (tidak terlihat)'],
 ];
 const lg = $('legend');
-items.forEach((it, i) => {
+if (lg) items.forEach((it, i) => {
   const li = document.createElement('li');
   const n = document.createElement('i'); n.textContent = i + 1;
   const sp = document.createElement('span'); sp.textContent = it[0];
@@ -317,7 +319,7 @@ const buttonAction = { mode: () => act('mode', sim.mode === 'auto' ? 'manual' : 
 
 // ---------- UI samping ----------
 const sensorsBox = $('sensors');
-for (let i = 0; i < 6; i++) {
+if (sensorsBox) for (let i = 0; i < 6; i++) {
   const b = document.createElement('button'); b.type = 'button'; b.dataset.sensor = i; sensorsBox.appendChild(b);
 }
 document.addEventListener('click', (e) => {
@@ -327,12 +329,14 @@ document.addEventListener('click', (e) => {
   else if (b.dataset.sensor !== undefined) act('sensor-toggle', Number(b.dataset.sensor));
   else if (b.closest('#speed') && b.dataset.v) act('speed', Number(b.dataset.v));
 });
+if (!embed) {
 $('lid').onclick = () => act('lid');
 $('spin').onclick = (e) => { spin = !spin; e.target.textContent = spin ? 'Berhenti putar' : 'Putar otomatis'; };
 $('labels').onclick = (e) => {
   const show = !labelSprites[0].visible; labelSprites.forEach((s) => { s.visible = show; });
   e.target.textContent = show ? 'Sembunyikan nomor' : 'Tampilkan nomor'; e.target.setAttribute('aria-pressed', String(show));
 };
+}
 
 const fmtTime = (s) => `${Math.floor(s / 60)}:${String(Math.floor(s % 60)).padStart(2, '0')}`;
 function alertText() {
@@ -344,6 +348,7 @@ function alertText() {
   return { t: sim.pump ? 'Pompa menyala sampai rata-rata mencapai 80 %.' : 'Pompa mati. Tanah mengering pelan; pompa menyala bila rata-rata di bawah 60 %. Tekan Keringkan untuk mempercepat.', bad: false };
 }
 function refreshUI() {
+  if (embed) return;   // mode embed tidak punya panel samping
   const m = Sim.average(sim.sensors);
   $('v-avg').textContent = Number.isNaN(m) ? '---' : `${m.toFixed(1)} %`;
   $('v-pump').textContent = sim.pump ? 'ON' : 'OFF'; $('v-pump').className = sim.pump ? 'on' : '';
@@ -401,7 +406,7 @@ function showCard(key) {
   }
   card.hidden = false;
 }
-function closeCard() { card.hidden = true; selected = null; }
+function closeCard() { if (!card) return; card.hidden = true; selected = null; }
 function updateCardLive() {
   if (!selected || card.hidden) return;
   const l = card.querySelector('[data-live]'); if (l && hot[selected].live) l.textContent = hot[selected].live();
@@ -452,7 +457,7 @@ setInterval(() => {
     lastSample += 10; history.push({ avg: Sim.average(sim.sensors), pump: sim.pump }); if (history.length > 360) history.shift();
   }
 }, 100);
-setInterval(refreshUI, 250);
+if (!embed) setInterval(refreshUI, 250);
 
 // ---------- mode embed: putar kamera mengikuti scroll halaman induk ----------
 let dragAngle = 0, dragging = false, dragLastX = 0, dragIdleAt = 0;

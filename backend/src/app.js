@@ -1,3 +1,4 @@
+import compression from 'compression';
 import express from 'express';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -11,6 +12,9 @@ const num = (v) => (v === undefined ? undefined : /^-?\d+$/.test(String(v)) ? Nu
 
 export function createApp({ db, bridge, bus, nodeId, staticDir, landingDir, prototypeDir, flowMlPerMin = 100 }) {
   const app = express();
+  // Kompresi semua respons kecuali SSE: compression menahan data SSE di buffer (README compression,
+  // bagian Server-Sent Events), jadi /api/stream dikecualikan agar event tetap langsung terkirim.
+  app.use(compression({ filter: (req, res) => (req.path === '/api/stream' ? false : compression.filter(req, res)) }));
   app.use(express.json());
 
   app.get('/api/health', (_req, res) => res.json({ ok: true, mqtt: !!bridge.connected() }));
@@ -75,7 +79,11 @@ export function createApp({ db, bridge, bus, nodeId, staticDir, landingDir, prot
   if (prototypeDir) app.use('/prototipe', express.static(prototypeDir));
   // Dashboard di /dashboard/, landing page di /. Tanpa landing (belum dibuild), / diarahkan ke dashboard.
   if (staticDir) app.use('/dashboard', express.static(staticDir));
-  if (landingDir) app.use(express.static(landingDir));
-  else if (staticDir) app.get('/', (_req, res) => res.redirect('/dashboard/'));
+  if (landingDir) {
+    // Berkas build Next di /_next/static bernama hash isi: aman disimpan setahun di cache browser.
+    // Berkas tanpa hash (/prototipe/*, /vendor/*, HTML) tetap memakai validasi ETag bawaan.
+    app.use('/_next/static', express.static(path.join(landingDir, '_next', 'static'), { maxAge: '1y', immutable: true }));
+    app.use(express.static(landingDir));
+  } else if (staticDir) app.get('/', (_req, res) => res.redirect('/dashboard/'));
   return app;
 }

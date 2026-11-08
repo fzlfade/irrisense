@@ -173,7 +173,9 @@ function checkScript(checks) {
       overlayShown: !!(cs && cs.display !== 'none' && cs.visibility !== 'hidden' && cs.opacity !== '0'),
       iframes: document.querySelectorAll('iframe').length,
       h1Visible: !!h1 && getComputedStyle(h1).visibility === 'visible',
-      targets: [...document.querySelectorAll(${JSON.stringify(checks.targetSelector)})].map((d) => d.textContent.trim()),
+      // Teks terlihat = bagian aria-hidden bila ada (angka beranimasi); teks dibacakan = sisanya.
+      targets: [...document.querySelectorAll(${JSON.stringify(checks.targetSelector)})].map((d) => (d.querySelector('[aria-hidden="true"]') ?? d).textContent.trim()),
+      spoken: [...document.querySelectorAll(${JSON.stringify(checks.targetSelector)})].map((d) => { const c = d.cloneNode(true); c.querySelectorAll('[aria-hidden="true"]').forEach((n) => n.remove()); return c.textContent.trim(); }),
     };
   })()`;
 }
@@ -271,9 +273,9 @@ function evaluateBudgets(budgets, m) {
     const exp = budgets.checks.expectedTargets;
     const same = (a) => Array.isArray(a) && exp.every((v, i) => a[i] === v);
     const rm = m.browser.reducedMotion;
-    rows.push({ key: 'reducedMotion', label: 'Kurangi gerak: tanpa intro/iframe, angka final', value: JSON.stringify({ intro: rm.overlayShown, iframes: rm.iframes, h1: rm.h1Visible, targets: rm.targets }), limit: 'intro=false, iframes=0, h1, angka final', status: !rm.overlayShown && rm.iframes === 0 && rm.h1Visible && same(rm.targets) ? 'LULUS' : 'GAGAL' });
+    rows.push({ key: 'reducedMotion', label: 'Kurangi gerak: tanpa intro/iframe, angka final', value: JSON.stringify({ intro: rm.overlayShown, iframes: rm.iframes, h1: rm.h1Visible, targets: rm.targets, spoken: rm.spoken }), limit: 'intro=false, iframes=0, h1, angka final', status: !rm.overlayShown && rm.iframes === 0 && rm.h1Visible && same(rm.targets) && same(rm.spoken) ? 'LULUS' : 'GAGAL' });
     const nj = m.browser.noJavaScript;
-    rows.push({ key: 'noJavaScript', label: 'Tanpa JavaScript: judul dan angka final', value: JSON.stringify({ intro: nj.overlayShown, h1: nj.h1Visible, targets: nj.targets }), limit: 'intro=false, h1, angka final', status: !nj.overlayShown && nj.h1Visible && same(nj.targets) ? 'LULUS' : 'GAGAL' });
+    rows.push({ key: 'noJavaScript', label: 'Tanpa JavaScript: judul dan angka final', value: JSON.stringify({ intro: nj.overlayShown, h1: nj.h1Visible, targets: nj.targets, spoken: nj.spoken }), limit: 'intro=false, h1, angka final', status: !nj.overlayShown && nj.h1Visible && same(nj.targets) && same(nj.spoken) ? 'LULUS' : 'GAGAL' });
   } else {
     for (const key of ['landmarks', 'reducedMotion', 'noJavaScript']) rows.push({ key, label: key, value: null, limit: '-', status: 'LEWAT' });
   }

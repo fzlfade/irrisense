@@ -205,6 +205,8 @@ Fase 10 (R3F + GLB) ditunda; hanya bila keputusan Q2 berubah.
 
 ### Fase 2: higiene server dan dua cacat nyata (ukuran M)
 
+**Status: selesai 2026-11-09.** Audit `evidence/fase2-2026-11-09.json`: transfer halaman 2.854 KB (0 dari 29 terkompresi) menjadi 784,5 KB (24 dari 28 terkompresi); poster hero 140,1 KB menjadi 20,5 KB (WebP); DOM total 817 menjadi 305 node (iframe embed 13 node); angka target saat kurangi gerak kini final dan nilai akhir selalu dibacakan pembaca layar. Tersisa 1 gagal sesuai jadwal: landmark `navigation` (Fase 3). Tes backend 42 lulus, termasuk uji mutasi yang membuktikan SSE tidak lagi tertahan kompresi. `sharp` 0.35.5 (Apache-2.0) hanya di `tools/`.
+
 **Kerjakan**
 1. **Kompresi.** `npm install --save-exact compression@1.8.2` di `backend/`. Di `backend/src/app.js` (sebelum mount statis, baris 73) tambah `app.use(compression({ filter }))` dengan filter yang mengembalikan `false` untuk `req.path === '/api/stream'` dan selain itu `compression.filter(req, res)`.
 2. **Cache berkas berhash.** Mount tambahan `app.use('/_next/static', express.static(<landingDir>/_next/static, { maxAge: '1y', immutable: true }))` sebelum mount landing (baris 78). Biarkan `/prototipe/*` dan `/vendor/*` tanpa `immutable`.

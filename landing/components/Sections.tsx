@@ -33,7 +33,7 @@ export function Hero() {
       <figure className={s.heroFigure}>
         <Spin3D
           src="/prototipe/?embed=1&bg=12301f&cam=0,52,104&tgt=0,12,6"
-          poster="/img/prototipe-hero.png"
+          poster="/img/prototipe-hero.webp"
           alt="Rancangan 3D prototipe: bak tanah berisi enam tanaman vanili dengan selang tetes, tandon air, dan kotak elektronik berlayar kecil."
           width={1520}
           height={560}
@@ -120,7 +120,7 @@ export function CaraKerja() {
           <div className={s.caraFrame}>
             <Spin3D
               src="/prototipe/?embed=1&bg=fbf8ee&open=1&cam=0,66,110&tgt=0,8,10"
-              poster="/img/prototipe-terbuka.png"
+              poster="/img/prototipe-terbuka.webp"
               alt="Rancangan 3D susunan prototipe dengan casing terbuka, memperlihatkan ESP32, relay, pompa, sensor tanah, dan sensor suhu di atas papan dasar."
               width={1500}
               height={900}

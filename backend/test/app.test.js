@@ -125,3 +125,48 @@ test('route: /prototipe/ disajikan dan Three.js tersedia lokal', async () => {
   assert.equal((await fetch(`${base}/vendor/three/examples/jsm/controls/OrbitControls.js`)).status, 200);
   server.closeAllConnections(); server.close(); await t.close();
 });
+
+test('kompresi: berkas besar terkompresi, SSE tidak dan event tetap langsung tiba', async () => {
+  const s = await setup();
+  let reader;
+  try {
+    const three = await fetch(`${s.base}/vendor/three/build/three.module.min.js`, { headers: { 'accept-encoding': 'gzip' } });
+    assert.equal(three.status, 200);
+    assert.equal(three.headers.get('content-encoding'), 'gzip');
+    await three.arrayBuffer();
+
+    const res = await fetch(`${s.base}/api/stream`, { headers: { 'accept-encoding': 'gzip' } });
+    reader = res.body.getReader();
+    assert.equal(res.headers.get('content-encoding'), null);
+    await reader.read();                       // retry: 2000
+    setTimeout(() => s.bus.emit('reading', R({ seq: 11 })), 50);
+    const timeout = new Promise((_, rej) => setTimeout(() => rej(new Error('event SSE tertahan')), 3000));
+    const { value } = await Promise.race([reader.read(), timeout]);
+    assert.match(new TextDecoder().decode(value), /"seq":11/);
+  } finally {
+    await reader?.cancel().catch(() => {});
+    await s.close();
+  }
+});
+
+test('cache: berkas _next/static berhash disimpan lama, berkas tanpa hash tidak', async () => {
+  const t = await makeTestDb();
+  const root = mkdtempSync(path.join(os.tmpdir(), 'irri-cache-'));
+  const land = path.join(root, 'land'), proto = path.join(root, 'proto');
+  mkdirSync(path.join(land, '_next', 'static', 'chunks'), { recursive: true }); mkdirSync(proto);
+  writeFileSync(path.join(land, 'index.html'), 'LANDING');
+  writeFileSync(path.join(land, '_next', 'static', 'chunks', 'a1b2c3.js'), 'console.log(1)');
+  writeFileSync(path.join(proto, 'scene.js'), 'console.log(2)');
+  const server = createApp({ db: t.db, bridge: { connected: () => true }, bus: new EventEmitter(), nodeId: 'node1', landingDir: land, prototypeDir: proto }).listen(0);
+  await new Promise((r) => server.once('listening', r));
+  const base = `http://127.0.0.1:${server.address().port}`;
+  const hashed = await fetch(`${base}/_next/static/chunks/a1b2c3.js`);
+  assert.equal(hashed.status, 200);
+  assert.match(hashed.headers.get('cache-control'), /max-age=31536000/);
+  assert.match(hashed.headers.get('cache-control'), /immutable/);
+  const scene = await fetch(`${base}/prototipe/scene.js`);
+  assert.doesNotMatch(scene.headers.get('cache-control') ?? '', /immutable/);
+  const html = await fetch(`${base}/`);
+  assert.doesNotMatch(html.headers.get('cache-control') ?? '', /immutable/);
+  server.closeAllConnections(); server.close(); await t.close();
+});

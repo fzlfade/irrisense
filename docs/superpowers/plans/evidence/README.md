@@ -9,3 +9,4 @@ Skrip kami sendiri, tanpa isi pihak ketiga. Dipakai untuk menganalisis sisi publ
 Fase 1 mengadaptasinya menjadi `tools/audit/audit.mjs`. Port debug hanya di `127.0.0.1`; matikan Edge setelah selesai.
 
 `baseline-2026-11-09.json`: laporan audit pertama (`node tools/audit/audit.mjs`), sebelum Fase 2.
+`fase2-2026-11-09.json`: audit setelah Fase 2.
