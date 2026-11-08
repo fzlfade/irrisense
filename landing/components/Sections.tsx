@@ -3,7 +3,7 @@ import Spin3D from "./Spin3D";
 import CountUp from "./reactbits/CountUp";
 import Magnet from "./reactbits/Magnet";
 import ScrollReveal from "./reactbits/ScrollReveal";
-import SplitText from "./reactbits/SplitText";
+import HeroTitle from "./HeroTitle";
 import s from "./sections.module.css";
 
 export function Hero() {
@@ -11,17 +11,7 @@ export function Hero() {
     <header className={s.hero}>
       <div className={s.wrap}>
         <p className={s.meta}>Capstone Design 2026 · Universitas Tidar</p>
-        <SplitText
-          tag="h1"
-          text="IrriSense"
-          className={s.heroTitle}
-          textAlign="left"
-          splitType="chars"
-          effect="rise"
-          trigger="load"
-          delay={55}
-          duration={0.9}
-        />
+        <HeroTitle />
         <p className={s.lead}>
           Sistem penyiraman tetes otomatis untuk kebun vanili. Sensor membaca tanah, ESP32
           memutuskan, pompa menyiram.
@@ -117,7 +107,7 @@ export function CaraKerja() {
           <h2 id="cara-judul" className={s.h2}>
             Sensor membaca, ESP32 memutuskan, pompa menyiram
           </h2>
-          <ol className={s.steps}>
+          <ol id="cara-langkah" className={s.steps}>
             {steps.map((step) => (
               <li key={step.title} className={s.step}>
                 <h3 className={s.h3}>{step.title}</h3>
@@ -134,7 +124,9 @@ export function CaraKerja() {
               alt="Rancangan 3D susunan prototipe dengan casing terbuka, memperlihatkan ESP32, relay, pompa, sensor tanah, dan sensor suhu di atas papan dasar."
               width={1500}
               height={900}
-              sizes="(min-width: 64rem) 50vw, 100vw"
+              sizes="(min-width: 64rem) 60vw, 100vw"
+              story={{ listId: "cara-langkah" }}
+              storyRatio="5 / 4"
             />
           </div>
           <figcaption className={s.captionDark}>

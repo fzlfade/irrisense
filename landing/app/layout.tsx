@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { Fraunces, Instrument_Sans } from "next/font/google";
+import Intro from "@/components/Intro";
 import "./tokens.css";
 import "./globals.css";
 
@@ -20,13 +21,21 @@ export const metadata: Metadata = {
     "Sistem penyiraman tetes otomatis berbasis IoT untuk perkebunan vanili. Capstone Design 2026, Universitas Tidar.",
 };
 
+// Dijalankan di <head> sebelum halaman tergambar: tentukan apakah intro diputar, supaya tidak berkedip.
+const INTRO_SCRIPT =
+  'try{var d=document.documentElement;d.dataset.intro=(sessionStorage.getItem("irri-intro")==="1"||matchMedia("(prefers-reduced-motion: reduce)").matches)?"skip":"play"}catch(e){}';
+
 export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
-    <html lang="id" className={`${display.variable} ${body.variable}`}>
+    <html lang="id" className={`${display.variable} ${body.variable}`} suppressHydrationWarning>
+      <head>
+        <script dangerouslySetInnerHTML={{ __html: INTRO_SCRIPT }} />
+      </head>
       <body>
         <noscript>
-          <style>{".split-parent{visibility:visible!important}"}</style>
+          <style>{".split-parent{visibility:visible!important}.intro{display:none!important}"}</style>
         </noscript>
+        <Intro />
         {children}
       </body>
     </html>

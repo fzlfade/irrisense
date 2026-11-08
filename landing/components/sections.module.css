@@ -260,6 +260,27 @@
 }
 
 @media (min-width: 64rem) {
+  /* Mode cerita (diaktifkan lewat JavaScript): tiap langkah memakai satu "layar", yang aktif terang, lainnya redup. */
+  .steps[data-story="on"] {
+    gap: 0;
+  }
+  .steps[data-story="on"] .step {
+    padding-block: 15vh;
+    opacity: 0.4;
+    transition: opacity 0.3s;
+  }
+  .steps[data-story="on"] .step[data-active="true"] {
+    opacity: 1;
+  }
+  .steps[data-story="on"] .step::before {
+    top: calc(15vh - 0.1rem);
+  }
+  .caraFigure {
+    top: 14vh;
+  }
+}
+
+@media (min-width: 64rem) {
   .masalahGrid {
     grid-template-columns: 1fr 1.2fr;
   }
@@ -267,10 +288,11 @@
     font-size: clamp(3.5rem, 9vw, 9rem);
   }
   .caraGrid {
-    grid-template-columns: 1fr 1fr;
+    max-width: 84rem;
+    grid-template-columns: 0.8fr 1.2fr;
   }
   .caraFigure {
     position: sticky;
-    top: 2rem;
+    top: 8vh;
   }
 }

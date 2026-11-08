@@ -48,3 +48,83 @@ button:focus-visible {
     transition-duration: 0.01ms !important;
   }
 }
+
+/* Intro "tetes air". Murni CSS dan selesai sendiri (memudar di detik 2,0 sampai 2,4); Intro.tsx hanya mengurus lewati. */
+.intro {
+  position: fixed;
+  inset: 0;
+  z-index: 100;
+  overflow: hidden;
+  background: var(--daun-900);
+  animation: intro-fade 0.4s ease-in 2s forwards;
+}
+.intro__drop {
+  position: absolute;
+  left: calc(50% - 7px);
+  top: -16px;
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background: var(--air-600);
+  animation: intro-fall 0.7s cubic-bezier(0.5, 0, 1, 0.7) forwards;
+}
+.intro__water {
+  position: absolute;
+  inset: auto 0 0 0;
+  height: 0;
+  background: var(--air-600);
+  animation: intro-fill 1.1s ease-in-out 0.7s forwards;
+}
+.intro__word {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--font-display), Georgia, serif;
+  font-size: clamp(3rem, 12vw, 8rem);
+  color: var(--kertas-100);
+  opacity: 0;
+  animation: intro-show 0.4s ease-out 1.2s forwards;
+}
+.intro__skip {
+  position: absolute;
+  top: 1rem;
+  right: 1rem;
+  z-index: 1;
+  padding: 0.45rem 0.9rem;
+  border: 1px solid rgb(243 236 216 / 0.45);
+  border-radius: var(--radius-sm);
+  background: var(--daun-900);
+  color: var(--kertas-100);
+  font: inherit;
+  font-size: 0.85rem;
+  cursor: pointer;
+}
+@keyframes intro-fall {
+  to { transform: translateY(calc(100vh + 16px)); }
+}
+@keyframes intro-fill {
+  to { height: 100%; }
+}
+@keyframes intro-show {
+  to { opacity: 1; }
+}
+@keyframes intro-fade {
+  to { opacity: 0; visibility: hidden; }
+}
+html[data-intro="skip"] .intro,
+html[data-intro="done"] .intro {
+  display: none;
+}
+html[data-intro="play"] {
+  overflow: hidden;
+}
+html[data-intro] .hero-plain {
+  visibility: hidden;
+}
+@media (prefers-reduced-motion: reduce) {
+  .intro {
+    display: none;
+  }
+}

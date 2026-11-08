@@ -128,7 +128,13 @@ reg('pump', [pump], {
 
 // ---------- casing 16x14x4, LCD, isi ----------
 const encX = -14, encZ = 22;
-const enclosure = box(16, 4, 14, 0, encX, 4, encZ, { mat: M(0x2b3a36) });
+// Casing berongga (alas + 4 dinding) agar ESP32 dan relay terlihat saat tutup dibuka.
+const encMat = M(0x2b3a36);
+const enclosureParts = [
+  box(16, 0.4, 14, 0, encX, 2.2, encZ, { mat: encMat }),
+  box(16, 4, 0.6, 0, encX, 4, encZ - 6.7, { mat: encMat }), box(16, 4, 0.6, 0, encX, 4, encZ + 6.7, { mat: encMat }),
+  box(0.6, 4, 13.4, 0, encX - 7.7, 4, encZ, { mat: encMat }), box(0.6, 4, 13.4, 0, encX + 7.7, 4, encZ, { mat: encMat }),
+];
 const lidGroup = new THREE.Group(); lidGroup.position.set(encX, 6.2, encZ); scene.add(lidGroup);
 const lid = new THREE.Mesh(new THREE.BoxGeometry(16, 0.4, 14), M(0x3a4a45)); lid.castShadow = true; lidGroup.add(lid);
 const lcdCanvas = document.createElement('canvas'); lcdCanvas.width = 400; lcdCanvas.height = 240;
@@ -149,7 +155,7 @@ const relay = box(4.2, 1.6, 2.8, 0, encX + 3.5, 5.1, encZ + 2.5, { mat: M(0x2358
 box(4.2, 0.3, 6, 0, encX + 3.5, 3.1, encZ + 1, { mat: M(0x1f6b3a) });
 const relayLed = new THREE.Mesh(new THREE.SphereGeometry(0.35, 10, 8), new THREE.MeshBasicMaterial({ color: 0x331111 }));
 relayLed.position.set(encX + 3.5 + 1.4, 6.0, encZ + 2.5); scene.add(relayLed);
-reg('casing', [enclosure, lid], {
+reg('casing', [...enclosureParts, lid], {
   title: 'Casing 16 × 14 × 4 cm',
   text: 'Wadah elektronik. Klik untuk membuka atau menutup tutupnya dan melihat ESP32 serta relay di dalam.',
   acts: [{ label: 'Buka / tutup', act: 'lid' }],
@@ -462,6 +468,28 @@ const SWEEP = Math.PI * 1.5;   // total putaran dari ujung bawah sampai ujung at
 const orbitAngle = (p) => { const u = (p - 0.5) * 2; return Math.sign(u) * u * u * (SWEEP / 2); };
 const off0 = camera.position.clone().sub(controls.target);
 const r0 = Math.hypot(off0.x, off0.z), th0 = Math.atan2(off0.x, off0.z), h0 = off0.y;
+// ---------- mode story (?story=1): kamera terbang antar-bagian mengikuti langkah yang sedang digulir ----------
+const story = embed && q.get('story') === '1';
+const STORY = [
+  { cam: [0, 46, 86], tgt: [18, 12, 0], lid: 0, keys: ['s0', 's1', 's2', 's3', 's4', 's5'] },   // 1 sensor tanah
+  { cam: [-14, 36, 56], tgt: [-14, 4, 22], lid: 1, keys: ['esp', 'relay'] },                    // 2 ESP32 + relay (casing terbuka)
+  { cam: [-64, 30, 38], tgt: [-37, 7, -6], lid: 0, keys: ['pump', 'tank'] },                    // 3 pompa + tandon
+  { cam: [-14, 36, 58], tgt: [-14, 6, 22], lid: 0, keys: ['lcd'] },                             // 4 LCD / data
+];
+let storyGoal = 0, storyNow = 0, storyIdx = -1;
+const ease3 = (x) => x * x * (3 - 2 * x);
+// u = nomor langkah berpecahan (0 sampai 3). Kamera diam sejenak di tiap langkah, lalu terbang ke berikutnya.
+function storyPose(u) {
+  const t = clamp(u, 0, STORY.length - 1), i = Math.min(Math.floor(t), STORY.length - 2);
+  const f = ease3(clamp((t - i - 0.25) / 0.5, 0, 1)), a = STORY[i], b = STORY[i + 1];
+  const mix = (x, y) => x.map((v, k) => v + (y[k] - v) * f);
+  return { cam: mix(a.cam, b.cam), tgt: mix(a.tgt, b.tgt) };
+}
+function highlight(keys) {
+  Object.values(hot).forEach((h) => h.meshes.forEach((m) => { if (m.material?.emissive) m.material.emissive.setHex(0x000000); }));
+  keys.forEach((k) => hot[k]?.meshes.forEach((m) => { if (m.material?.emissive) m.material.emissive.setHex(0x55460f); }));
+}
+
 if (embed) {
   const hex = q.get('bg') || '12301f';
   document.body.classList.add('embed'); controls.enabled = false;
@@ -481,6 +509,7 @@ if (embed) {
     if (e.origin !== location.origin || e.source !== parent) return;
     const d = e.data;
     if (d?.type === 'irri-orbit' && Number.isFinite(d.p)) orbitGoal = clamp(d.p, 0, 1);
+    if (d?.type === 'irri-story' && Number.isFinite(d.u)) storyGoal = d.u;
     if (d?.type === 'irri-visible') paused = !d.v;
   });
 }
@@ -507,15 +536,29 @@ renderer.setAnimationLoop(() => {
 
   const key = Sim.lcdLines(sim).join('|'); if (key !== lcdKey) { lcdKey = key; drawLcd(); }
   if (embed) {
-    orbitNow += (orbitGoal - orbitNow) * (reduceMotion ? 1 : 0.12);
-    // Setelah dilepas 1,5 detik, putaran manual perlahan kembali agar model menghadap depan lagi saat di tengah layar.
+    // Setelah dilepas 1,5 detik, putaran manual perlahan kembali agar model menghadap depan lagi.
     if (!dragging && (reduceMotion || performance.now() - dragIdleAt > 1500)) dragAngle *= reduceMotion ? 0 : 0.93;
-    const th = th0 + orbitAngle(orbitNow) + dragAngle;
-    camera.position.set(controls.target.x + r0 * Math.sin(th), controls.target.y + h0, controls.target.z + r0 * Math.cos(th));
-    camera.lookAt(controls.target);
+    if (story) {
+      storyNow += (storyGoal - storyNow) * (reduceMotion ? 1 : 0.1);
+      const idx = Math.round(clamp(storyNow, 0, STORY.length - 1));
+      if (idx !== storyIdx) {                                   // langkah berganti: casing, sorotan, dan pompa
+        const prev = storyIdx; storyIdx = idx;
+        open = STORY[idx].lid === 1; highlight(STORY[idx].keys);
+        if (idx === 2) { act('mode', 'manual'); act('pump-on'); } else if (prev === 2) act('mode', 'auto');
+      }
+      const { cam, tgt } = storyPose(storyNow), c = Math.cos(dragAngle), sn = Math.sin(dragAngle);
+      const ox = cam[0] - tgt[0], oz = cam[2] - tgt[2];
+      camera.position.set(tgt[0] + ox * c + oz * sn, cam[1], tgt[2] - ox * sn + oz * c);
+      camera.lookAt(tgt[0], tgt[1], tgt[2]);
+    } else {
+      orbitNow += (orbitGoal - orbitNow) * (reduceMotion ? 1 : 0.12);
+      const th = th0 + orbitAngle(orbitNow) + dragAngle;
+      camera.position.set(controls.target.x + r0 * Math.sin(th), controls.target.y + h0, controls.target.z + r0 * Math.cos(th));
+      camera.lookAt(controls.target);
+    }
   } else controls.update();
   renderer.render(scene, camera); window.__ready = true;
   sendReady();
 });
 drawLcd(); refreshUI();
-window.__prototype = { act, get sim() { return sim; }, hot, get orbit() { return orbitNow; }, get orbitGoal() { return orbitGoal; }, get paused() { return paused; }, get dragAngle() { return dragAngle; } };
+window.__prototype = { act, get sim() { return sim; }, hot, get orbit() { return orbitNow; }, get orbitGoal() { return orbitGoal; }, get paused() { return paused; }, get dragAngle() { return dragAngle; }, get story() { return { on: story, now: storyNow, goal: storyGoal, idx: storyIdx }; }, get open() { return open; }, get lidY() { return lidGroup.position.y; } };
