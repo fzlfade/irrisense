@@ -8,7 +8,7 @@ import s from "./sections.module.css";
 
 export function Hero() {
   return (
-    <header className={s.hero}>
+    <section className={s.hero}>
       <div className={s.wrap}>
         <p className={s.meta}>Capstone Design 2026 · Universitas Tidar</p>
         <HeroTitle />
@@ -43,7 +43,7 @@ export function Hero() {
         />
         <figcaption className={s.caption}>Rancangan prototipe dalam 3D, bukan foto alat. Gulir atau seret untuk memutar.</figcaption>
       </figure>
-    </header>
+    </section>
   );
 }
 
@@ -102,11 +102,13 @@ const steps = [
 export function CaraKerja() {
   return (
     <section id="cara-kerja" className={s.cara} aria-labelledby="cara-judul">
+      <div className={`${s.wrap} ${s.caraHead}`}>
+        <h2 id="cara-judul" className={s.h2}>
+          Sensor membaca, ESP32 memutuskan, pompa menyiram
+        </h2>
+      </div>
       <div className={`${s.wrap} ${s.caraGrid}`}>
         <div>
-          <h2 id="cara-judul" className={s.h2}>
-            Sensor membaca, ESP32 memutuskan, pompa menyiram
-          </h2>
           <ol id="cara-langkah" className={s.steps}>
             {steps.map((step) => (
               <li key={step.title} className={s.step}>

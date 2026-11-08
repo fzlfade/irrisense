@@ -19,6 +19,12 @@
   --radius: 14px;
   --radius-sm: 10px;
 
+  /* Skala tipografi fluid (rencana refactor Fase 3). Judul section besar agar jadi titik fokus tiap layar. */
+  --step-hero: clamp(3.5rem, 15vw, 10rem);
+  --step-section: clamp(2.25rem, 4.6vw, 4.25rem);
+  --step-figure: clamp(2.75rem, 6.5vw, 5rem);
+  --step-lead: clamp(1.15rem, 2.4vw, 1.5rem);
+
   /* Semantik: tema terang */
   --bg: var(--kertas-100);
   --surface: var(--kertas-50);

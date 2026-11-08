@@ -1,0 +1,138 @@
+/* Header situs: pita hijau tua yang menyambung dengan hero. Tidak menempel (static), jadi anchor tidak tertutup. */
+.header {
+  position: relative;
+  background: var(--daun-900);
+  color: var(--kertas-100);
+}
+
+/* Tautan lewati: tersembunyi sampai difokus, lalu tampil kontras tinggi di pojok kiri atas. */
+.skip {
+  position: absolute;
+  left: 1rem;
+  top: -100%;
+  z-index: 10;
+  padding: 0.75rem 1rem;
+  border-radius: var(--radius-sm);
+  background: var(--kertas-100);
+  color: var(--tinta-900);
+  font-weight: 600;
+  text-decoration: none;
+}
+.skip:focus {
+  top: 0.75rem;
+}
+.skip:hover {
+  text-decoration: underline;
+}
+
+/* Status tekan untuk semua kontrol header: turun 1 px (bukan hanya warna). */
+.skip:active,
+.brand:active,
+.menuButton:active,
+.list a:active {
+  transform: translateY(1px);
+}
+
+.bar {
+  max-width: 72rem;
+  margin: 0 auto;
+  padding: 0.5rem clamp(1rem, 5vw, 3rem);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.brand {
+  display: inline-block;
+  padding-block: 0.6rem;
+  font-family: var(--font-display), Georgia, serif;
+  font-size: 1.25rem;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  color: var(--kertas-100);
+  text-decoration: none;
+}
+.brand:hover {
+  text-decoration: underline;
+  text-decoration-thickness: 2px;
+  text-underline-offset: 0.2em;
+}
+
+.menuButton {
+  min-height: 44px;
+  padding: 0.55rem 1rem;
+  border: 1px solid rgb(243 236 216 / 0.45);
+  border-radius: var(--radius-sm);
+  background: transparent;
+  color: var(--kertas-100);
+  font: inherit;
+  font-weight: 600;
+}
+.menuButton:hover {
+  background: var(--daun-700);
+  border-color: var(--kertas-100);
+}
+
+/* Daftar sebagai popover (ponsel): gaya ini hanya terlihat saat terbuka; saat tertutup browser menyembunyikannya. */
+.list {
+  position: fixed;
+  inset: 4rem 1rem auto 1rem;
+  /* Timpa gaya bawaan popover (width/height: fit-content) agar melebar penuh di antara inset kiri-kanan. */
+  width: auto;
+  height: auto;
+  max-height: calc(100vh - 5rem);
+  overflow: auto;
+  margin: 0;
+  padding: 0.5rem;
+  border: 1px solid var(--daun-700);
+  border-radius: var(--radius);
+  background: var(--daun-900);
+  color: var(--kertas-100);
+  list-style: none;
+}
+.list a {
+  display: block;
+  padding: 0.85rem 1rem;
+  border-radius: var(--radius-sm);
+  color: var(--kertas-100);
+  text-decoration: none;
+}
+.list a:hover {
+  background: var(--daun-700);
+  text-decoration: underline;
+  text-underline-offset: 0.25em;
+}
+
+.header a:focus-visible,
+.menuButton:focus-visible {
+  outline: 2px solid var(--kertas-100);
+  outline-offset: 3px;
+}
+
+/* Desktop: daftar selalu tampil sebaris dan tombol Menu disembunyikan. */
+@media (min-width: 48rem) {
+  .menuButton {
+    display: none;
+  }
+  .list {
+    position: static;
+    display: flex;
+    gap: clamp(0.5rem, 2vw, 1.5rem);
+    padding: 0;
+    border: 0;
+    background: none;
+    overflow: visible;
+  }
+  .list a {
+    display: inline-block;
+    padding: 0.7rem 0.5rem;
+    color: #c9c6b4;
+  }
+  .list a:hover {
+    background: none;
+    color: var(--kertas-100);
+    text-decoration: underline;
+    text-underline-offset: 0.25em;
+  }
+}

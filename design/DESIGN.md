@@ -4,7 +4,7 @@ Dipakai bersama aturan antislop (core + antislop-ui). Perbarui file ini sebelum 
 
 ## Tujuan dan audiens
 - **Dashboard** (`backend/public/`): operator memantau kelembapan tanah dan mengontrol pompa. Keputusan utama: apakah pompa perlu dinyalakan sekarang.
-- **Landing page** (`landing/`, fase berikutnya): pengunjung pameran, dosen penguji, calon mitra kebun vanili. Tujuan: paham masalah (boros air), solusi (penyiraman tetes otomatis), dan bukti bahwa sistem berjalan.
+- **Landing page** (`landing/`): pengunjung pameran, dosen penguji, calon mitra kebun vanili. Tujuan: paham masalah (boros air), solusi (penyiraman tetes otomatis), dan bukti bahwa sistem berjalan.
 
 ## Warna
 Aturan 60-30-10 dengan tiga inti + satu aksen (R-29).
@@ -15,7 +15,7 @@ Aturan 60-30-10 dengan tiga inti + satu aksen (R-29).
 | Permukaan | `kertas-50` #fbf8ee | `daun-800` #17382a | `--surface` |
 | Teks | `tinta` #1b2a21 | `kertas` #f3ecd8 | `--ink` |
 | Hijau (30 %) | `daun-700` #1f4a31 | #8fc79a | aksi utama, status pompa ON (`--green`) |
-| **Aksen (10 %)** | `vanili` #b9892b | sama | landing: tombol utama, satu angka utama. `--accent` |
+| **Aksen (10 %)** | `vanili` #b9892b | sama | landing: tombol utama (dan hover tautan di sebelahnya) serta tiga angka target di pita gelap. `--accent` |
 | Data air | #1f6f9c | #6fb7e0 | garis kelembapan udara, ambang OFF (`--blue`) |
 | Ambang / peringatan | #8a6414 | #d9a441 | garis ambang ON, suhu (`--amber`) |
 | Galat | #a93226 | #f08a7a | node offline, FAULT (`--red`) |
@@ -38,12 +38,44 @@ Semua melewati 4,5:1 untuk teks dan 3:1 untuk garis grafik. Tombol aktif (`.seg 
 - Dashboard: tetap font sistem (`system-ui`), karena padat data dan tanpa unduhan font.
 - Landing: **Fraunces** (serif, judul) dan **Instrument Sans** (isi dan label), dimuat lewat `next/font/google`, yang mengunduh saat build dan menyimpannya sebagai file lokal di `out/`, jadi halaman jalan offline saat pameran. Alasan merek: banner memakai serif hangat (Constantia) untuk judul dan sans teknis (Bahnschrift) untuk label; dua font ini membawa pembagian yang sama tanpa bergantung pada font bawaan Windows. Bukan Inter/Geist.
 
+Skala judul landing memakai token fluid di `design/tokens.css` (dipakai di `landing/components/sections.module.css`). Judul dibuat besar supaya tiap layar punya satu titik fokus yang terbaca dari jarak meja pameran; teks isi tetap 1 rem.
+
+| Token | Nilai | Dipakai untuk |
+|---|---|---|
+| `--step-hero` | `clamp(3.5rem, 15vw, 10rem)` | judul hero "IrriSense" |
+| `--step-section` | `clamp(2.25rem, 4.6vw, 4.25rem)` | judul section (`.h2`, `.h2Light`) dan kalimat kunci bagian Masalah |
+| `--step-figure` | `clamp(2.75rem, 6.5vw, 5rem)` | tiga angka target |
+| `--step-lead` | `clamp(1.15rem, 2.4vw, 1.5rem)` | paragraf pembuka hero |
+
+Judul Cara kerja berdiri di atas grid langkah (bukan di kolom kiri yang sempit) agar tetap dua baris di 1280 px.
+
 ## Bentuk
 - Radius: 14 px (kartu dan panel), 10 px (kontrol). Pil penuh hanya untuk indikator status node.
 - Bayangan: tidak dipakai. Pemisah memakai garis `--line`.
 
-## Dial (landing)
-MOTION rendah: animasi masuk sekali, tidak ada loop, mati saat `prefers-reduced-motion`. RHYTHM: antar-section bervariasi sesuai isi.
+## Status kontrol (landing)
+- Kursor tangan untuk `a[href]`, `button`, dan `summary` diatur sekali di `landing/app/globals.css`; tombol nonaktif memakai `not-allowed`.
+- Hover tidak hanya mengganti warna: tautan teks menebalkan garis bawah (2 px), tombol isi menambah garis bawah, tombol garis tepi mendapat isi `--daun-700` dan tepi penuh.
+- Tekan: kontrol turun 1 px (`translateY`), tanpa transisi, jadi tetap aman untuk "kurangi gerak".
+- Fokus: garis 2 px (`--blue` di latar terang, `--kertas-100` di header gelap), jarak 3 px.
+
+## Navigasi (landing)
+- Header berupa pita `--daun-900` yang menyambung dengan hero. Header tidak menempel (static), jadi anchor tidak pernah tertutup dan `scroll-margin-top` tidak diperlukan.
+- Fokus pertama: tautan "Lewati ke konten" ke `<main id="konten">`, tersembunyi sampai difokus.
+- Tautan hanya ke tujuan yang sudah ada: Cara kerja (`/#cara-kerja`), Uji coba (`/prototipe/`), Dashboard (`/dashboard/`). "Spesifikasi" ditambah bila halamannya dibuat.
+- Di bawah 48rem daftar dibuka tombol teks "Menu" lewat atribut HTML `popover`: buka, tutup, Esc, dan klik di luar bekerja tanpa JavaScript, dan daftar melayang di atas hero tanpa menggeser tata letak. Satu pendengar klik kecil (`NavMenu.tsx`) menutupnya saat tautan dipilih. Rencana awal memakai `<details>`; `popover` dipilih karena perilaku tutupnya bawaan browser.
+- Kontras terukur di atas `--daun-900`: tautan nav #c9c6b4 8,32:1; wordmark dan tombol Menu 12,12:1; tautan lewati (tinta di atas kertas) 12,72:1; hover menu (kertas di atas `--daun-700`) 8,55:1.
+
+## Dial dan Design Read (landing)
+Reading this as: landing pameran capstone untuk pengunjung pameran dan dosen penguji, bahasa visual editorial hangat (Fraunces + Instrument Sans, hijau tua + krem, satu aksen vanili), dial ENERGY 3 / RHYTHM 2 / MOTION 3.
+
+Dial: ENERGY 3 / RHYTHM 2 / MOTION 3
+
+- **ENERGY 3:** judul hero sangat besar di pita hijau tua, model 3D selebar layar, dan intro tetes air. Halaman pameran harus menarik orang yang sedang lewat.
+- **RHYTHM 2:** section terang dan gelap bergantian dengan beberapa pemecah: angka besar 60–80 % di Masalah, langkah bergaya cerita dengan model yang menempel di Cara kerja, lalu pita target gelap.
+- **MOTION 3:** model 3D berputar mengikuti scroll dan kameranya terbang per langkah (pin dan koreografi). Dosisnya dijaga: setiap gerak terkait scroll atau diputar sekali saat masuk, tidak ada loop yang jalan sendiri, dan semuanya mati saat "kurangi gerak".
+
+**Motif identitas: air dan tetes.** Biru air (`--air-600`) hanya muncul untuk air, yaitu intro tetes yang memenuhi layar. Tetesan juga jatuh dari emitter di model 3D. Rentang 60–80 % (kelembapan yang dijaga sistem) menjadi angka terbesar di bagian Masalah dan muncul lagi sebagai ambang pompa di langkah 2 Cara kerja.
 
 ## Komponen React Bits yang dipakai (Phase 4)
 Sumber salinan: `landing/components/reactbits/` (diambil dari registry resmi, varian TS-CSS, dikecualikan dari lint).

@@ -3,8 +3,8 @@ import { CaraKerja, Hero, Masalah, Target, Tim } from "@/components/Sections";
 export default function Home() {
   return (
     <>
-      <Hero />
-      <main>
+      <main id="konten">
+        <Hero />
         <Masalah />
         <CaraKerja />
         <Target />

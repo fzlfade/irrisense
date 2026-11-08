@@ -226,7 +226,17 @@ async function browserMetrics(budgets) {
     const cls = await c.evaluate('typeof window.__cls === "number" ? Math.round(window.__cls * 1000) / 1000 : null');
     const pageScreens = Math.round((H / vh) * 10) / 10;
 
-    // 4) Emulasi "kurangi gerak" tanpa melewati intro secara paksa, tanpa scroll.
+    // 4) Keyboard: Tab pertama dari awal halaman harus mengenai tautan lewati, dan tautan itu tampil saat difokus.
+    await c.evaluate("window.scrollTo({ top: 0, behavior: 'instant' }); if (document.activeElement && document.activeElement.blur) document.activeElement.blur();");
+    for (const type of ['keyDown', 'keyUp']) await c.send('Input.dispatchKeyEvent', { type, key: 'Tab', code: 'Tab', windowsVirtualKeyCode: 9, nativeVirtualKeyCode: 9 });
+    await sleep(200);
+    const firstTab = await c.evaluate(`(() => {
+      const a = document.activeElement; const r = a && a.getBoundingClientRect();
+      return { matches: !!a && a.matches(${JSON.stringify(budgets.checks.firstTabSelector)}), tag: a ? a.tagName : null,
+        text: a ? a.textContent.trim().slice(0, 40) : null, visible: !!r && r.top >= 0 && r.bottom <= innerHeight && r.height > 0 };
+    })()`);
+
+    // 5) Emulasi "kurangi gerak" tanpa melewati intro secara paksa, tanpa scroll.
     // Skrip itu terikat pada sesi CDP pertama yang sudah ditutup; hapus bila masih ada.
     try { await c.send('Page.removeScriptToEvaluateOnNewDocument', { identifier }); } catch { /* sudah hilang bersama sesinya */ }
     await c.evaluate("try{sessionStorage.removeItem('irri-intro')}catch(e){}");
@@ -235,14 +245,14 @@ async function browserMetrics(budgets) {
     const reducedMotion = await c.evaluate(checkScript(budgets.checks));
     await c.send('Emulation.setEmulatedMedia', { media: '', features: [] });
 
-    // 5) Emulasi "tanpa JavaScript".
+    // 6) Emulasi "tanpa JavaScript".
     await c.send('Emulation.setScriptExecutionDisabled', { value: true });
     await navigate(c, url, 2500);
     const noJavaScript = await c.evaluate(checkScript(budgets.checks));
     await c.send('Emulation.setScriptExecutionDisabled', { value: false });
     c.close();
 
-    return { browser: b.version, transfer, rea, cls, pageScreens, reducedMotion, noJavaScript };
+    return { browser: b.version, transfer, rea, cls, pageScreens, firstTab, reducedMotion, noJavaScript };
   } finally {
     await closeBrowser(b);
   }
@@ -270,6 +280,8 @@ function evaluateBudgets(budgets, m) {
     const have = m.browser.rea?.landmarks ?? [];
     const missing = budgets.requiredLandmarks.filter((r) => !have.includes(r));
     rows.push({ key: 'landmarks', label: 'Landmark wajib', value: have.join(', ') || '(tidak terukur)', limit: budgets.requiredLandmarks.join(', '), status: m.browser.rea?.error || missing.length ? 'GAGAL' : 'LULUS', missing });
+    const ft = m.browser.firstTab;
+    rows.push({ key: 'firstTab', label: 'Tab pertama: tautan lewati, terlihat', value: JSON.stringify(ft), limit: budgets.checks.firstTabSelector, status: ft?.matches && ft?.visible ? 'LULUS' : 'GAGAL' });
     const exp = budgets.checks.expectedTargets;
     const same = (a) => Array.isArray(a) && exp.every((v, i) => a[i] === v);
     const rm = m.browser.reducedMotion;
@@ -277,7 +289,7 @@ function evaluateBudgets(budgets, m) {
     const nj = m.browser.noJavaScript;
     rows.push({ key: 'noJavaScript', label: 'Tanpa JavaScript: judul dan angka final', value: JSON.stringify({ intro: nj.overlayShown, h1: nj.h1Visible, targets: nj.targets, spoken: nj.spoken }), limit: 'intro=false, h1, angka final', status: !nj.overlayShown && nj.h1Visible && same(nj.targets) && same(nj.spoken) ? 'LULUS' : 'GAGAL' });
   } else {
-    for (const key of ['landmarks', 'reducedMotion', 'noJavaScript']) rows.push({ key, label: key, value: null, limit: '-', status: 'LEWAT' });
+    for (const key of ['landmarks', 'firstTab', 'reducedMotion', 'noJavaScript']) rows.push({ key, label: key, value: null, limit: '-', status: 'LEWAT' });
   }
   return rows;
 }

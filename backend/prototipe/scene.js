@@ -519,18 +519,21 @@ if (embed) {
   });
 }
 
-let lcdKey = '';
+let lcdKey = '', pumpSince = -1, flowStill = reduceMotion;
 renderer.setAnimationLoop(() => {
   if (paused) return;
   const flowing = sim.pump && sim.tank > 0, now = performance.now() / 1000;
+  // Di landing (embed) tetesan dan getar pompa bergerak paling lama 5 detik sejak pompa menyala, lalu diam (WCAG 2.2.2).
+  if (!sim.pump) pumpSince = -1; else if (pumpSince < 0) pumpSince = now;
+  flowStill = reduceMotion || (embed && sim.pump && now - pumpSince > 5);
 
   patches.forEach((p, i) => { p.material.color.lerpColors(dryColor, wetColor, clamp(sim.sensors[i].pct / 100, 0, 1)); leds[i].material.color.setHex(ledColor(sim.sensors[i])); });
   const lvl = Math.max(sim.tank / 100, 0.001); water.scale.y = lvl; water.position.y = 2 + 6 * lvl; water.visible = sim.tank > 0.5;
   hoses.forEach((h) => h.material.emissive.setHex(flowing ? 0x1a6a96 : 0x000000));
   relayLed.material.color.setHex(sim.pump ? 0xff3b30 : 0x331111);
-  pump.position.x = -37 + (sim.pump && !reduceMotion ? Math.sin(now * 70) * 0.05 : 0);
+  pump.position.x = -37 + (sim.pump && !flowStill ? Math.sin(now * 70) * 0.05 : 0);
   for (let i = 0; i < 6 * DROPS_PER; i++) {
-    const k = Math.floor(i / DROPS_PER), ph = reduceMotion ? (i % DROPS_PER) / DROPS_PER : (now * 1.6 + i * 0.37) % 1;
+    const k = Math.floor(i / DROPS_PER), ph = flowStill ? (i % DROPS_PER) / DROPS_PER : (now * 1.6 + i * 0.37) % 1;
     dummy.position.set(xs[k], 13.2 - ph * 0.8, 0); dummy.scale.setScalar(flowing ? 1 : 0.0001); dummy.updateMatrix(); drops.setMatrixAt(i, dummy.matrix);
   }
   drops.instanceMatrix.needsUpdate = true;
@@ -566,4 +569,4 @@ renderer.setAnimationLoop(() => {
   sendReady();
 });
 drawLcd(); refreshUI();
-window.__prototype = { act, get sim() { return sim; }, hot, get orbit() { return orbitNow; }, get orbitGoal() { return orbitGoal; }, get paused() { return paused; }, get dragAngle() { return dragAngle; }, get story() { return { on: story, now: storyNow, goal: storyGoal, idx: storyIdx }; }, get open() { return open; }, get lidY() { return lidGroup.position.y; } };
+window.__prototype = { act, get sim() { return sim; }, hot, get orbit() { return orbitNow; }, get orbitGoal() { return orbitGoal; }, get paused() { return paused; }, get dragAngle() { return dragAngle; }, get flowStill() { return flowStill; }, get story() { return { on: story, now: storyNow, goal: storyGoal, idx: storyIdx }; }, get open() { return open; }, get lidY() { return lidGroup.position.y; } };

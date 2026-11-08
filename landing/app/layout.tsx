@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Fraunces, Instrument_Sans } from "next/font/google";
 import Intro from "@/components/Intro";
+import SiteHeader from "@/components/SiteHeader";
 import "./tokens.css";
 import "./globals.css";
 
@@ -36,6 +37,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
           <style>{".split-parent{visibility:visible!important}.intro{display:none!important}"}</style>
         </noscript>
         <Intro />
+        <SiteHeader />
         {children}
       </body>
     </html>
