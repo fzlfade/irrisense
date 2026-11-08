@@ -460,7 +460,7 @@ setInterval(() => {
 if (!embed) setInterval(refreshUI, 250);
 
 // ---------- mode embed: putar kamera mengikuti scroll halaman induk ----------
-let dragAngle = 0, dragging = false, dragLastX = 0, dragIdleAt = 0;
+let dragAngle = 0, dragging = false, dragIdleAt = 0;
 let orbitGoal = 0.5, orbitNow = 0.5, paused = false, readySent = false;   // 0.5 = elemen di tengah layar = tampak depan
 // Dikirim setelah frame pertama tergambar, atau paling lambat 1 detik setelah dimuat (loop gambar bisa tertunda).
 function sendReady() {
@@ -498,13 +498,8 @@ function highlight(keys) {
 if (embed) {
   const hex = q.get('bg') || '12301f';
   document.body.classList.add('embed'); controls.enabled = false;
-  // Seret mendatar memutar model; gesekan vertikal tetap menggulir halaman (touch-action: pan-y).
-  const dom = renderer.domElement;
-  dom.style.touchAction = 'pan-y'; dom.style.cursor = 'grab';
-  dom.addEventListener('pointerdown', (e) => { dragging = true; dragLastX = e.clientX; dom.setPointerCapture(e.pointerId); dom.style.cursor = 'grabbing'; });
-  dom.addEventListener('pointermove', (e) => { if (!dragging) return; dragAngle += (e.clientX - dragLastX) * 0.012; dragLastX = e.clientX; });
-  const endDrag = () => { if (!dragging) return; dragging = false; dragIdleAt = performance.now(); dom.style.cursor = 'grab'; };
-  dom.addEventListener('pointerup', endDrag); dom.addEventListener('pointercancel', endDrag);
+  // Seret ditangkap lapisan di halaman induk (Spin3D.tsx) dan datang sebagai pesan 'irri-drag' / 'irri-dragend',
+  // karena gulir halus (lenis.css) mematikan pointer di iframe ini.
   scene.background = new THREE.Color('#' + hex); floor.material.color.set('#' + hex);
   document.documentElement.style.background = '#' + hex;
   labelSprites.forEach((sp) => { sp.visible = false; }); panelObjs.forEach((o) => { o.visible = false; });
@@ -516,6 +511,8 @@ if (embed) {
     if (d?.type === 'irri-orbit' && Number.isFinite(d.p)) orbitGoal = clamp(d.p, 0, 1);
     if (d?.type === 'irri-story' && Number.isFinite(d.u)) storyGoal = d.u;
     if (d?.type === 'irri-visible') paused = !d.v;
+    if (d?.type === 'irri-drag' && Number.isFinite(d.dx)) { dragging = true; dragAngle += d.dx * 0.012; }
+    if (d?.type === 'irri-dragend') { dragging = false; dragIdleAt = performance.now(); }
   });
 }
 

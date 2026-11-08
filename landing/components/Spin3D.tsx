@@ -1,7 +1,7 @@
 "use client";
 
 import Image from "next/image";
-import { useEffect, useRef, useState, useSyncExternalStore } from "react";
+import { useEffect, useRef, useState, useSyncExternalStore, type PointerEvent as ReactPointerEvent } from "react";
 import { useReducedMotion } from "@/lib/useReducedMotion";
 import s from "./spin3d.module.css";
 
@@ -50,6 +50,15 @@ export default function Spin3D({ src, poster, alt, width, height, sizes, mobileR
   const frame = useRef<HTMLIFrameElement>(null);
   const [mounted, setMounted] = useState(false);
   const [ready, setReady] = useState(false);
+  const drag = useRef<{ id: number; x: number } | null>(null);
+
+  // Seret mendatar diteruskan ke model lewat postMessage (lihat lapisan seret di bawah).
+  const postToFrame = (msg: object) => frame.current?.contentWindow?.postMessage(msg, window.location.origin);
+  const endDrag = (e: ReactPointerEvent<HTMLDivElement>) => {
+    if (drag.current?.id !== e.pointerId) return;
+    drag.current = null;
+    postToFrame({ type: "irri-dragend" });
+  };
 
   // Iframe baru dimuat setelah halaman selesai, supaya tidak berebut dengan gambar utama.
   useEffect(() => {
@@ -171,6 +180,32 @@ export default function Spin3D({ src, poster, alt, width, height, sizes, mobileR
           tabIndex={-1}
           className={s.frame}
           style={{ opacity: ready ? 1 : 0 }}
+        />
+      )}
+      {/*
+        Lapisan seret di atas iframe. lenis.css mematikan pointer di iframe selama gulir halus, dan roda tetikus
+        di atas iframe tidak sampai ke halaman induk. Lapisan ini menerima roda (halaman tetap bergulir halus) dan
+        meneruskan seret mendatar ke model; gesek vertikal di layar sentuh tetap menggulir (touch-action: pan-y).
+      */}
+      {!reduced && mounted && ready && (
+        <div
+          aria-hidden="true"
+          className={s.drag}
+          onPointerDown={(e) => {
+            if (e.button !== 0) return;
+            drag.current = { id: e.pointerId, x: e.clientX };
+            e.currentTarget.setPointerCapture(e.pointerId);
+          }}
+          onPointerMove={(e) => {
+            const d = drag.current;
+            if (!d || d.id !== e.pointerId) return;
+            const dx = e.clientX - d.x;
+            d.x = e.clientX;
+            if (dx) postToFrame({ type: "irri-drag", dx });
+          }}
+          onPointerUp={endDrag}
+          onPointerCancel={endDrag}
+          onLostPointerCapture={endDrag}
         />
       )}
     </div>

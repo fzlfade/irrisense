@@ -247,6 +247,8 @@ Fase 10 (R3F + GLB) ditunda; hanya bila keputusan Q2 berubah.
 
 ### Fase 4: mesin scroll Lenis + ScrollTrigger dan lapisan seret (ukuran M)
 
+**Status: selesai 2026-11-09.** Lenis 1.3.27 (MIT) dipasang lewat `components/SmoothScroll.tsx` dengan integrasi README 145-160. Uji CDP `evidence/fase4-scroll.mjs` (hasil `evidence/fase4-scroll-2026-11-09.json`), semua lulus: kelas `lenis` ada; roda di atas model 3D menggulir halaman (511 ke 1111 px); seret memutar model 1,8 rad lalu kembali ke 0 setelah dilepas; anchor dari tombol hero dan tautan nav maju tanpa langkah mundur dan mendarat 0 px dari section; PageDown, Spasi, dan Enter jalan; "kurangi gerak" tanpa Lenis dan anchor mendarat 0 px; layar sentuh 375 px tanpa Lenis, tanpa overflow, lapisan seret `touch-action: pan-y`; konsol tanpa error. Audit `evidence/fase4-2026-11-09.json`: semua anggaran lulus, JS landing 260,3 menjadi 263,2 KB gzip (naik 2,9 KB), CLS 0. Butir 4 (`scroll-behavior`): diuji tidak bentrok, jadi `globals.css` tidak diubah. Delivery Gate tanpa FAIL (`evidence/delivery-gate-fase4.md`).
+
 **Prasyarat:** Fase 2 dan 3.
 
 **Kerjakan**
