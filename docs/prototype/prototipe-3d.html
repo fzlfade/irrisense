@@ -1,0 +1,171 @@
+<!doctype html>
+<html lang="id"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Prototipe 3D IrriSense</title>
+<style>
+:root{--daun:#12301f;--kertas:#f3ecd8;--vanili:#b9892b;--air:#2d8fc0}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%;background:#dfe8dc;font-family:Constantia,Georgia,serif;color:var(--daun)}
+#app{display:grid;grid-template-columns:1fr 340px;height:100%}
+#view{position:relative;min-width:0}
+canvas{display:block;width:100%;height:100%}
+aside{background:var(--kertas);padding:22px 22px 18px;overflow:auto;border-left:3px solid var(--daun)}
+h1{font:700 26px/1.1 Bahnschrift,"Segoe UI",sans-serif}
+.sub{font-size:14px;margin:6px 0 14px;opacity:.8}
+ol{list-style:none;font-size:14.5px;line-height:1.3}
+li{display:flex;gap:10px;padding:5px 0;border-bottom:1px solid #d8cfae}
+li i{flex:none;width:22px;height:22px;border-radius:50%;background:var(--daun);color:var(--kertas);font:700 12px/22px Bahnschrift,sans-serif;text-align:center;font-style:normal}
+li small{display:block;opacity:.7;font-size:12.5px}
+.btns{position:absolute;left:14px;top:14px;display:flex;gap:8px}
+button{font:600 15px Bahnschrift,"Segoe UI",sans-serif;background:var(--daun);color:var(--kertas);border:0;padding:10px 14px;border-radius:6px;cursor:pointer}
+button:focus-visible{outline:3px solid var(--vanili);outline-offset:2px}
+.note{position:absolute;left:14px;bottom:12px;font-size:13px;opacity:.7}
+@media(max-width:800px){#app{grid-template-columns:1fr;grid-template-rows:60% 40%}}
+</style>
+<script type="importmap">{"imports":{"three":"https://unpkg.com/three@0.160.0/build/three.module.js","three/addons/":"https://unpkg.com/three@0.160.0/examples/jsm/"}}</script>
+</head><body>
+<div id="app">
+  <div id="view">
+    <div class="btns"><button id="lid">Buka tutup casing</button><button id="spin">Putar otomatis</button></div>
+    <div class="note">Seret untuk memutar, gulir untuk zoom. Ukuran dalam cm, skala 1:1.</div>
+  </div>
+  <aside>
+    <h1>Prototipe IrriSense</h1>
+    <p class="sub">Susunan di atas papan dasar 100 × 76 cm, mengikuti daftar komponen RAB.</p>
+    <ol id="legend"></ol>
+  </aside>
+</div>
+<script type="module">
+import * as THREE from 'three';
+import {OrbitControls} from 'three/addons/controls/OrbitControls.js';
+
+const view=document.getElementById('view');
+const renderer=new THREE.WebGLRenderer({antialias:true,preserveDrawingBuffer:true});
+renderer.setPixelRatio(Math.min(devicePixelRatio,2));
+renderer.shadowMap.enabled=true;renderer.shadowMap.type=THREE.PCFSoftShadowMap;
+view.appendChild(renderer.domElement);
+const scene=new THREE.Scene();scene.background=new THREE.Color(0xdfe8dc);
+const camera=new THREE.PerspectiveCamera(38,1,1,1000);
+camera.position.set(-70,85,115);
+const controls=new OrbitControls(camera,renderer.domElement);
+controls.target.set(0,10,0);controls.enableDamping=true;controls.maxPolarAngle=Math.PI*0.48;
+scene.add(new THREE.HemisphereLight(0xffffff,0x8a9a85,1.0));
+const sun=new THREE.DirectionalLight(0xffffff,1.6);sun.position.set(60,110,70);sun.castShadow=true;
+sun.shadow.mapSize.set(2048,2048);Object.assign(sun.shadow.camera,{left:-80,right:80,top:80,bottom:-80,near:10,far:300});
+scene.add(sun);
+
+const M=(c,o={})=>new THREE.MeshStandardMaterial({color:c,roughness:.65,metalness:0,...o});
+function box(w,h,d,c,x,y,z,o){const m=new THREE.Mesh(new THREE.BoxGeometry(w,h,d),o?.mat||M(c,o));m.position.set(x,y,z);m.castShadow=m.receiveShadow=true;scene.add(m);return m}
+function cyl(r,h,c,x,y,z,o={},seg=32){const m=new THREE.Mesh(new THREE.CylinderGeometry(r,r,h,seg),M(c,o));m.position.set(x,y,z);m.castShadow=true;scene.add(m);return m}
+function tube(pts,r,c){const g=new THREE.TubeGeometry(new THREE.CatmullRomCurve3(pts.map(p=>new THREE.Vector3(...p)),false,'chordal'),64,r,8);const m=new THREE.Mesh(g,M(c));m.castShadow=true;scene.add(m)}
+
+// lantai + papan dasar
+box(100,2,76,0,0,1,14,{mat:M(0xcaa877)});
+box(240,.5,160,0,0,-.3,0,{mat:M(0xcfd9cb)}).receiveShadow=true;
+
+// bedengan: dinding kayu + tanah
+const wood=M(0x8a6339),soil=M(0x4a3020);
+const px=20,pw=54,pd=18;
+box(pw,12,1,0,px,8,-pd/2,{mat:wood});box(pw,12,1,0,px,8,pd/2,{mat:wood});
+box(1,12,pd,0,px-pw/2,8,0,{mat:wood});box(1,12,pd,0,px+pw/2,8,0,{mat:wood});
+box(pw-1,10,pd-1,0,px,7.5,0,{mat:soil});
+
+// 6 tanaman vanili + stik penyangga + emitter + sensor tanah
+const leaf=M(0x3f9a5e),stem=M(0x2f7d4f);
+const xs=[];for(let i=0;i<6;i++)xs.push(px-20+i*8);
+const sensorPos=[];
+xs.forEach((x,i)=>{
+  cyl(.35,22,0xb59a6a,x,24,-4,{}); // penyangga
+  const s=new THREE.Mesh(new THREE.CylinderGeometry(.25,.25,10,8),stem);s.position.set(x+.4,18,-4);scene.add(s);
+  for(let k=0;k<4;k++){const l=new THREE.Mesh(new THREE.SphereGeometry(2.1,12,8),leaf);l.scale.set(1.6,.22,.9);
+    l.position.set(x+(k%2?2.6:-2.2),16+k*3.4,-4+(k%2?.6:-.6));l.rotation.z=(k%2?1:-1)*.35;l.castShadow=true;scene.add(l)}
+  // emitter
+  cyl(.5,1.4,0x111111,x,16.4,0,{}); cyl(.12,3,0x4fb0de,x,14.6,0,{transparent:true,opacity:.7});
+  // sensor tanah + casing (z=+4)
+  box(1.6,4,.8,0,x,15,4,{mat:M(0x1f3a52)});            // casing
+  box(1.4,2.6,.3,0,x,12.6,4.4,{mat:M(0x222222)});       // bilah sensor
+  box(2.2,1.2,.8,0,x,17.4,4,{mat:M(0xb52a2a)});         // modul
+  sensorPos.push([x,17.8,4]);
+});
+// selang utama di atas tanaman (z=0, y=17.2)
+tube([[-30,10,-12],[-20,22,-8],[-8,20,0],[xs[0]-3,17.2,0],[xs[5]+3,17.2,0]],.55,0x111111);
+
+// tandon air + pompa mini
+const tank=cyl(7.5,18,0x4fb0de,-37,11,-12,{transparent:true,opacity:.35,roughness:.2});
+cyl(7.1,12,0x2d8fc0,-37,8,-12,{transparent:true,opacity:.75});
+cyl(2,3.8,0xb9892b,-37,3.2,-1.5,{}); // pompa mini 5V (di luar tandon, di papan)
+tube([[-37,5,-1.5],[-37,10,-5],[-30,10,-12]],.5,0x111111);
+tube([[-37,12,-12],[-37,13,-6],[-37,5.2,-1.5]],.4,0x111111);
+
+// casing 16x14x4 cm + LCD + isi
+const encX=-14,encZ=22;
+box(16,4,14,0,encX,4,encZ,{mat:M(0x2b3a36)});
+const lidGroup=new THREE.Group();lidGroup.position.set(encX,6.2,encZ);scene.add(lidGroup);
+const lid=new THREE.Mesh(new THREE.BoxGeometry(16,.4,14),M(0x3a4a45));lid.castShadow=true;lidGroup.add(lid);
+function screenTex(){const c=document.createElement('canvas');c.width=400;c.height=240;const g=c.getContext('2d');
+  g.fillStyle='#0d3b2e';g.fillRect(0,0,400,240);g.fillStyle='#8cffb8';g.font='bold 34px monospace';
+  ['IrriSense   S1:72%','S2:65% S3:58% S4:69%','S5:75% S6:63%  29C','Pompa: ON   WiFi OK'].forEach((t,i)=>g.fillText(t,10,48+i*54));
+  const t=new THREE.CanvasTexture(c);t.colorSpace=THREE.SRGBColorSpace;return t}
+const lcd=new THREE.Mesh(new THREE.BoxGeometry(9.8,.5,4),new THREE.MeshStandardMaterial({color:0x0a2a20}));lcd.position.set(0,.45,-2.5);lidGroup.add(lcd);
+const scr=new THREE.Mesh(new THREE.PlaneGeometry(7.6,2.9),new THREE.MeshBasicMaterial({map:screenTex()}));scr.rotation.x=-Math.PI/2;scr.position.set(0,.72,-2.5);lidGroup.add(scr);
+// isi casing
+box(5.2,.5,2.6,0,encX-4,6.2-3.3+.2,encZ+2,{mat:M(0x15203a)});  // ESP32
+box(2.2,.25,1.2,0,encX-4,6.2-3,encZ+2,{mat:M(0xc0c0c0)});
+box(4.2,1.6,2.8,0,encX+3.5,5.1,encZ+2.5,{mat:M(0x2358a6)});    // relay
+box(4.2,.3,6,0,encX+3.5,3.1,encZ+1,{mat:M(0x1f6b3a)});          // PCB
+// adaptor + kabel
+box(5,4,3,0,-45,3,22,{mat:M(0x151515)});
+tube([[-42.5,3,22],[-30,2.3,24],[encX-8,3.5,encZ]],.35,0x111111);
+// kabel duct putih sepanjang tepi depan bedengan
+box(66,2,2,0,18,3,34,{mat:M(0xf2f2f2)});
+tube([[encX+8,3.5,encZ],[-3,3,30],[-4,3,34]],.3,0x222222);
+xs.forEach(x=>tube([[x,3.2,34],[x,3.2,11],[x,15.6,9.4],[x,16,4.4]],.12,0x2a8d4f));
+// DHT11 di tiang
+cyl(.4,12,0xb59a6a,52,8,12,{});box(2.6,3.4,1.6,0,52,15,12,{mat:M(0x4fa0d8)});
+tube([[52,4,12],[52,3,30],[40,3,34]],.2,0x222222);
+
+// label bernomor
+const items=[
+ ['ESP32 + base board','1 buah, di dalam casing'],
+ ['LCD I2C 20×4','1 buah, di tutup casing'],
+ ['Sensor kelembapan tanah','10 buah dibeli, 6 terpasang, 4 cadangan'],
+ ['Casing sensor tanah','10 buah, 1 per sensor'],
+ ['Sensor DHT11','6 dibeli, 1 terpasang di tiang'],
+ ['Relay 1 channel','1 buah, di dalam casing'],
+ ['Mini pompa 5 VDC','1 buah, mengalirkan air dari tandon'],
+ ['Adaptor 5 VDC 2 A','1 buah, sumber daya semua modul'],
+ ['Enclosure 16 × 14 × 4 cm','1 buah, wadah elektronik'],
+ ['Kabel duct','1 meter, merapikan kabel sensor'],
+ ['Selang irigasi tetes + emitter','1 set, satu emitter per tanaman'],
+ ['Kabel jumper, PCB prototipe','di dalam casing (tidak terlihat)']
+];
+const lg=document.getElementById('legend');
+items.forEach((it,i)=>{const li=document.createElement('li');li.innerHTML=`<i>${i+1}</i><span>${it[0]}<small>${it[1]}</small></span>`;lg.appendChild(li)});
+function label(n,x,y,z){const c=document.createElement('canvas');c.width=c.height=96;const g=c.getContext('2d');
+  g.fillStyle='#12301f';g.beginPath();g.arc(48,48,44,0,7);g.fill();g.fillStyle='#f3ecd8';g.font='bold 52px sans-serif';g.textAlign='center';g.textBaseline='middle';g.fillText(n,48,52);
+  const sp=new THREE.Sprite(new THREE.SpriteMaterial({map:new THREE.CanvasTexture(c),depthTest:false}));sp.position.set(x,y,z);sp.scale.set(4.4,4.4,1);sp.renderOrder=9;scene.add(sp)}
+label(1,encX-6,10,encZ-1);label(2,encX+3,12,encZ-4);label(3,xs[1]+1,21,5);label(4,xs[3]+3,17,8);
+label(5,52,21,12);label(6,encX+7,9,encZ+1);label(7,-37,11,2);label(8,-45,10,22);
+label(9,encX-9,6,encZ+9);label(10,-12,8,35);label(11,xs[4],21,-1);
+// kontrol
+let open=false,spin=false;
+document.getElementById('lid').onclick=()=>{open=!open};
+document.getElementById('spin').onclick=e=>{spin=!spin;e.target.textContent=spin?'Berhenti putar':'Putar otomatis'};
+function resize(){const w=view.clientWidth,h=view.clientHeight;renderer.setSize(w,h);camera.aspect=w/h;camera.updateProjectionMatrix()}
+addEventListener('resize',resize);resize();
+const q=new URLSearchParams(location.search);
+if(q.get('open')==='1')open=true;
+if(q.get('clean')==='1'){
+  const bg=new THREE.Color('#'+(q.get('bg')||'12301f'));scene.background=bg;
+  scene.traverse(o=>{if(o.isSprite)o.visible=false});
+  scene.children.forEach(o=>{if(o.isMesh&&o.geometry.parameters&&o.geometry.parameters.width===240)o.material.color.copy(bg)});
+  document.querySelector('aside').style.display='none';document.querySelector('.btns').style.display='none';document.querySelector('.note').style.display='none';
+  document.getElementById('app').style.gridTemplateColumns='1fr';resize();
+}
+window.__setView=(px,py,pz,tx,ty,tz)=>{camera.position.set(px,py,pz);controls.target.set(tx,ty,tz)};
+renderer.setAnimationLoop(()=>{
+  const ty=open?19:6.2;lidGroup.position.y+=(ty-lidGroup.position.y)*.12;
+  if(spin){const a=.004;const p=camera.position.clone().sub(controls.target);camera.position.set(controls.target.x+p.x*Math.cos(a)-p.z*Math.sin(a),p.y+controls.target.y,controls.target.z+p.x*Math.sin(a)+p.z*Math.cos(a))}
+  controls.update();renderer.render(scene,camera);window.__ready=true;
+});
+</script></body></html>

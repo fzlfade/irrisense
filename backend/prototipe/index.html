@@ -1,0 +1,87 @@
+<!doctype html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Prototipe 3D IrriSense | Live test</title>
+<link rel="stylesheet" href="/dashboard/css/tokens.css">
+<link rel="stylesheet" href="style.css">
+<script type="importmap">{"imports":{"three":"/vendor/three/build/three.module.min.js","three/addons/":"/vendor/three/examples/jsm/"}}</script>
+</head>
+<body>
+<div id="app">
+  <div id="view">
+    <div class="toolbar">
+      <button id="lid" type="button">Buka tutup casing</button>
+      <button id="spin" type="button">Putar otomatis</button>
+      <button id="labels" type="button" aria-pressed="true">Sembunyikan nomor</button>
+    </div>
+    <div id="card" role="region" aria-label="Keterangan bagian" hidden></div>
+    <p class="note">Seret untuk memutar, gulir untuk zoom, klik bagian untuk keterangannya. Rancangan 3D, bukan foto alat.</p>
+  </div>
+
+  <aside>
+    <p class="back"><a href="/">Beranda</a> · <a href="/dashboard/">Dashboard</a></p>
+    <h1>Prototipe IrriSense</h1>
+    <p class="sub">Susunan di atas papan dasar 100 × 76 cm. Bagian bawah ini adalah simulasi: logikanya meniru firmware, datanya bukan dari alat.</p>
+
+    <section aria-labelledby="live-judul">
+      <h2 id="live-judul">Live test (simulasi)</h2>
+      <dl class="stats">
+        <div><dt>Kelembapan rata-rata</dt><dd id="v-avg">---</dd></div>
+        <div><dt>Pompa</dt><dd id="v-pump">---</dd></div>
+        <div><dt>Mode</dt><dd id="v-mode">---</dd></div>
+        <div><dt>Tandon</dt><dd id="v-tank">---</dd></div>
+      </dl>
+      <p id="alert" role="status" aria-live="polite"></p>
+      <canvas id="chart" width="600" height="220" role="img" aria-label="Grafik kelembapan rata-rata dengan garis ambang 60 dan 80 persen"></canvas>
+      <p class="legend">Garis putus-putus: ambang pompa ON (60 %) dan OFF (80 %). Waktu simulasi: <span id="v-time">0:00</span></p>
+
+      <div class="ctl">
+        <span class="lbl">Kecepatan</span>
+        <div class="seg" id="speed" role="group" aria-label="Kecepatan simulasi">
+          <button type="button" data-v="1">1×</button>
+          <button type="button" data-v="10">10×</button>
+          <button type="button" data-v="30" class="on">30×</button>
+          <button type="button" data-v="60">60×</button>
+          <button type="button" data-act="play" id="play">Jeda</button>
+        </div>
+      </div>
+      <div class="ctl">
+        <span class="lbl">Mode</span>
+        <div class="seg" id="mode" role="group" aria-label="Mode pompa">
+          <button type="button" data-mode="auto" class="on">Auto</button>
+          <button type="button" data-mode="manual">Manual</button>
+        </div>
+        <div class="seg" id="pump-ctl" role="group" aria-label="Pompa">
+          <button type="button" data-act="pump-on">Pompa ON</button>
+          <button type="button" data-act="pump-off">Pompa OFF</button>
+        </div>
+      </div>
+      <div class="ctl">
+        <span class="lbl">Uji tanah</span>
+        <div class="seg" role="group" aria-label="Ubah kelembapan semua sensor">
+          <button type="button" data-act="dry">Keringkan</button>
+          <button type="button" data-act="wet">Basahi</button>
+        </div>
+        <div class="seg" role="group" aria-label="Tandon air">
+          <button type="button" data-act="tank-empty">Kosongkan tandon</button>
+          <button type="button" data-act="tank-fill">Isi tandon</button>
+        </div>
+      </div>
+      <div class="ctl">
+        <span class="lbl">Sensor</span>
+        <div class="seg" id="sensors" role="group" aria-label="Sensor tanah, tekan untuk rusak atau pulih"></div>
+      </div>
+      <button type="button" class="plain" data-act="reset">Ulangi dari awal</button>
+    </section>
+
+    <section aria-labelledby="komp-judul">
+      <h2 id="komp-judul">Komponen</h2>
+      <ol id="legend"></ol>
+    </section>
+  </aside>
+</div>
+<script type="module" src="scene.js"></script>
+</body>
+</html>

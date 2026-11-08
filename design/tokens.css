@@ -1,0 +1,55 @@
+/* IrriSense design tokens. SUMBER TUNGGAL palet. Lihat design/DESIGN.md.
+   Salinan untuk dashboard: backend/public/css/tokens.css (jalankan `npm run sync:tokens` di backend/). */
+
+:root {
+  /* Warna inti (dari banner pameran). Jangan dipakai langsung di komponen, pakai token semantik di bawah. */
+  --daun-950: #0f2519;
+  --daun-900: #12301f;
+  --daun-800: #17382a;
+  --daun-700: #1f4a31;
+  --lumut-500: #6f9c78;
+  --kertas-100: #f3ecd8;
+  --kertas-50: #fbf8ee;
+  --kertas-200: #e7dcbd;
+  --tinta-900: #1b2a21;
+  --vanili-600: #b9892b;   /* satu-satunya aksen merek */
+  --air-600: #2d8fc0;      /* khusus data air / kelembapan */
+
+  color-scheme: light;
+  --radius: 14px;
+  --radius-sm: 10px;
+
+  /* Semantik: tema terang */
+  --bg: var(--kertas-100);
+  --surface: var(--kertas-50);
+  --ink: var(--tinta-900);
+  --muted: #55655a;
+  --line: #ddd2b3;
+
+  --green: var(--daun-700);        /* aksi utama, status ON */
+  --green-soft: #dde8d3;
+  --on-green: #ffffff;             /* teks di atas --green */
+  --blue: #1f6f9c;                 /* data air; versi gelap dari --air-600 agar lolos kontras */
+  --amber: #8a6414;                /* ambang / peringatan; versi aman-teks dari --vanili-600 */
+  --red: #a93226;
+  --red-soft: #f6ddd6;
+  --accent: var(--vanili-600);     /* hanya untuk momen kunci di landing page, bukan teks kecil */
+}
+
+/* Terang adalah bawaan dan satu-satunya yang aktif. Gelap hanya bila <html data-theme="dark"> dipasang (belum ada tombolnya). */
+:root[data-theme="dark"] {
+  color-scheme: dark;
+  --bg: var(--daun-950);
+  --surface: var(--daun-800);
+  --ink: var(--kertas-100);
+  --muted: #a9b8ac;
+  --line: #27493a;
+
+  --green: #8fc79a;
+  --green-soft: var(--daun-700);
+  --on-green: var(--daun-950);
+  --blue: #6fb7e0;
+  --amber: #d9a441;
+  --red: #f08a7a;
+  --red-soft: #4a2420;
+}

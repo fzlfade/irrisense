@@ -1,0 +1,45 @@
+/* Warna dan radius ada di tokens.css (sumber: design/tokens.css). */
+* { box-sizing: border-box; }
+body { margin: 0; background: var(--bg); color: var(--ink); font: 16px/1.5 system-ui, -apple-system, "Segoe UI", sans-serif; }
+.top { display: flex; justify-content: space-between; align-items: center; gap: 12px; padding: 20px 16px 8px; max-width: 1100px; margin: 0 auto; }
+h1 { margin: 0; font-size: 1.5rem; letter-spacing: -0.01em; }
+.sub { margin: 0; color: var(--muted); font-size: 0.9rem; }
+.sub a { color: var(--green); }
+.sub a:focus-visible { outline: 2px solid var(--blue); outline-offset: 2px; }
+h2 { margin: 0 0 8px; font-size: 0.95rem; color: var(--muted); font-weight: 600; }
+main { max-width: 1100px; margin: 0 auto; padding: 8px 16px 40px; display: grid; gap: 16px; }
+
+.pill { display: inline-flex; align-items: center; gap: 8px; padding: 6px 12px; border-radius: 999px; font-size: 0.85rem; font-weight: 600; white-space: nowrap; }
+.pill .dot { width: 9px; height: 9px; border-radius: 50%; background: currentColor; }
+.pill-on { background: var(--green-soft); color: var(--green); }
+.pill-off { background: var(--red-soft); color: var(--red); }
+
+.banner { max-width: 1100px; margin: 8px auto 0; padding: 12px 16px; background: var(--red-soft); color: var(--red); border-radius: var(--radius); font-weight: 600; }
+.banner[hidden] { display: none; }
+
+.cards { display: grid; gap: 12px; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); }
+.card, .panel { background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius); padding: 16px; }
+.value { margin: 0; font-size: 1.9rem; font-weight: 700; letter-spacing: -0.02em; font-variant-numeric: tabular-nums; }
+.note { margin: 4px 0 0; color: var(--muted); font-size: 0.85rem; }
+#pump-card.on { border-color: var(--green); background: var(--green-soft); }
+#pump-card.on .value { color: var(--green); }
+
+.panel-head { display: flex; justify-content: space-between; align-items: center; gap: 12px; flex-wrap: wrap; }
+.chart { position: relative; height: 260px; }
+.chart.short { height: 200px; }
+.legend { margin: 8px 0 0; color: var(--muted); font-size: 0.8rem; }
+
+.seg { display: inline-flex; border: 1px solid var(--line); border-radius: var(--radius-sm); overflow: hidden; }
+.seg button { border: 0; background: transparent; color: var(--ink); padding: 8px 14px; font: inherit; font-size: 0.9rem; cursor: pointer; }
+.seg button + button { border-left: 1px solid var(--line); }
+.seg button.on { background: var(--green); color: var(--on-green); }
+.seg button:disabled { opacity: 0.4; cursor: not-allowed; }
+.seg button:focus-visible { outline: 2px solid var(--blue); outline-offset: -2px; }
+.controls { display: flex; gap: 12px; flex-wrap: wrap; }
+
+.stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 12px; margin: 0; }
+.stats div { background: var(--bg); border-radius: var(--radius-sm); padding: 12px; }
+.stats dt { color: var(--muted); font-size: 0.8rem; }
+.stats dd { margin: 2px 0 0; font-size: 1.2rem; font-weight: 700; font-variant-numeric: tabular-nums; }
+
+@media (max-width: 480px) { .value { font-size: 1.6rem; } .top { align-items: flex-start; } }

@@ -1,0 +1,90 @@
+<!doctype html>
+<html lang="id">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>IrriSense · Dashboard</title>
+  <link rel="stylesheet" href="css/tokens.css">
+  <link rel="stylesheet" href="css/app.css">
+</head>
+<body>
+  <header class="top">
+    <div>
+      <h1>IrriSense</h1>
+      <p class="sub">Penyiraman tetes otomatis · kebun vanili · <a href="/">Beranda</a></p>
+    </div>
+    <div id="node-status" class="pill pill-off"><span class="dot"></span><span id="node-text">menghubungkan…</span></div>
+  </header>
+
+  <div id="fault" class="banner" hidden></div>
+
+  <main>
+    <section class="cards" aria-label="Nilai terkini">
+      <article class="card">
+        <h2>Kelembapan tanah</h2>
+        <p class="value" id="v-moisture">---</p>
+        <p class="note" id="v-valid">sensor valid: –</p>
+      </article>
+      <article class="card">
+        <h2>Suhu udara</h2>
+        <p class="value" id="v-temp">---</p>
+      </article>
+      <article class="card">
+        <h2>Kelembapan udara</h2>
+        <p class="value" id="v-hum">---</p>
+      </article>
+      <article class="card" id="pump-card">
+        <h2>Pompa</h2>
+        <p class="value" id="v-pump">---</p>
+        <p class="note" id="v-time">belum ada data</p>
+      </article>
+    </section>
+
+    <section class="panel">
+      <div class="panel-head">
+        <h2>Kelembapan tanah</h2>
+        <div class="seg" id="range" role="group" aria-label="Rentang waktu">
+          <button data-h="1" class="on">1 jam</button>
+          <button data-h="6">6 jam</button>
+          <button data-h="24">24 jam</button>
+        </div>
+      </div>
+      <div class="chart"><canvas id="chart-moisture"></canvas></div>
+      <p class="legend">Garis putus-putus: ambang pompa ON (60 %) dan OFF (80 %)</p>
+    </section>
+
+    <section class="panel">
+      <h2>Suhu dan kelembapan udara</h2>
+      <div class="chart short"><canvas id="chart-air"></canvas></div>
+    </section>
+
+    <section class="panel">
+      <h2>Kontrol manual</h2>
+      <div class="controls">
+        <div class="seg" id="mode" role="group" aria-label="Mode">
+          <button data-mode="auto" class="on">Auto</button>
+          <button data-mode="manual">Manual</button>
+        </div>
+        <div class="seg" id="pump-ctl" role="group" aria-label="Pompa">
+          <button data-pump="true" disabled>Pompa ON</button>
+          <button data-pump="false" disabled>Pompa OFF</button>
+        </div>
+      </div>
+      <p class="note" id="cmd-msg">Mode Auto: pompa mengikuti ambang 60 % / 80 %.</p>
+    </section>
+
+    <section class="panel">
+      <h2>Statistik 1 jam terakhir</h2>
+      <dl class="stats" id="stats">
+        <div><dt>Latensi p95</dt><dd id="s-p95">–</dd></div>
+        <div><dt>Uptime</dt><dd id="s-up">–</dd></div>
+        <div><dt>Pompa menyala</dt><dd id="s-on">–</dd></div>
+        <div><dt>Perkiraan air</dt><dd id="s-ml">–</dd></div>
+      </dl>
+    </section>
+  </main>
+
+  <script src="/vendor/chart/chart.umd.js"></script>
+  <script type="module" src="js/app.js"></script>
+</body>
+</html>

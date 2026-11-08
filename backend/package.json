@@ -1,0 +1,21 @@
+{
+  "name": "irrisense-backend",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "start": "node src/index.js",
+    "test": "node --test",
+    "sync:tokens": "node scripts/sync-tokens.js"
+  },
+  "dependencies": {
+    "chart.js": "^4.4.7",
+    "express": "^4.21.2",
+    "mqtt": "^5.10.3",
+    "pg": "^8.23.1",
+    "three": "0.160.0"
+  },
+  "devDependencies": {
+    "aedes": "^0.51.3"
+  }
+}

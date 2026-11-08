@@ -1,0 +1,31 @@
+{
+  "name": "landing",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "lint": "eslint",
+    "predev": "node scripts/sync-tokens.mjs",
+    "prebuild": "node scripts/sync-tokens.mjs",
+    "sync:tokens": "node scripts/sync-tokens.mjs",
+    "serve": "npx --yes serve@14 out"
+  },
+  "dependencies": {
+    "@gsap/react": "2.1.2",
+    "gsap": "3.15.1",
+    "motion": "12.43.0",
+    "next": "16.4.5",
+    "react": "19.3.0",
+    "react-dom": "19.3.0"
+  },
+  "devDependencies": {
+    "@types/node": "^20",
+    "@types/react": "^19",
+    "@types/react-dom": "^19",
+    "eslint": "^9",
+    "eslint-config-next": "16.4.5",
+    "typescript": "^5"
+  }
+}

@@ -1,0 +1,23 @@
+# dependensi dan hasil build
+node_modules/
+.next/
+.pio/
+landing/out/
+
+# rahasia (Wi-Fi, kunci, token); contoh yang aman ada di secrets.example.h
+firmware/src/secrets.h
+.env
+.env.*
+*.pem
+
+# lokal
+*.log
+.claude/settings.local.json
+.DS_Store
+Thumbs.db
+
+# data lokal (database SQLite lama dan sejenisnya)
+backend/data/
+*.db
+*.db-wal
+*.db-shm

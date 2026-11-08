@@ -1,0 +1,276 @@
+/* Pita gelap memakai warna inti langsung (tetap gelap di mode terang maupun gelap). */
+.wrap {
+  max-width: 72rem;
+  margin: 0 auto;
+  padding-inline: clamp(1rem, 5vw, 3rem);
+}
+
+/* Hero */
+.hero {
+  background: var(--daun-900);
+  color: var(--kertas-100);
+  padding-top: clamp(1.5rem, 4vw, 2.5rem);
+}
+.meta {
+  margin: 0 0 clamp(2.5rem, 8vw, 6rem);
+  font-size: 0.9rem;
+  color: #c9c6b4;
+}
+.heroTitle {
+  font-size: clamp(3.5rem, 15vw, 10rem);
+  line-height: 0.95;
+  letter-spacing: -0.03em;
+}
+.lead {
+  max-width: 34rem;
+  margin: 1.5rem 0 0;
+  font-size: clamp(1.15rem, 2.4vw, 1.5rem);
+  line-height: 1.4;
+}
+.en {
+  margin: 0.75rem 0 0;
+  font-size: 0.9rem;
+  color: #c9c6b4;
+}
+.cta {
+  display: inline-block;
+  padding: 0.85rem 1.4rem;
+  background: var(--vanili-600);
+  color: var(--tinta-900);
+  border-radius: var(--radius-sm);
+  font-weight: 600;
+  text-decoration: none;
+}
+.cta:hover {
+  background: #c99a38;
+}
+.heroFigure {
+  margin: clamp(2rem, 6vw, 4rem) 0 0;
+}
+.caption {
+  max-width: 72rem;
+  margin: 0 auto;
+  padding: 0.75rem clamp(1rem, 5vw, 3rem) 1rem;
+  font-size: 0.85rem;
+  color: #c9c6b4;
+}
+
+/* Masalah */
+.masalah {
+  padding-block: clamp(4rem, 10vw, 8rem);
+}
+.masalahGrid {
+  display: grid;
+  gap: clamp(2rem, 6vw, 4rem);
+  align-items: end;
+}
+.bigNumber {
+  display: flex;
+  flex-direction: column;
+}
+.bigValue {
+  font-family: var(--font-display), Georgia, serif;
+  font-size: clamp(4rem, 14vw, 9rem);
+  font-weight: 600;
+  line-height: 0.95;
+  letter-spacing: -0.03em;
+  color: var(--green);
+  white-space: nowrap;
+}
+.bigNote {
+  max-width: 22rem;
+  margin-top: 0.75rem;
+  color: var(--muted);
+}
+
+/* Penimpa gaya bawaan ScrollReveal (kelasnya satu tingkat, jadi diperkuat lewat induk). */
+.masalahGrid .reveal {
+  margin: 0;
+}
+.masalahGrid .revealText {
+  font-family: var(--font-display), Georgia, serif;
+  font-size: clamp(1.9rem, 5vw, 3.25rem);
+  font-weight: 600;
+  line-height: 1.1;
+  letter-spacing: -0.01em;
+  max-width: 18ch;
+}
+.ctaRow {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 1rem 1.75rem;
+  margin-top: 2rem;
+}
+.secondary {
+  color: var(--kertas-100);
+  text-decoration: underline;
+  text-underline-offset: 0.25em;
+  padding-block: 0.85rem;
+}
+.secondary:hover {
+  color: var(--vanili-600);
+}
+
+/* Cara kerja */
+.cara {
+  padding-block: clamp(3rem, 8vw, 6rem);
+  background: var(--surface);
+  border-block: 1px solid var(--line);
+}
+.caraGrid {
+  display: grid;
+  gap: clamp(2rem, 5vw, 4rem);
+}
+.steps {
+  list-style: none;
+  counter-reset: langkah;
+  margin: 2rem 0 0;
+  padding: 0;
+  display: grid;
+  gap: 1.75rem;
+}
+.step {
+  counter-increment: langkah;
+  padding-left: 3.25rem;
+  position: relative;
+}
+.step::before {
+  content: counter(langkah);
+  position: absolute;
+  left: 0;
+  top: -0.1rem;
+  font-family: var(--font-display), Georgia, serif;
+  font-size: 2rem;
+  line-height: 1;
+  color: var(--green);
+}
+.caraFigure {
+  margin: 0;
+  align-self: start;
+}
+.caraFrame {
+  border-radius: var(--radius);
+  border: 1px solid var(--line);
+  overflow: hidden;
+}
+.link {
+  display: inline-block;
+  margin-top: 0.75rem;
+  padding-block: 0.4rem;
+  color: var(--green);
+  font-weight: 600;
+  text-underline-offset: 0.25em;
+}
+.captionDark {
+  margin-top: 0.6rem;
+  font-size: 0.85rem;
+  color: var(--muted);
+}
+
+/* Target */
+.target {
+  background: var(--daun-900);
+  color: var(--kertas-100);
+  padding-block: clamp(3.5rem, 9vw, 6rem);
+}
+.targets {
+  display: grid;
+  gap: 2rem;
+  margin: 2.5rem 0 0;
+}
+.targetItem {
+  display: flex;
+  flex-direction: column-reverse;
+  border-top: 1px solid var(--daun-700);
+  padding-top: 1rem;
+}
+.targetValue {
+  margin: 0;
+  font-family: var(--font-display), Georgia, serif;
+  font-size: clamp(2.5rem, 7vw, 4.5rem);
+  font-weight: 600;
+  line-height: 1;
+  color: var(--vanili-600);
+}
+.targetLabel {
+  margin-top: 0.5rem;
+  color: var(--kertas-100);
+}
+.targetNote {
+  max-width: 36rem;
+  margin: 2rem 0 0;
+  font-size: 0.9rem;
+  color: #c9c6b4;
+}
+
+/* Tim */
+.tim {
+  padding-block: clamp(3.5rem, 9vw, 6rem);
+}
+.timGrid {
+  display: grid;
+  gap: 2rem;
+  align-items: start;
+}
+.team {
+  margin: 1rem 0;
+  padding: 0;
+  list-style: none;
+  display: grid;
+  gap: 0.25rem;
+}
+.logo {
+  width: 7.5rem;
+  height: auto;
+}
+
+/* Tipografi umum */
+.h2 {
+  font-size: clamp(1.9rem, 5vw, 3.25rem);
+  max-width: 24ch;
+}
+.h2Light {
+  font-size: clamp(1.9rem, 5vw, 3.25rem);
+  max-width: 24ch;
+  color: var(--kertas-100);
+}
+.h3 {
+  font-size: 1.25rem;
+  margin-bottom: 0.25rem;
+}
+.body {
+  margin: 1rem 0 0;
+  max-width: 38rem;
+}
+.step .body {
+  margin-top: 0.25rem;
+}
+
+@media (min-width: 48rem) {
+  .targets {
+    grid-template-columns: repeat(3, 1fr);
+  }
+  .timGrid {
+    grid-template-columns: 1fr auto;
+  }
+  .logo {
+    width: 10rem;
+  }
+}
+
+@media (min-width: 64rem) {
+  .masalahGrid {
+    grid-template-columns: 1fr 1.2fr;
+  }
+  .bigValue {
+    font-size: clamp(3.5rem, 9vw, 9rem);
+  }
+  .caraGrid {
+    grid-template-columns: 1fr 1fr;
+  }
+  .caraFigure {
+    position: sticky;
+    top: 2rem;
+  }
+}
