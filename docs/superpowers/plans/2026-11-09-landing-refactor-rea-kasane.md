@@ -464,6 +464,35 @@ Hanya bila Fase 5 memperlihatkan iframe tak memadai, atau Anda ingin satu bundel
 
 ## 6. Fase Akhir: verifikasi dan rilis
 
+**Status 2026-11-09: butir 1 sampai 5 selesai. Butir 6 menunggu pengguna. Butir 7 ditahan karena repo masih publik.**
+1. Audit akhir `evidence/akhir-audit-beranda-2026-11-09.json` dan `evidence/akhir-audit-spesifikasi-2026-11-09.json`: semua anggaran 3.6 lulus. Perbandingan dengan baseline:
+
+   | Ukuran | Baseline | Akhir |
+   |---|---|---|
+   | Transfer saat dimuat | 2.854 KB, 0 dari 29 respons terkompresi | 696,8 KB, 27 dari 32 terkompresi |
+   | DOM | 817 node | 337 node |
+   | Poster hero | 140,1 KB | 20,5 KB |
+   | Font | 183,3 KB | 119,4 KB (Raleway, perubahan sesi fork yang belum di-commit) |
+   | JS landing | 257,2 KB gzip | 265,2 KB gzip |
+   | CSS | 9,8 KB | 16,7 KB |
+   | CLS | 0,002 | 0,002 |
+
+   Landmark `navigation`, Tab pertama ke tautan lewati, kurangi gerak, dan tanpa JavaScript semuanya lulus. `/prototipe/?embed=1` tidak diaudit sebagai halaman tersendiri, karena halaman itu hanya isi iframe. JS-nya diukur di baris "JS iframe 3D", dan DOM-nya ikut dihitung di "DOM node total (semua frame)" pada audit beranda.
+2. 52 tes backend lulus. `tsc --noEmit`, `npm run lint`, dan `npm run build` di `landing/` sukses.
+3. Grep pola salah:
+   - tidak ada `autoRaf` dan tidak ada `ssr: false`;
+   - pendengar gulir yang tersisa disengaja dan dibersihkan saat komponen dilepas: `Spin3D` (putaran mode biasa) dan `Magnet` (React Bits);
+   - satu `ScrollTrigger.create` di `ScrollReveal` (React Bits), dibersihkan lewat `mm.revert()`.
+4. Grep hak cipta: nama referensi hanya ada di dokumen rencana dan lampiran bukti (`probe.mjs`, `shots.mjs`, README, `delivery-gate-fase3.md`). `landing/public` hanya berisi logo Untidar dan dua poster prototipe IrriSense.
+5. Delivery Gate per fase tanpa FAIL (`evidence/delivery-gate-fase3.md` sampai `delivery-gate-fase9.md`). Tidak ada UI yang berubah sesudah gate terakhir.
+6. **Menunggu pengguna,** uji manual di laptop pameran:
+   - kelancaran panggung cerita dan tiga gerak gulir;
+   - LCP dan TBT lewat DevTools;
+   - mode offline (matikan jaringan setelah halaman dimuat);
+   - pembaca layar (NVDA atau Narrator);
+   - perbesaran teks 200 %.
+7. **Ditahan:** `https://api.github.com/repos/fzlfade/irrisense` masih menjawab 200 tanpa login (publik). Commit lokal Fase 1 sampai Fase Akhir belum di-push.
+
 1. Jalankan `node tools/audit/audit.mjs` untuk `/`, `/spesifikasi/`, `/prototipe/?embed=1`; bandingkan dengan `baseline-2026-11-09.json`; semua anggaran 3.6 lulus.
 2. `npm test` di `backend/` (semua lulus) dan `npm run build && npm run lint` di `landing/`.
 3. Pemeriksaan pola salah (grep): tidak ada `autoRaf: true` bersama ticker GSAP; tidak ada `window.addEventListener('scroll'` sisa di `landing/components` kecuali yang disengaja; tidak ada `ScrollTrigger.create` tanpa pembersihan; tidak ada `ssr: false` di berkas tanpa `"use client"`.
