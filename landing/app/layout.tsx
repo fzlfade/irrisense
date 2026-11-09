@@ -24,8 +24,17 @@ export const metadata: Metadata = {
 };
 
 // Dijalankan di <head> sebelum halaman tergambar: tentukan apakah intro diputar, supaya tidak berkedip.
-const INTRO_SCRIPT =
-  'try{var d=document.documentElement;d.dataset.intro=(sessionStorage.getItem("irri-intro")==="1"||matchMedia("(prefers-reduced-motion: reduce)").matches)?"skip":"play"}catch(e){}';
+// Bila animasi pudar di CSS selesai sebelum JavaScript halaman jalan (jaringan lambat atau skrip gagal dimuat),
+// skrip ini sendiri yang menutup intro, supaya halaman tidak tetap terkunci tanpa bisa digulir.
+const INTRO_SCRIPT = [
+  "try{var d=document.documentElement;",
+  'd.dataset.intro=(sessionStorage.getItem("irri-intro")==="1"||matchMedia("(prefers-reduced-motion: reduce)").matches)?"skip":"play";',
+  'if(d.dataset.intro==="play")document.addEventListener("animationend",function(e){',
+  'if(e.animationName!=="intro-fade"||d.dataset.intro!=="play")return;',
+  'd.dataset.intro="done";try{sessionStorage.setItem("irri-intro","1")}catch(x){}',
+  'dispatchEvent(new Event("irri-intro-done"))})',
+  "}catch(e){}",
+].join("");
 
 export default function RootLayout({ children }: LayoutProps<"/">) {
   return (

@@ -298,6 +298,37 @@ Penyimpangan dari rencana: (1) urutan rakit mengikuti empat langkah (bedeng, tan
 
 ### Fase 6: layar muat berbasis progres (ukuran M, hanya bila Q4 disetujui)
 
+**Status: selesai 2026-11-09.** Garis waktu tetap diganti progres sungguhan. `lib/loadProgress.ts` mencatat tiga bagian: huruf (`document.fonts.ready`, bobot 40), poster hero (`decode()`, 10), dan model hero (`irri-ready`, 50). `Intro.tsx` memakai `--intro-progress` pada `.intro__water` (`transform: scaleY()`) dan teks "Memuat halaman n %" (`role="status"`, per 10 %). Penutup paling cepat mulai pudar 1,2 detik dan selalu hilang paling lambat 3,5 detik setelah first-paint.
+
+Uji CDP `evidence/fase6-intro.mjs` (hasil `evidence/fase6-intro-2026-11-09.json`, gambar `evidence/fase6/`) semua lulus:
+- jaringan cepat: progres 0, 50, lalu 100 %; pudar dijadwalkan di 1,81 detik dan penutup hilang di 2,21 detik; hero sudah menampilkan model;
+- jaringan lambat (250 KB/s, 150 ms): progres 0, 40, lalu 50 %; pudar di 3,0 detik dan penutup hilang di 3,4 detik; model belum siap, jadi hero menampilkan poster;
+- JavaScript diblokir: penutup hilang di 3,38 detik, roda menggulir 500 px, judul tampil;
+- selama penutup tampil, halaman tidak bergulir dan Lenis berhenti;
+- Tab mengenai "Lewati" (cincin krem, 44 px); Enter, Esc, dan klik melewati;
+- kunjungan kedua tidak memutar intro;
+- "kurangi gerak" dan tanpa JavaScript tidak menampilkan penutup;
+- sentuh 375 px tanpa overflow;
+- kontras teks status 12,12:1;
+- trace membuktikan pudar dijalankan compositor;
+- konsol tanpa error.
+
+Uji ulang Fase 4 dan 5 lulus. Audit `evidence/fase6-2026-11-09.json`: semua anggaran lulus, JS landing naik dari 264,1 ke 264,8 KB gzip, CSS 14,0 KB. Tes backend 44 lulus. Delivery Gate tanpa FAIL (`evidence/delivery-gate-fase6.md`).
+
+Penyimpangan dari rencana:
+1. Batas atas CSS dimajukan ke detik 3,0 sampai 3,4, dan jam animasi disamakan dengan first-paint. Alasannya, saat halaman sibuk jam animasi CSS mulai 14 sampai 111 ms setelah penutup tergambar.
+2. `visibility` dipisah dari animasi pudar (`intro-hide`) supaya pudar opacity dijalankan compositor. Versi pertama terlambat sekitar 0,18 detik saat main thread menyiapkan model 3D.
+3. Dua tambahan di luar rencana untuk kasus JavaScript terlambat atau gagal. Skrip `<head>` menutup intro sendiri saat pudar CSS selesai; sebelumnya halaman tetap terkunci sampai JavaScript datang. Judul hero biasa juga tampil sendiri di detik 3,4.
+4. Teks status dan tombol "Lewati" dipindah ke baris atas di luar air, karena teks kecil di atas `--air-600` hanya 3,1:1. Cincin fokus "Lewati" diganti krem; sebelumnya `--blue` hanya 2,6:1 di atas hijau tua.
+5. Kata "IrriSense" muncul saat hurufnya siap, bukan di detik 1,2.
+6. Menunda model Cara kerja sampai penutup hilang sudah dicoba lalu dibatalkan. Model hero tidak jadi lebih cepat, dan kerja beratnya pindah ke saat judul hero beranimasi.
+7. Batas waktu dinilai dari jadwal animasi (jam compositor) yang dihitung dari first-paint. Waktu yang teramati di main thread Edge headless bisa tertinggal (jaringan lambat: 3,69 detik) karena model 3D disiapkan tanpa GPU; angka itu tetap dicatat di hasil uji.
+
+Belum diuji:
+- durasi dan kelancaran nyata di laptop pameran (GPU sungguhan);
+- LCP dan TBT;
+- pembacaan teks status oleh pembaca layar sungguhan (NVDA atau Narrator).
+
 **Kerjakan**
 1. Ganti garis waktu tetap di `globals.css` 53-129 dengan variabel `--intro-progress` (0 sampai 1) pada `.intro__water` memakai `transform: scaleY()` (bukan `height`). Progres = rata-rata tertimbang: `document.fonts.ready`, dekode poster hero (`HTMLImageElement.decode()`), dan pesan `irri-ready` iframe hero (sudah ada).
 2. Batas: tampil minimal 1,2 detik (agar tidak berkedip) dan maksimal 3,5 detik (selalu lepas). Cadangan CSS murni tetap ada: animasi `intro-fade` berjalan sendiri bila JavaScript gagal (perilaku sekarang).

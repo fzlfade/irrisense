@@ -41,6 +41,7 @@ export function Hero() {
           mobileRatio="4 / 3"
           sizes="100vw"
           eager
+          reportsLoad
         />
         <figcaption className={s.caption}>Rancangan prototipe dalam 3D, bukan foto alat. Gulir atau seret untuk memutar.</figcaption>
       </figure>

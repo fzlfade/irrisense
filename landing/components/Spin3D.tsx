@@ -3,6 +3,7 @@
 import Image from "next/image";
 import { useEffect, useRef, useState, type PointerEvent as ReactPointerEvent } from "react";
 import { useReducedMotion } from "@/lib/useReducedMotion";
+import { markLoaded } from "@/lib/loadProgress";
 import type { StoryProgress } from "@/lib/storyProgress";
 import s from "./spin3d.module.css";
 
@@ -24,18 +25,33 @@ type Props = {
    */
   progress?: StoryProgress;
   storyRatio?: string;
+  /** Model ini ditunggu layar muat (Intro): lapor saat poster selesai didekode dan model siap. Hanya model hero. */
+  reportsLoad?: boolean;
 };
 
 /**
  * Model 3D yang berputar mengikuti scroll. Putarannya dikendalikan lewat postMessage ke halaman
  * prototipe (satu asal), jadi landing tidak perlu memuat Three.js sendiri.
  */
-export default function Spin3D({ src, poster, alt, width, height, sizes, mobileRatio, eager, progress, storyRatio }: Props) {
+export default function Spin3D({
+  src,
+  poster,
+  alt,
+  width,
+  height,
+  sizes,
+  mobileRatio,
+  eager,
+  progress,
+  storyRatio,
+  reportsLoad,
+}: Props) {
   const reduced = useReducedMotion();
   const storyOn = Boolean(progress) && !reduced;
   const frameSrc = storyOn ? `${src}&story=1` : src;
   const wrap = useRef<HTMLDivElement>(null);
   const frame = useRef<HTMLIFrameElement>(null);
+  const posterImg = useRef<HTMLImageElement>(null);
   const [mounted, setMounted] = useState(false);
   // Siap dicatat per alamat: saat mode cerita berganti, iframe baru dimuat dan poster tampil lagi sampai siap.
   const [readySrc, setReadySrc] = useState<string | null>(null);
@@ -50,7 +66,17 @@ export default function Spin3D({ src, poster, alt, width, height, sizes, mobileR
     postToFrame({ type: "irri-dragend" });
   };
 
-  // Iframe baru dimuat setelah halaman selesai, supaya tidak berebut dengan gambar utama.
+  // Poster yang gagal dimuat tetap dihitung selesai: layar muat tidak menunggu gambar yang rusak.
+  useEffect(() => {
+    if (!reportsLoad) return;
+    const done = () => markLoaded("poster");
+    const img = posterImg.current;
+    if (img) img.decode().then(done, done);
+    else done();
+  }, [reportsLoad]);
+
+  // Iframe baru dimuat setelah halaman selesai, supaya tidak berebut dengan gambar utama. Kedua model sengaja tetap
+  // dimuat selama layar muat tampil: kerja beratnya tersembunyi di balik penutup, bukan saat judul hero beranimasi.
   useEffect(() => {
     if (reduced) return undefined;
     const go = () => setMounted(true);
@@ -89,6 +115,7 @@ export default function Spin3D({ src, poster, alt, width, height, sizes, mobileR
       if ((e.data as { type?: string } | null)?.type === "irri-ready") {
         isReady = true;
         setReadySrc(frameSrc);
+        if (reportsLoad) markLoaded("model");
         post({ type: "irri-visible", v: visible });
         send();
       }
@@ -116,7 +143,7 @@ export default function Spin3D({ src, poster, alt, width, height, sizes, mobileR
       window.removeEventListener("scroll", schedule);
       window.removeEventListener("resize", schedule);
     };
-  }, [reduced, mounted, storyOn, progress, frameSrc]);
+  }, [reduced, mounted, storyOn, progress, frameSrc, reportsLoad]);
 
   return (
     <div
@@ -128,6 +155,7 @@ export default function Spin3D({ src, poster, alt, width, height, sizes, mobileR
       }}
     >
       <Image
+        ref={posterImg}
         src={poster}
         alt={alt}
         fill

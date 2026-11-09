@@ -1,17 +1,29 @@
 "use client";
 
-import { useEffect } from "react";
+import { useEffect, useSyncExternalStore } from "react";
 import { useIntroState } from "@/lib/useIntroState";
+import { isLoaded, loadPercent, markLoaded, onLoadChange } from "@/lib/loadProgress";
+
+/** Penutup paling cepat mulai memudar setelah tampil selama ini, supaya tidak berkedip. Batas atasnya ada di CSS. */
+const MIN_MS = 1200;
+
+const zero = () => 0;
+const no = () => false;
+const fontsLoaded = () => isLoaded("fonts");
 
 /**
- * Intro "tetes air": setetes air jatuh, air memenuhi layar, nama muncul, lalu penutup memudar.
- * Animasinya murni CSS (globals.css) dan selesai sendiri; komponen ini hanya mengurus lewati, ingatan "sudah
- * diputar sekali per kunjungan", dan memberi tahu bagian lain (judul hero) bahwa intro selesai.
+ * Layar muat "tetes air": setetes air jatuh, lalu air naik mengikuti progres muat sungguhan (huruf, poster hero,
+ * model 3D hero) dan penutup memudar. Batas atasnya murni CSS (globals.css): animasi intro-fade memudarkan penutup
+ * paling lambat 3,5 detik setelah tampil, dan bila JavaScript belum jalan saat itu, skrip di <head> (layout.tsx)
+ * yang menutup intro. Komponen ini hanya mempercepatnya: bila semua sudah dimuat dan penutup sudah tampil
+ * 1,2 detik, animasi itu dilompatkan ke awal pudarnya.
  * Status dibaca dari atribut data-intro di <html> yang dipasang skrip di <head> sebelum halaman tergambar:
  * "play" (putar), "skip" (sudah diputar atau gerak dikurangi), "done" (selesai).
  */
 export default function Intro() {
   const intro = useIntroState();
+  const percent = useSyncExternalStore(onLoadChange, loadPercent, zero);
+  const fontsReady = useSyncExternalStore(onLoadChange, fontsLoaded, no);
 
   useEffect(() => {
     const root = document.documentElement;
@@ -28,47 +40,102 @@ export default function Intro() {
       root.dataset.intro = "done";
       window.dispatchEvent(new Event("irri-intro-done"));
     };
-    const el = document.querySelector(".intro");
-    const onEnd = (e: Event) => {
-      if ((e as AnimationEvent).animationName === "intro-fade") finish();
+
+    const el = document.querySelector<HTMLElement>(".intro");
+    const fade = el?.getAnimations().find((a) => (a as CSSAnimation).animationName === "intro-fade");
+    // Tanpa animasi pudar (CSS tidak termuat): tidak ada batas waktu, jadi langsung selesai.
+    if (!el || !fade) {
+      finish();
+      return undefined;
+    }
+
+    // Jam kedua animasi penutup dihitung dari saat penutup tergambar pertama (first-paint). Saat halaman sibuk, jam itu
+    // bisa mulai sedikit lebih lambat; disamakan supaya batas 1,2 dan 3,5 detik dihitung dari saat penutup terlihat.
+    const paint =
+      performance.getEntriesByName("first-paint")[0] ?? performance.getEntriesByName("first-contentful-paint")[0];
+    if (paint) {
+      el.getAnimations().forEach((a) => {
+        a.startTime = paint.startTime;
+      });
+    }
+    // Pudarnya sudah habis sebelum JavaScript sempat jalan (jaringan lambat).
+    if (fade.playState === "finished") {
+      finish();
+      return undefined;
+    }
+
+    void (document.fonts?.ready ?? Promise.resolve()).then(() => markLoaded("fonts"));
+
+    let leaveTimer = 0;
+    const leaveWhenLoaded = () => {
+      if (leaveTimer || loadPercent() < 100) return;
+      const fadeAt = Number(fade.effect?.getTiming().delay ?? 0);
+      leaveTimer = window.setTimeout(
+        () => {
+          // Mulai pudar sekarang, kecuali batas atas di CSS sudah lebih dulu memulainya.
+          if (Number(fade.currentTime) < fadeAt) fade.currentTime = fadeAt;
+        },
+        Math.max(0, MIN_MS - Number(fade.currentTime)),
+      );
+    };
+    const stopWatching = onLoadChange(leaveWhenLoaded);
+    leaveWhenLoaded();
+
+    const onEnd = (e: AnimationEvent) => {
+      if (e.animationName === "intro-fade") finish();
     };
     const onKey = (e: KeyboardEvent) => {
       if (e.key === "Escape") finish();
     };
-    el?.addEventListener("animationend", onEnd);
+    el.addEventListener("animationend", onEnd);
+    el.addEventListener("animationcancel", onEnd);
     window.addEventListener("keydown", onKey);
     root.addEventListener("irri-intro-skip", finish);
+    // Jaring pengaman bila event animasi tidak datang; pudar di CSS sudah selesai 3,5 detik setelah penutup tampil.
     const fallback = window.setTimeout(finish, 4000);
     return () => {
-      el?.removeEventListener("animationend", onEnd);
+      stopWatching();
+      window.clearTimeout(leaveTimer);
+      window.clearTimeout(fallback);
+      el.removeEventListener("animationend", onEnd);
+      el.removeEventListener("animationcancel", onEnd);
       window.removeEventListener("keydown", onKey);
       root.removeEventListener("irri-intro-skip", finish);
-      window.clearTimeout(fallback);
     };
   }, []);
 
   if (intro !== "server" && intro !== "play") return null;
 
+  // Teks hanya berubah per 10 % (bobot di loadProgress kelipatan 10), supaya pembaca layar tidak dibanjiri.
+  const shown = Math.floor(percent / 10) * 10;
+
   return (
     <div
       className="intro"
+      data-fonts={fontsReady ? "" : undefined}
+      style={{ ["--intro-progress" as string]: percent / 100 }}
       onPointerDown={(e) => {
         if ((e.target as HTMLElement).closest(".intro__skip")) return;
         document.documentElement.dispatchEvent(new Event("irri-intro-skip"));
       }}
     >
-      <span className="intro__drop" aria-hidden="true" />
-      <span className="intro__water" aria-hidden="true" />
-      <span className="intro__word" aria-hidden="true">
-        IrriSense
-      </span>
-      <button
-        type="button"
-        className="intro__skip"
-        onClick={() => document.documentElement.dispatchEvent(new Event("irri-intro-skip"))}
-      >
-        Lewati
-      </button>
+      <div className="intro__bar">
+        <span className="intro__status" role="status">
+          {`Memuat halaman ${shown} %`}
+        </span>
+        <button
+          type="button"
+          className="intro__skip"
+          onClick={() => document.documentElement.dispatchEvent(new Event("irri-intro-skip"))}
+        >
+          Lewati
+        </button>
+      </div>
+      <div className="intro__tank" aria-hidden="true">
+        <span className="intro__water" />
+        <span className="intro__drop" />
+        <span className="intro__word">IrriSense</span>
+      </div>
     </div>
   );
 }
