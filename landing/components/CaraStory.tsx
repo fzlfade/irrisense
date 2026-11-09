@@ -8,6 +8,7 @@ import Spin3D from "./Spin3D";
 import { useReducedMotion } from "@/lib/useReducedMotion";
 import { createStoryProgress, HOLD, stepAt, WAYPOINTS } from "@/lib/storyProgress";
 import s from "./sections.module.css";
+import m from "./storyMarker.module.css";
 
 gsap.registerPlugin(ScrollTrigger, useGSAP);
 
@@ -72,6 +73,9 @@ export default function CaraStory({ steps }: { steps: Step[] }) {
         const dur = WAYPOINTS[i + 1] - HOLD - at;
         tl.to(items[i], { "--lit": 0, duration: dur }, at).to(items[i + 1], { "--lit": 1, duration: dur }, at);
       }
+      // Penanda progres di sisi layar terisi sebanding progres panggung.
+      const fill = el.querySelector<HTMLElement>('[data-motion="story-fill"]');
+      if (fill) tl.fromTo(fill, { scaleY: 0 }, { scaleY: 1, duration: 1 }, 0);
       tl.set({}, {}, 1); // panjang timeline = 1, jadi waktunya sama dengan progres gulir
       mark(tl.scrollTrigger?.progress ?? 0);
       // Font yang selesai dimuat menggeser tinggi bagian di atas; hitung ulang posisi awal dan akhir.
@@ -94,6 +98,14 @@ export default function CaraStory({ steps }: { steps: Step[] }) {
   return (
     <div ref={root} className={s.story} data-story={on ? "on" : undefined}>
       <div className={s.stage}>
+        {on && (
+          <div className={m.marker} aria-hidden="true" data-motion="story-bar">
+            <span className={m.fill} data-motion="story-fill" />
+            {WAYPOINTS.map((w) => (
+              <span key={w} className={m.tick} data-motion="story-tick" style={{ top: `${w * 100}%` }} />
+            ))}
+          </div>
+        )}
         <div className={`${s.wrap} ${s.caraGrid}`}>
           <ol id="cara-langkah" className={s.steps}>
             {steps.map((step) => (

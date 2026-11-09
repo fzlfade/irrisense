@@ -8,7 +8,8 @@ import s from "./sections.module.css";
 
 export function Hero() {
   return (
-    <section className={s.hero}>
+    // data-motion: sasaran gerak gulir di ScrollMotion.tsx (hero menyempit saat ditinggalkan).
+    <section className={s.hero} data-motion="hero">
       <div className={s.wrap}>
         <p className={s.meta}>Capstone Design 2026 · Universitas Tidar</p>
         <HeroTitle />
@@ -53,7 +54,9 @@ export function Masalah() {
     <section className={s.masalah} aria-label="Masalah penyiraman manual">
       <div className={`${s.wrap} ${s.masalahGrid}`}>
         <div className={s.bigNumber} aria-label="60 sampai 80 persen">
-          <span className={s.bigValue}>60–80 %</span>
+          <span className={s.bigValue} data-motion="drift">
+            60–80 %
+          </span>
           <span className={s.bigNote}>kelembapan tanah yang dibutuhkan tanaman vanili agar tumbuh baik</span>
         </div>
         <div>

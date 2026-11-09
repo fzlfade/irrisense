@@ -388,6 +388,32 @@ Belum diuji: pembacaan oleh pembaca layar sungguhan, serta LCP dan TBT.
 
 ### Fase 8: koreografi gerak seperlunya (ukuran S sampai M)
 
+**Status: selesai 2026-11-09.** Tiga efek dibuat, semuanya mengikuti gulir (scrub) dan hanya mengubah `clip-path` atau `transform`:
+- (a) pita hero menyempit 3 % di kiri-kanan dan sudut bawahnya membulat sampai 14 px saat ditinggalkan;
+- (b) angka 60–80 % bergeser mendatar ±2vw;
+- (c) garis penanda progres 2 px di sisi kiri panggung cerita, dengan empat tanda langkah.
+
+Efek (a) dan (b) ada di `components/ScrollMotion.tsx`, dipasang lewat `gsap.matchMedia("(min-width: 48rem) and (prefers-reduced-motion: no-preference)")` dan dibongkar lewat `mm.revert()`. Efek (c) masuk timeline yang sudah ada di `CaraStory.tsx`, dengan gaya di `storyMarker.module.css`.
+
+Uji `evidence/fase8-gerak.mjs` (hasil `evidence/fase8-gerak-2026-11-09.json`, baseline `evidence/fase8-baseline-2026-11-09.json`, gambar `evidence/fase8/`) semua lulus:
+- ScrollTrigger dari 2 menjadi 4;
+- hero di tengah peralihan inset 1,5 % dengan sudut 7 px, dan di akhir 3 % dengan sudut 14 px;
+- angka bergeser dari −18,3 ke +14,7 px;
+- penanda terisi 0,5 saat progres 0,5;
+- di 700 px efek dibongkar, lalu terpasang lagi di 1280 px;
+- 768 px aktif tanpa penanda, karena panggung cerita butuh 1024 px;
+- "kurangi gerak" dan sentuh 375 px tanpa efek, overflow 0;
+- konsol tanpa error.
+
+Uji ulang Fase 4, 5, 6, dan 7 lulus. Audit beranda: JS 265,2 KB gzip, DOM 337, CLS 0,002. Audit Spesifikasi: DOM 727, CLS 0. Delivery Gate tanpa FAIL (`evidence/delivery-gate-fase8.md`).
+
+Penyimpangan dari rencana:
+1. **Kriteria beban diganti atas persetujuan pengguna (2026-11-09).** Rencana meminta LayoutCount dan RecalcStyleCount per langkah tidak naik lebih dari 25 %. Percobaan menunjukkan setiap frame animasi apa pun dihitung satu: di halaman tanpa efek, satu animasi gulir CSS murni menaikkannya dari 0,07 ke sekitar 17 per langkah, dan satu transisi CSS 0,6 detik memakai 88 hitungan. Kriteria barunya: total waktu main thread per langkah naik maksimal 25 % (hasil +14,8 %; run lain −4 sampai +5 %) dan tata letak tidak bertambah (tetap 0). Hitungan gaya tetap dicatat: 7,5 menjadi 12,5 per langkah, tambahan sekitar 3 ms.
+2. **Pengukuran menunggu kedua model 3D siap,** lalu memakai median lintasan 2 dan 3. Run awal yang langsung mengukur memberi angka yang berbeda jauh antar-run. Baseline diukur dari build tanpa Fase 8 di folder yang sama, dengan font yang sama.
+3. **Efek (c) memakai timeline CaraStory, bukan `gsap.matchMedia`,** karena panggung cerita sudah punya syarat media sendiri (`useStageFits`) dan konteks `useGSAP`.
+
+Belum diuji: kelancaran di laptop pameran (GPU sungguhan).
+
 **Kerjakan:** maksimal tiga efek terkait scroll di luar panggung cerita, masing-masing dengan tujuan tertulis di `DESIGN.md`: (a) peralihan `clip-path` hero ke Masalah; (b) geser horizontal tipis pada angka "60-80 %"; (c) penanda progres tipis di sisi layar untuk panggung cerita. Bungkus semuanya dalam `gsap.matchMedia()` dengan kondisi `(prefers-reduced-motion: no-preference)` dan titik putus; bersihkan lewat konteksnya. Gunakan komponen React Bits yang sudah ada bila cocok.
 
 **Rujukan:** `gsap-core.d.ts:450`; `useGSAP` (`contextSafe`); `.claude/skills/antislop-ui/SKILL.md` bagian Motion.
