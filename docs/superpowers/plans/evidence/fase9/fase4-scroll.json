@@ -1,0 +1,61 @@
+{
+  "url": "http://localhost:3000/",
+  "waktu": "2026-11-09T12:30:03.432Z",
+  "normal": {
+    "kelasLenis": true,
+    "lapisanSiap": true
+  },
+  "roda": {
+    "targetDiTitik": "dOUz0G_drag",
+    "sebelum": 511,
+    "sesudah": 1111,
+    "lulus": true
+  },
+  "seret": {
+    "sebelum": 0,
+    "saatDitahan": 1.8,
+    "tigaDetikSetelahLepas": 0.002,
+    "lulus": true
+  },
+  "anchor_tombolHero": {
+    "frames": 261,
+    "akhir": 1802,
+    "langkahMundur": 0,
+    "langkahTerbesarPx": 232,
+    "msSampaiSetengah": 160,
+    "jarakAkhirKeSectionPx": 0,
+    "hash": "#cara-kerja"
+  },
+  "anchor_tautanNav": {
+    "frames": 257,
+    "akhir": 1802,
+    "langkahMundur": 0,
+    "langkahTerbesarPx": 192,
+    "msSampaiSetengah": 147,
+    "jarakAkhirKeSectionPx": 0,
+    "hash": "#cara-kerja"
+  },
+  "keyboard": {
+    "awal": 0,
+    "setelahPageDown": 700,
+    "setelahSpasi": 1400,
+    "lulus": true,
+    "enterJarakKeSectionPx": 0
+  },
+  "kurangiGerak": {
+    "kelasLenis": false,
+    "iframe": 0,
+    "jarakKeSectionPx": 0,
+    "lulus": true
+  },
+  "sentuh": {
+    "pointerKasar": true,
+    "tanpaHover": true,
+    "kelasLenis": false,
+    "overflowPx": 0,
+    "lapisanSeret": true,
+    "touchAction": "pan-y",
+    "lulus": true
+  },
+  "errorKonsol": []
+}

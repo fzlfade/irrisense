@@ -424,6 +424,34 @@ Belum diuji: kelancaran di laptop pameran (GPU sungguhan).
 
 ### Fase 9: aksesibilitas dan mode alternatif diverifikasi nyata (ukuran S)
 
+**Status: selesai 2026-11-09, tanpa temuan yang perlu diperbaiki di kode.** Uji baru `evidence/fase9-a11y.mjs` (hasil `evidence/fase9-a11y-2026-11-09.json`) di beranda dan Spesifikasi, semua lulus:
+- `lang="id"` dan title ada;
+- semua gambar punya alt, dan kedua iframe punya title (`aria-hidden`, `tabIndex -1`);
+- satu h1 tanpa lompatan heading;
+- jalur Tab penuh (9 langkah di beranda, 13 di Spesifikasi): setiap fokus terlihat di layar dan punya cincin, tanpa jebakan;
+- Shift+Tab berurutan terbalik;
+- Enter pada "Lewati ke konten" membawa Tab berikutnya ke `<main>`;
+- tombol Menu di 375 px dibuka dengan Enter, ditutup dengan Esc, dan fokus kembali ke tombol;
+- target sentuh minimal 24 × 24 px di 375, 768, dan 1280 px, tanpa overflow;
+- konsol tanpa error.
+
+Semua emulasi lain dijalankan ulang, dan hasilnya disimpan di `evidence/fase9/`:
+- kurangi gerak dan sentuh 375 px (Fase 4, 5, 7, 8);
+- tanpa JavaScript dan jaringan lambat (Fase 6 dan 7, serta audit);
+- 768 dan 1280 px (Fase 7 dan 8);
+- dua audit anggaran (semua baris tabel 3.6 lulus).
+
+Semuanya lulus. Pengukuran ini dilakukan dengan perubahan font Raleway dari sesi fork, yang belum di-commit, ada di folder kerja.
+
+Penyimpangan: dua kegagalan di run pertama berasal dari skrip ujinya, bukan halaman. Pertama, gulir ke elemen terfokus berjalan halus sekitar 0,5 detik, jadi posisinya dibaca terlalu cepat. Kedua, `blur()` tidak mengembalikan titik awal fokus ke awal halaman. Skripnya diperbaiki.
+
+Tidak bisa diuji otomatis (tidak dinyatakan lolos):
+- pembaca layar sungguhan (NVDA atau Narrator), termasuk pembacaan teks progres layar muat;
+- kelancaran gerak di GPU laptop pameran;
+- LCP dan TBT;
+- perbesaran teks 200 %;
+- perangkat sentuh sungguhan.
+
 **Kerjakan:** jalankan pemeriksaan penuh lewat audit (bagian 3.4, CDP yang sudah terbukti): reduced motion, tanpa JavaScript, jaringan lambat, lebar 375/768/1280, jalur keyboard (Tab, Shift+Tab, Esc, Enter pada tombol), `lang="id"`, urutan fokus, dan teks alternatif gambar/iframe. Perbaiki temuan; catat yang tak bisa diuji otomatis.
 
 **Verifikasi:** semua baris tabel anggaran 3.6 lulus; hasil tiap emulasi dicatat di `docs/superpowers/plans/evidence/`.

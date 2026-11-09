@@ -1,0 +1,233 @@
+{
+  "url": "http://localhost:3000/",
+  "waktu": "2026-11-09T12:30:37.583Z",
+  "panggung": {
+    "ada": true,
+    "tinggiPembungkusLayar": 4.5,
+    "posisi": "sticky",
+    "tinggiPanggungPx": 800,
+    "iframeCerita": true,
+    "modelSiap": true,
+    "kelasScrollTriggerDitemukan": true,
+    "triggerAwal": 4
+  },
+  "progres": [
+    {
+      "p": 0,
+      "panggungTopPx": 0,
+      "model": {
+        "now": 0,
+        "langkah": 0
+      },
+      "dirakit": [
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "langkahAktifDaftar": 0,
+      "lit": [
+        1,
+        0,
+        0,
+        0
+      ],
+      "kontrasLangkah": [
+        14.12,
+        5.82,
+        5.82,
+        5.82
+      ]
+    },
+    {
+      "p": 0.33,
+      "panggungTopPx": 0,
+      "model": {
+        "now": 0.329,
+        "langkah": 1
+      },
+      "dirakit": [
+        1,
+        1,
+        0.895,
+        0,
+        0
+      ],
+      "langkahAktifDaftar": 1,
+      "lit": [
+        0.13,
+        0.87,
+        0,
+        0
+      ],
+      "kontrasLangkah": [
+        6.56,
+        12.7,
+        5.82,
+        5.82
+      ]
+    },
+    {
+      "p": 0.66,
+      "panggungTopPx": 0,
+      "model": {
+        "now": 0.66,
+        "langkah": 2
+      },
+      "dirakit": [
+        1,
+        1,
+        1,
+        1,
+        0
+      ],
+      "langkahAktifDaftar": 2,
+      "lit": [
+        0,
+        0,
+        1,
+        0
+      ],
+      "kontrasLangkah": [
+        5.82,
+        5.82,
+        14.12,
+        5.82
+      ]
+    },
+    {
+      "p": 1,
+      "panggungTopPx": 0,
+      "model": {
+        "now": 0.999,
+        "langkah": 3
+      },
+      "dirakit": [
+        1,
+        1,
+        1,
+        1,
+        1
+      ],
+      "langkahAktifDaftar": 3,
+      "lit": [
+        0,
+        0,
+        0,
+        1
+      ],
+      "kontrasLangkah": [
+        5.82,
+        5.82,
+        5.82,
+        14.12
+      ]
+    }
+  ],
+  "perakitan": {
+    "terurai0": true,
+    "utuh1": true,
+    "monoton": true,
+    "urutSesuaiLangkah": true,
+    "langkahSama": true,
+    "langkahDiharapkan": true,
+    "panggungMenempel": true,
+    "kontrasMin": 5.82,
+    "lulus": true
+  },
+  "roda": {
+    "sebelum": 3197,
+    "targetDiTitik": "dOUz0G_drag",
+    "sesudah": 3677,
+    "lulus": true
+  },
+  "seret": {
+    "sebelum": 0,
+    "saatDitahan": 1.8,
+    "tigaDetikSetelahLepas": 0,
+    "lulus": true
+  },
+  "gantiMode": [
+    {
+      "label": "1280 awal",
+      "cerita": true,
+      "trigger": 4,
+      "iframeCerita": 1
+    },
+    {
+      "label": "900",
+      "cerita": false,
+      "trigger": 3,
+      "iframeCerita": 0
+    },
+    {
+      "label": "1280",
+      "cerita": true,
+      "trigger": 4,
+      "iframeCerita": 1
+    },
+    {
+      "label": "900",
+      "cerita": false,
+      "trigger": 3,
+      "iframeCerita": 0
+    },
+    {
+      "label": "1280",
+      "cerita": true,
+      "trigger": 4,
+      "iframeCerita": 1
+    },
+    {
+      "label": "1440",
+      "cerita": true,
+      "trigger": 4,
+      "iframeCerita": 1
+    },
+    {
+      "label": "1280 akhir",
+      "cerita": true,
+      "trigger": 4,
+      "iframeCerita": 1
+    }
+  ],
+  "gantiModeLulus": true,
+  "tab": {
+    "urutan": [
+      "Lewati ke konten",
+      "IrriSense",
+      "Cara kerja",
+      "Spesifikasi",
+      "Uji coba",
+      "Dashboard",
+      "Lihat cara kerja",
+      "Buka dashboard",
+      "Coba prototipe 3D dengan live test"
+    ],
+    "tautanPanggung": {
+      "teks": "Coba prototipe 3D dengan live test",
+      "href": "/prototipe/",
+      "terlihat": true
+    },
+    "lulus": true
+  },
+  "cls": 0.0019,
+  "kurangiGerak": {
+    "panggung": false,
+    "iframe": 0,
+    "tinggiCaraKerjaLayar": 1.08,
+    "lulus": true
+  },
+  "layarPendek": {
+    "panggung": false,
+    "lulus": true
+  },
+  "sentuh": {
+    "panggung": false,
+    "overflowPx": 0,
+    "lulus": true
+  },
+  "errorKonsol": [],
+  "lulusSemua": true
+}
