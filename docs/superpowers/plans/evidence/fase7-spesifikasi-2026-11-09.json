@@ -1,0 +1,388 @@
+{
+  "url": "http://localhost:3000/spesifikasi/",
+  "waktu": "2026-11-09T06:58:43.039Z",
+  "rute": {
+    "spesifikasi": 200,
+    "tanpaGarisMiring": 301,
+    "lokasi": "/spesifikasi/"
+  },
+  "tautan": {
+    "jumlah": 32,
+    "gagal": [],
+    "daftar": [
+      "200 /_next/static/media/4cf231d25563e07b-s.p.2874ccu1_u7jf.woff2",
+      "200 /_next/static/media/7015758c94fe7945-s.p.0ggqn9ig56u4s.woff2",
+      "200 /img/prototipe-hero.webp",
+      "200 /_next/static/chunks/26qfhr2uovahf.css",
+      "200 /_next/static/chunks/0rzrm41pc2fdu.css",
+      "200 /_next/static/chunks/36n22btkue1_p.css",
+      "200 /_next/static/chunks/2c18610-9j76l.js",
+      "200 /_next/static/chunks/3bbo82u7a66is.js",
+      "200 /_next/static/chunks/04cc_heshj4gz.js",
+      "200 /_next/static/chunks/turbopack-2u1d16houkiyo.js",
+      "200 /_next/static/chunks/18hp5fkx_fucn.js",
+      "200 /_next/static/chunks/1s99hvvgcp1a6.js",
+      "200 /_next/static/chunks/2_urjfyo0-2-u.js",
+      "200 /_next/static/chunks/19i1hpnf0l6lu.js",
+      "200 /favicon.ico?favicon.117ezoe8m31dk.ico",
+      "200 /_next/static/chunks/0cz1d0mv5g_q7.js",
+      "200 /#konten (anchor ada)",
+      "200 /",
+      "200 /#cara-kerja (anchor ada)",
+      "200 /spesifikasi/",
+      "200 /prototipe/",
+      "200 /dashboard/",
+      "200 /img/prototipe-terbuka.webp",
+      "200 /img/logo-untidar.png",
+      "200 /_next/static/chunks/3i_o5cp_08zq5.css",
+      "200 /spesifikasi/#konten (anchor ada)",
+      "200 /spesifikasi/#aturan (anchor ada)",
+      "200 /spesifikasi/#komponen (anchor ada)",
+      "200 /spesifikasi/#pin (anchor ada)",
+      "200 /spesifikasi/#data (anchor ada)",
+      "200 /spesifikasi/#api (anchor ada)",
+      "200 /spesifikasi/#mode (anchor ada)"
+    ]
+  },
+  "desktop": {
+    "dataIntro": null,
+    "penutup": false,
+    "overflowHtml": "visible",
+    "landmark": {
+      "header": 1,
+      "main": 1,
+      "footer": 1,
+      "nav": [
+        "Utama",
+        "Isi halaman"
+      ]
+    },
+    "h1": [
+      "Spesifikasi"
+    ],
+    "h2": [
+      "Aturan pompa",
+      "Komponen",
+      "Pin ESP32",
+      "Data dan jaringan",
+      "API server",
+      "Mode firmware",
+      "Tim IrriSense"
+    ],
+    "lompatHeading": [],
+    "navLinks": [
+      {
+        "text": "Cara kerja",
+        "current": null
+      },
+      {
+        "text": "Spesifikasi",
+        "current": "page"
+      },
+      {
+        "text": "Uji coba",
+        "current": null
+      },
+      {
+        "text": "Dashboard",
+        "current": null
+      }
+    ],
+    "tabel": 6,
+    "tabelBernama": true,
+    "scopeBenar": true,
+    "sumber": [
+      true,
+      true,
+      true,
+      true,
+      true,
+      true
+    ],
+    "overflow": {
+      "halamanPx": -15,
+      "tabelMeluber": 0
+    },
+    "cls": 0
+  },
+  "isi": {
+    "komponen": [
+      [
+        "1",
+        "ESP32 + base board",
+        "1 buah, di dalam casing"
+      ],
+      [
+        "2",
+        "LCD I2C 20×4",
+        "1 buah, di tutup casing"
+      ],
+      [
+        "3",
+        "Sensor kelembapan tanah",
+        "10 buah dibeli, 6 terpasang, 4 cadangan"
+      ],
+      [
+        "4",
+        "Casing sensor tanah",
+        "10 buah, 1 per sensor"
+      ],
+      [
+        "5",
+        "Sensor DHT11",
+        "6 dibeli, 1 terpasang di tiang"
+      ],
+      [
+        "6",
+        "Relay 1 channel",
+        "1 buah, di dalam casing"
+      ],
+      [
+        "7",
+        "Mini pompa 5 VDC",
+        "1 buah, mengalirkan air dari tandon"
+      ],
+      [
+        "8",
+        "Adaptor 5 VDC 2 A",
+        "1 buah, menyuplai jalur pompa (ESP32 lewat USB)"
+      ],
+      [
+        "9",
+        "Enclosure 16 × 14 × 4 cm",
+        "1 buah, wadah elektronik"
+      ],
+      [
+        "10",
+        "Kabel duct",
+        "1 meter, merapikan kabel sensor"
+      ],
+      [
+        "11",
+        "Selang irigasi tetes + emitter",
+        "1 set, satu emitter per tanaman"
+      ],
+      [
+        "12",
+        "Kabel jumper, PCB prototipe",
+        "di dalam casing (tidak terlihat)"
+      ]
+    ],
+    "pin": [
+      [
+        "Sensor tanah S1",
+        "36",
+        "VP"
+      ],
+      [
+        "Sensor tanah S2",
+        "39",
+        "VN"
+      ],
+      [
+        "Sensor tanah S3",
+        "34",
+        "D34"
+      ],
+      [
+        "Sensor tanah S4",
+        "35",
+        "D35"
+      ],
+      [
+        "Sensor tanah S5",
+        "32",
+        "D32"
+      ],
+      [
+        "Sensor tanah S6",
+        "33",
+        "D33"
+      ],
+      [
+        "DHT11 (DATA)",
+        "4",
+        "D4"
+      ],
+      [
+        "Relay (IN)",
+        "26",
+        "D26"
+      ],
+      [
+        "LCD I2C (SDA)",
+        "21",
+        "D21"
+      ],
+      [
+        "LCD I2C (SCL)",
+        "22",
+        "D22"
+      ]
+    ],
+    "api": [
+      [
+        "GET /api/health",
+        "Server menyala dan status sambungan ke broker MQTT."
+      ],
+      [
+        "GET /api/node",
+        "Node sedang online atau tidak, menurut pesan status MQTT terakhir."
+      ],
+      [
+        "GET /api/latest",
+        "Bacaan terakhir dari node."
+      ],
+      [
+        "GET /api/readings?from&to&limit",
+        "Riwayat bacaan dalam rentang waktu; limit bawaan 500, paling banyak 5000."
+      ],
+      [
+        "GET /api/stats?from&to",
+        "Jumlah bacaan, latensi (p50, p95, maks), uptime, lama pompa menyala, dan perkiraan air terpakai (bawaan 100 ml per menit)."
+      ],
+      [
+        "POST /api/command{\"mode\", \"pump\"}",
+        "Meneruskan perintah mode atau pompa ke ESP32 lewat MQTT."
+      ],
+      [
+        "GET /api/stream",
+        "Aliran langsung (Server-Sent Events): bacaan baru dan status online node."
+      ]
+    ],
+    "mode": [
+      [
+        "esp32dev",
+        "Firmware utama: sensor, pompa, LCD, Wi-Fi, dan MQTT. Butuh pengaturan Wi-Fi dan broker (secrets.h)."
+      ],
+      [
+        "bringup",
+        "Cek perkabelan: pindai I2C, LCD, relay, DHT11, dan ADC mentah. Lepas pompa saat tes ini."
+      ],
+      [
+        "esp32dev_cal",
+        "Kalibrasi dua titik sensor tanah lewat Serial Monitor (perintah d, w, p)."
+      ],
+      [
+        "bench",
+        "Firmware utama tanpa jaringan: sensor, histeresis 60/80 %, relay, LCD, dan Serial."
+      ]
+    ],
+    "mqtt": [
+      "irrisense/node1/telemetry",
+      "irrisense/node1/status",
+      "irrisense/node1/cmd"
+    ],
+    "aturan": [
+      "Rata-rata kelembapan di bawah 60 %.",
+      "Rata-rata 80 % atau lebih.",
+      "Pompa tetap pada keadaan terakhirnya (histeresis), jadi tidak menyala dan mati terus-menerus.",
+      "10 menit tanpa henti. Setelah itu pompa dimatikan dan LCD menampilkan FAULT: MAX RUN sampai mode dipilih ulang dari dashboard.",
+      "Di mode Auto pompa dimatikan dan LCD menampilkan FAULT: NO SENSOR sampai ada sensor yang valid lagi.",
+      "Pompa hanya mengikuti perintah dari dashboard. Batas nyala 10 menit tetap berlaku.",
+      "Selalu mematikan pompa dan menghapus status FAULT."
+    ]
+  },
+  "kontras": {
+    "judul": 12.12,
+    "ringkasan": 12.12,
+    "daftarIsi": 8.32,
+    "teksIsi": 12.72,
+    "kepalaTabel": 5.24,
+    "sumber": 5.24,
+    "tautan": 8.55,
+    "param": 5.24,
+    "navAktif": 12.12
+  },
+  "tab": {
+    "urutan": [
+      "Lewati ke konten",
+      "IrriSense",
+      "Cara kerja",
+      "Spesifikasi",
+      "Uji coba",
+      "Dashboard",
+      "Aturan pompa"
+    ],
+    "cincinDaftarIsi": "solid 2px rgb(243, 236, 216)"
+  },
+  "anchor": {
+    "hash": "#pin",
+    "atasBagianPx": 0,
+    "gulirPx": 1771
+  },
+  "keBeranda": {
+    "path": "/",
+    "penutup": false,
+    "dataIntro": null,
+    "overflowHtml": "visible",
+    "h1": "IrriSense",
+    "footer": 1,
+    "navAktif": []
+  },
+  "tablet": {
+    "halamanPx": -15,
+    "tabelMeluber": 0,
+    "navSebaris": true
+  },
+  "ponsel": {
+    "halamanPx": 0,
+    "tabelMeluber": 0,
+    "menu": {
+      "terbuka": true,
+      "tautan": [
+        "Cara kerja",
+        "Spesifikasi (aktif)",
+        "Uji coba",
+        "Dashboard"
+      ]
+    }
+  },
+  "kurangiGerak": {
+    "penutup": false,
+    "tabel": 6,
+    "h1Terlihat": true
+  },
+  "tanpaJs": {
+    "dataIntro": null,
+    "tabel": 6,
+    "baris": 40,
+    "h1Terlihat": true,
+    "navSpesifikasi": true
+  },
+  "berandaIntro": {
+    "dataIntro": "play",
+    "penutup": true,
+    "footer": 1
+  },
+  "errorKonsol": [],
+  "cek": {
+    "rute": true,
+    "tautanInternal": true,
+    "tanpaLayarMuat": true,
+    "landmark": true,
+    "heading": true,
+    "tabelAksesibel": true,
+    "sumberTiapBagian": true,
+    "navAktif": true,
+    "isiKomponen": true,
+    "isiPin": true,
+    "isiApi": true,
+    "isiMode": true,
+    "isiMqtt": true,
+    "isiAturan": true,
+    "kontras": true,
+    "anchorDaftarIsi": true,
+    "urutanTab": true,
+    "tanpaOverflow": true,
+    "navTablet": true,
+    "menuPonsel": true,
+    "cls": true,
+    "keBeranda": true,
+    "kurangiGerak": true,
+    "tanpaJs": true,
+    "berandaTetapIntro": true,
+    "konsolBersih": true
+  },
+  "lulusSemua": true
+}

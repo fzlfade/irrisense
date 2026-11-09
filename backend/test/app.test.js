@@ -86,6 +86,8 @@ async function routeSetup({ withLanding }) {
   mkdirSync(dash); mkdirSync(land);
   writeFileSync(path.join(dash, 'index.html'), 'DASHBOARD');
   writeFileSync(path.join(land, 'index.html'), 'LANDING');
+  mkdirSync(path.join(land, 'spesifikasi'));
+  writeFileSync(path.join(land, 'spesifikasi', 'index.html'), 'SPESIFIKASI');
   const app = createApp({ db: t.db, bridge: { connected: () => true }, bus: new EventEmitter(), nodeId: 'node1',
     staticDir: dash, landingDir: withLanding ? land : undefined });
   const server = app.listen(0);
@@ -101,6 +103,17 @@ test('route: landing di /, dashboard di /dashboard/', async () => {
   assert.ok([301, 302].includes(r.status));
   assert.equal(new URL(r.headers.get('location'), s.base).pathname, '/dashboard/');
   assert.equal((await fetch(`${s.base}/api/health`)).status, 200);
+  await s.close();
+});
+
+test('route: halaman Spesifikasi di /spesifikasi/, tanpa garis miring diarahkan ke sana', async () => {
+  const s = await routeSetup({ withLanding: true });
+  const page = await fetch(`${s.base}/spesifikasi/`);
+  assert.equal(page.status, 200);
+  assert.equal(await page.text(), 'SPESIFIKASI');
+  const r = await fetch(`${s.base}/spesifikasi`, { redirect: 'manual' });
+  assert.ok([301, 302].includes(r.status));
+  assert.equal(new URL(r.headers.get('location'), s.base).pathname, '/spesifikasi/');
   await s.close();
 });
 

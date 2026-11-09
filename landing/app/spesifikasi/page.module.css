@@ -1,0 +1,203 @@
+/* Halaman Spesifikasi: halaman rujukan yang tenang, tanpa animasi (lihat design/DESIGN.md). */
+.wrap {
+  max-width: 72rem;
+  margin: 0 auto;
+  padding-inline: clamp(1rem, 5vw, 3rem);
+}
+
+/* Nilai yang harus diketik persis (GPIO, topik, alamat, env) memakai monospace bawaan sistem, tanpa unduhan font.
+   break-word, bukan anywhere: anywhere membuat tabel menganggap kode boleh dipotong per huruf, sehingga kolomnya
+   menyempit dan "esp32dev_cal" pecah di tengah. break-word hanya memotong bila benar-benar tidak muat. */
+.page code,
+.mono {
+  font-family: ui-monospace, "Cascadia Mono", Consolas, monospace;
+  font-size: 0.92em;
+  overflow-wrap: break-word;
+}
+
+/* Pita judul menyambung dari header hijau tua. */
+.head {
+  background: var(--daun-900);
+  color: var(--kertas-100);
+  padding-block: clamp(1.5rem, 5vw, 3rem) clamp(2rem, 6vw, 3.5rem);
+}
+.title {
+  font-size: var(--step-section);
+}
+.lead {
+  max-width: 40rem;
+  margin: 1rem 0 0;
+  font-size: var(--step-lead);
+  line-height: 1.45;
+}
+.toc ol {
+  list-style: none;
+  margin: 1.75rem 0 0;
+  padding: 0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0 1.5rem;
+}
+.toc a {
+  display: inline-block;
+  padding-block: 0.65rem;
+  color: #c9c6b4;
+  text-decoration: underline;
+  text-underline-offset: 0.25em;
+}
+.toc a:hover {
+  color: var(--kertas-100);
+  text-decoration-thickness: 2px;
+}
+.toc a:active {
+  transform: translateY(1px);
+}
+/* --blue hanya 2,6:1 di atas hijau tua; krem 12,1:1. */
+.toc a:focus-visible {
+  outline-color: var(--kertas-100);
+}
+
+/* Bagian isi: dipisah garis tipis, latar tidak berganti (RHYTHM 1). */
+.section {
+  padding-block: clamp(2.5rem, 6vw, 4.5rem);
+}
+.section + .section {
+  border-top: 1px solid var(--line);
+}
+/* Ponsel: judul, isi, lalu sumber. Desktop: judul dan sumber di kiri, isi di kanan. */
+.grid {
+  display: grid;
+  gap: 1.25rem 3rem;
+  grid-template-areas: "side" "body" "source";
+}
+.side {
+  grid-area: side;
+}
+.body {
+  grid-area: body;
+  min-width: 0;
+}
+.source {
+  grid-area: source;
+  margin: 0;
+  font-size: 0.85rem;
+  color: var(--muted);
+}
+.h2 {
+  font-size: clamp(1.6rem, 3vw, 2.25rem);
+}
+.side p {
+  max-width: 34rem;
+  margin: 0.75rem 0 0;
+}
+.h3 {
+  margin: 2.25rem 0 0.5rem;
+  font-size: 1.15rem;
+}
+.h3:first-child {
+  margin-top: 0;
+}
+.text {
+  max-width: 40rem;
+  margin: 0;
+}
+.link {
+  display: inline-block;
+  margin-top: 0.5rem;
+  padding-block: 0.4rem;
+  color: var(--green);
+  font-weight: 600;
+  text-underline-offset: 0.25em;
+}
+.link:hover {
+  color: var(--ink);
+  text-decoration-thickness: 2px;
+}
+.link:active {
+  transform: translateY(1px);
+}
+
+/* Tabel: paling banyak tiga kolom dan teks boleh turun baris, jadi tidak ada gulir mendatar. */
+.table {
+  width: 100%;
+  border-collapse: collapse;
+  font-variant-numeric: tabular-nums;
+}
+.table th,
+.table td {
+  padding: 0.6rem 1rem 0.6rem 0;
+  border-bottom: 1px solid var(--line);
+  text-align: left;
+  vertical-align: top;
+}
+.table th:last-child,
+.table td:last-child {
+  padding-right: 0;
+}
+.table thead th {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--muted);
+}
+.table tbody th {
+  font-weight: 600;
+}
+.no {
+  width: 3.5rem;
+  color: var(--muted);
+}
+/* Alamat API dan parameternya tidak dipecah (mis. "?" sendirian di satu baris); kolomnya tetap muat di 375 px. */
+.route {
+  white-space: nowrap;
+}
+.param {
+  display: block;
+  margin-top: 0.15rem;
+  font-weight: 400;
+  color: var(--muted);
+  white-space: nowrap;
+}
+.notes {
+  margin: 1rem 0 0;
+  padding-left: 1.2rem;
+}
+.notes li + li {
+  margin-top: 0.35rem;
+}
+
+/* Aturan pompa: pasangan istilah dan penjelasan. */
+.rules {
+  margin: 0;
+}
+.rules > div {
+  display: grid;
+  gap: 0.15rem 1.5rem;
+  padding-block: 0.7rem;
+  border-bottom: 1px solid var(--line);
+}
+.rules > div:first-child {
+  padding-top: 0;
+}
+.rules dt {
+  font-weight: 600;
+}
+.rules dd {
+  margin: 0;
+}
+
+@media (min-width: 40rem) {
+  .rules > div {
+    grid-template-columns: minmax(10rem, 0.7fr) 1.3fr;
+  }
+}
+
+@media (min-width: 64rem) {
+  .grid {
+    grid-template-columns: minmax(15rem, 0.8fr) 2fr;
+    grid-template-rows: auto 1fr;
+    grid-template-areas:
+      "side body"
+      "source body";
+    align-items: start;
+  }
+}

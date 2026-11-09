@@ -23,7 +23,12 @@ node tools/audit/audit.mjs --no-browser
 node tools/audit/audit.mjs http://localhost:3000/ --out laporan.json --port 9444
 ```
 
+```bash
+node tools/audit/audit.mjs http://localhost:3000/spesifikasi/ --budgets tools/audit/budgets-spesifikasi.json
+```
+
 - Tanpa argumen: audit penuh `http://localhost:3000/`, sekitar 35 detik.
+- Halaman Spesifikasi memakai `budgets-spesifikasi.json`. Anggarannya sama dengan beranda, dengan dua perbedaan. Pertama, cek angka target beranda tidak berlaku. Kedua, batas DOM 800 node, bukan 450, karena halaman itu berisi enam tabel tanpa iframe. Angka 800 adalah batas peringatan Lighthouse untuk node di body; alasannya tertulis di `catatanDom`.
 - `--no-browser`: hanya ukuran berkas, sekitar 1 detik; metrik browser ditandai LEWAT.
 - `--budgets <berkas>`: anggaran lain (misalnya untuk mencoba batas baru).
 - `--out <berkas>`: lokasi laporan JSON. Bawaan `tools/audit/out/audit-<waktu>.json` (diabaikan git).

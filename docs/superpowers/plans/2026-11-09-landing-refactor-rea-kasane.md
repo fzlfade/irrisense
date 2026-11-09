@@ -343,6 +343,37 @@ Belum diuji:
 
 ### Fase 7: halaman Spesifikasi (ukuran M, hanya bila Q1 disetujui)
 
+**Status: selesai 2026-11-09.** Halaman `/spesifikasi/` (`app/spesifikasi/page.tsx`) berisi enam bagian: aturan pompa, komponen (12), pin ESP32, data dan jaringan (topik MQTT, buffer offline, baris LCD), API server, dan mode firmware. Datanya ada di `landing/content/spesifikasi.ts`. Tujuh tes di `backend/test/content.test.js` membandingkannya dengan `config.h`, `perkabelan.md`, `display.cpp`, `scene.js`, `platformio.ini`, `app.js`, dan `index.js`. Mutasi yang disengaja (ambang, label pin, nama komponen, env, dan rute) semuanya tertangkap. Header kini punya tautan "Spesifikasi" dengan `aria-current`, footer tim dipindah ke layout (`SiteFooter.tsx`), dan layar muat serta skrip `<head>`-nya hanya berlaku di beranda.
+
+Uji `evidence/fase7-spesifikasi.mjs` (hasil `evidence/fase7-spesifikasi-2026-11-09.json`, gambar `evidence/fase7/`) semua lulus:
+- `/spesifikasi/` 200, dan `/spesifikasi` dialihkan 301 ke sana;
+- perayap: 32 href dan src internal di beranda dan Spesifikasi bernilai 200, dan setiap anchor punya id tujuan;
+- isi enam tabel dan daftar aturan sama dengan data;
+- satu h1 tanpa lompatan heading; enam tabel bernama dengan `scope`; `aria-current` hanya pada "Spesifikasi";
+- anchor `#pin` mendarat 0 px dari bagiannya; urutan Tab benar, dengan cincin fokus krem;
+- kontras minimal 5,24:1;
+- tanpa overflow di 375, 768, dan 1280 px (dan 320 px di tangkapan tinjauan); menu ponsel menandai halaman aktif;
+- "kurangi gerak" dan tanpa JavaScript tetap utuh;
+- pindah ke beranda lewat tautan merek: tanpa layar muat, halaman tidak terkunci;
+- beranda tetap memutar layar muat;
+- CLS 0 dan konsol tanpa error.
+
+Audit beranda `evidence/fase7-2026-11-09.json` lulus semua: JS 264,8 KB gzip, CSS 16,9 KB, DOM 332, CLS 0,002. Audit Spesifikasi `evidence/fase7-spesifikasi-audit-2026-11-09.json` lulus semua dengan `tools/audit/budgets-spesifikasi.json`: DOM 728 dari batas 800, CLS 0. Uji ulang Fase 4, 5, dan 6 lulus. Tes backend 52 lulus (8 baru). Delivery Gate tanpa FAIL (`evidence/delivery-gate-fase7.md`).
+
+Penyimpangan dari rencana:
+1. Isinya lebih luas dari butir 1. Selain komponen, pin, ambang, mode, dan API, halaman memuat topik MQTT, buffer offline, dan isi LCD. Semuanya diambil dari kode dan ikut dites, karena itulah yang dilihat penguji di alat dan dashboard.
+2. Tes anti-melenceng tidak hanya memeriksa pin dan ambang, tetapi juga komponen, env, rute API, topik MQTT, dan baris LCD.
+3. `/api/node` didaftarkan di `backend/src/index.js`, bukan `app.js`, jadi tes membaca keduanya.
+4. Footer tim pindah ke layout supaya halaman Spesifikasi punya landmark contentinfo. Layar muat dan skrip `<head>` dibatasi ke beranda supaya halaman lain tidak ikut terkunci.
+5. Anggaran DOM halaman Spesifikasi 800, bukan 450. Angka 450 disusun untuk beranda, sedangkan halaman ini enam tabel tanpa iframe. Angka 800 adalah batas peringatan Lighthouse. REA menghitung semua node termasuk teks (728); elemen di body hanya 361.
+6. "Uji coba" sudah ada di header sejak Fase 3, jadi butir 3 hanya menambah "Spesifikasi".
+
+Temuan di luar fase (tidak diubah):
+- `docs/hardware/wiring.md` menyebut adaptor 5 V 3 A yang juga memasok VIN ESP32. Sebaliknya, `perkabelan.md` dan daftar komponen prototipe menyebut adaptor 5 VDC 2 A khusus jalur pompa, dengan ESP32 lewat USB. Halaman mengikuti `perkabelan.md` dan `scene.js`.
+- `backend/README.md` menyebut "npm test (26 tes)", padahal sekarang 52.
+
+Belum diuji: pembacaan oleh pembaca layar sungguhan, serta LCP dan TBT.
+
 **Kerjakan**
 1. `landing/app/spesifikasi/page.tsx` (Server Component, `metadata` sendiri). Isi hanya dari sumber repo: komponen (12 butir, `backend/prototipe/scene.js` array `items`), pin (`docs/hardware/perkabelan.md`, `firmware/src/config.h`: `SOIL_PINS` {36,39,34,35,32,33}, `DHT_PIN` 4, `RELAY_PIN` 26, ambang `M_SET` 60, `M_MAX` 80, `MAX_RUN_MS` 600000), mode firmware (`firmware/platformio.ini`: env `esp32dev`, `bringup`, `esp32dev_cal`, `bench`), dan API (`backend/README.md`, `backend/src/app.js`).
 2. Data dalam `landing/content/spesifikasi.ts` (tipe jelas). **Tes anti-melenceng** di `backend/test/content.test.js`: membaca `firmware/src/config.h` dan `landing/content/spesifikasi.ts`, lalu memastikan pin dan ambang sama.

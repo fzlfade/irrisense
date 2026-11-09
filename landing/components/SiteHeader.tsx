@@ -2,9 +2,10 @@ import Link from "next/link";
 import NavMenu from "./NavMenu";
 import s from "./siteHeader.module.css";
 
-/** Tautan hanya ke tujuan yang sudah ada (antislop R-24). Tambah "Spesifikasi" bila halamannya sudah dibuat. */
+/** Tautan hanya ke tujuan yang sudah ada (antislop R-24): dari cerita, ke detail, ke alat yang bisa dicoba. */
 const LINKS = [
   { href: "/#cara-kerja", label: "Cara kerja" },
+  { href: "/spesifikasi/", label: "Spesifikasi" },
   { href: "/prototipe/", label: "Uji coba" },
   { href: "/dashboard/", label: "Dashboard" },
 ];

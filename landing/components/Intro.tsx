@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useSyncExternalStore } from "react";
+import { usePathname } from "next/navigation";
 import { useIntroState } from "@/lib/useIntroState";
 import { isLoaded, loadPercent, markLoaded, onLoadChange } from "@/lib/loadProgress";
 
@@ -19,8 +20,10 @@ const fontsLoaded = () => isLoaded("fonts");
  * 1,2 detik, animasi itu dilompatkan ke awal pudarnya.
  * Status dibaca dari atribut data-intro di <html> yang dipasang skrip di <head> sebelum halaman tergambar:
  * "play" (putar), "skip" (sudah diputar atau gerak dikurangi), "done" (selesai).
+ * Hanya di beranda: halaman lain (mis. Spesifikasi) langsung tampil tanpa layar muat.
  */
 export default function Intro() {
+  const home = usePathname() === "/";
   const intro = useIntroState();
   const percent = useSyncExternalStore(onLoadChange, loadPercent, zero);
   const fontsReady = useSyncExternalStore(onLoadChange, fontsLoaded, no);
@@ -104,7 +107,7 @@ export default function Intro() {
     };
   }, []);
 
-  if (intro !== "server" && intro !== "play") return null;
+  if (!home || (intro !== "server" && intro !== "play")) return null;
 
   // Teks hanya berubah per 10 % (bobot di loadProgress kelipatan 10), supaya pembaca layar tidak dibanjiri.
   const shown = Math.floor(percent / 10) * 10;

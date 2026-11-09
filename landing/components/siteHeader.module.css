@@ -104,6 +104,14 @@
   text-underline-offset: 0.25em;
 }
 
+/* Halaman yang sedang dibuka: garis bawah tetap, tidak hanya warna. */
+.list a[aria-current="page"] {
+  color: var(--kertas-100);
+  text-decoration: underline;
+  text-decoration-thickness: 2px;
+  text-underline-offset: 0.25em;
+}
+
 .header a:focus-visible,
 .menuButton:focus-visible {
   outline: 2px solid var(--kertas-100);

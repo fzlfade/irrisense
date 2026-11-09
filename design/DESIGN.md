@@ -62,7 +62,7 @@ Judul Cara kerja berdiri di atas grid langkah (bukan di kolom kiri yang sempit) 
 ## Navigasi (landing)
 - Header berupa pita `--daun-900` yang menyambung dengan hero. Header tidak menempel (static), jadi anchor tidak pernah tertutup dan `scroll-margin-top` tidak diperlukan.
 - Fokus pertama: tautan "Lewati ke konten" ke `<main id="konten">`, tersembunyi sampai difokus.
-- Tautan hanya ke tujuan yang sudah ada: Cara kerja (`/#cara-kerja`), Uji coba (`/prototipe/`), Dashboard (`/dashboard/`). "Spesifikasi" ditambah bila halamannya dibuat.
+- Tautan hanya ke tujuan yang sudah ada, berurutan dari cerita ke detail lalu ke alat yang bisa dicoba: Cara kerja (`/#cara-kerja`), Spesifikasi (`/spesifikasi/`), Uji coba (`/prototipe/`), Dashboard (`/dashboard/`). Tautan halaman yang sedang dibuka diberi `aria-current="page"` dan garis bawah tetap, jadi tidak hanya ditandai warna.
 - Di bawah 48rem daftar dibuka tombol teks "Menu" lewat atribut HTML `popover`: buka, tutup, Esc, dan klik di luar bekerja tanpa JavaScript, dan daftar melayang di atas hero tanpa menggeser tata letak. Satu pendengar klik kecil (`NavMenu.tsx`) menutupnya saat tautan dipilih. Rencana awal memakai `<details>`; `popover` dipilih karena perilaku tutupnya bawaan browser.
 - Kontras terukur di atas `--daun-900`: tautan nav #c9c6b4 8,32:1; wordmark dan tombol Menu 12,12:1; tautan lewati (tinta di atas kertas) 12,72:1; hover menu (kertas di atas `--daun-700`) 8,55:1.
 
@@ -113,6 +113,25 @@ Di bawah 1280 px kedua kolom dibuat sama lebar agar keempat langkah tetap muat d
 **Tidak dipakai:** `ScrollStack` (mengambil alih scroll, bayangan tebal dan radius 28 px bertentangan dengan aturan bentuk di atas, dan bentrok dengan gambar sticky). Latar WebGL (`Silk`, `Aurora`, `Galaxy`, dan sejenisnya) tidak dipakai karena halaman tidak punya alasan untuk itu.
 
 **Perubahan pada kode salinan:** `CountUp` menampilkan angka akhir di HTML awal. `SplitText` menyembunyikan teks sampai JavaScript siap, jadi `layout.tsx` memuat `<noscript>` yang menampilkannya kembali.
+
+## Halaman Spesifikasi (`/spesifikasi/`)
+Reading this as: halaman rujukan untuk dosen penguji dan pengunjung yang ingin tahu detail teknis, bukan halaman promosi. Pola halaman: detail atau rujukan. Dial lokal ENERGY 2 / RHYTHM 1 / MOTION 1: tenang dan mudah dipindai, tanpa animasi. Tujuannya membuktikan alat ini dirancang dengan angka yang jelas dan bisa dicek.
+
+- **Isi hanya dari repo.** Setiap bagian menulis sumbernya di baris "Sumber" kecil, supaya penguji bisa mencocokkan sendiri:
+  - aturan pompa, interval, buffer, pin, dan topik MQTT dari `firmware/src/config.h`, `controller.cpp`, `main.cpp`, dan `display.cpp`;
+  - label pin di board dari `docs/hardware/perkabelan.md`;
+  - daftar komponen dari `items` di `backend/prototipe/scene.js`, dengan nomor yang sama dengan penanda di prototipe 3D;
+  - API dari `backend/src/app.js` dan `stats.js`;
+  - mode firmware dari `firmware/platformio.ini`.
+- **Satu sumber data dan tes anti-melenceng.** Datanya ada di `landing/content/spesifikasi.ts`. Tes `backend/test/content.test.js` gagal bila data itu berbeda dengan sumbernya. Angka di teks halaman diambil dari data itu, bukan diketik ulang.
+- **Tata letak.** Pita judul hijau tua menyambung dari header dan berisi h1 (`--step-section`), ringkasan, dan daftar isi berupa tautan anchor. Isi halaman di latar terang `--bg`, dengan tiap bagian dipisah garis tipis `--line`. Di layar minimal 64rem, judul bagian dan penjelasan ada di kolom kiri dan tabel di kolom kanan; di bawahnya satu kolom.
+- **Tabel.** Paling banyak tiga kolom, dan teks boleh turun baris, jadi tidak ada gulir mendatar (diuji di 320, 375, 768, dan 1280 px). Kolom pertama memakai `th scope="row"` dan angka memakai `tabular-nums`. Nilai yang harus diketik persis (GPIO, topik, alamat API, nama env) memakai huruf monospace bawaan sistem, tanpa unduhan font baru.
+  - Kode dipotong dengan `overflow-wrap: break-word`, bukan `anywhere`. Dengan `anywhere`, tabel menganggap kode boleh dipotong per huruf, sehingga kolomnya menyempit dan "esp32dev_cal" pecah di tengah.
+  - Topik MQTT boleh turun baris setelah tiap garis miring (`<wbr>`), supaya di ponsel kolom "Isi" tidak tinggal 105 px.
+  - Alamat API dan parameternya tidak dipecah (`nowrap`), supaya "?" tidak tertinggal sendirian di satu baris.
+- **Kontras.** Teks isi `--ink` di atas `--bg` 12,7:1, teks redup `--muted` 5,2:1. Di pita judul, krem 12,1:1 dan #c9c6b4 8,3:1. Cincin fokus di pita judul berwarna krem, karena `--blue` hanya 2,6:1 di atas hijau tua.
+- **Tanpa gerak dan tanpa layar muat.** Skrip `<head>` dan `Intro` hanya memutar layar muat di beranda, jadi halaman ini langsung tampil. Footer tim dipindah ke layout dan tampil di semua halaman.
+- **Tidak dibuat:** bagian kontak (Q6), gambar stok, angka tanpa sumber, dan salinan bagian beranda.
 
 ## Sumber token
 `design/tokens.css` adalah satu-satunya sumber. Dashboard memakai salinannya di `backend/public/css/tokens.css`; tes `backend/test/tokens.test.js` gagal bila kedua file berbeda.
