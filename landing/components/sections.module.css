@@ -189,6 +189,43 @@
   color: var(--muted);
 }
 
+/* Panggung cerita (CaraStory.tsx). data-story dipasang lewat JavaScript hanya di layar minimal 1024 × 576 px tanpa
+   "kurangi gerak". Pembungkus setinggi --story-length memberi jarak gulir; panggung satu layar menempel di atas. */
+.story[data-story="on"] {
+  --story-length: 450vh;
+  height: var(--story-length);
+}
+.story[data-story="on"] .stage {
+  position: sticky;
+  top: 0;
+  height: 100vh;
+}
+.story[data-story="on"] .caraGrid {
+  height: 100%;
+  align-items: center;
+}
+.story[data-story="on"] .steps {
+  gap: 1.25rem;
+}
+/* Di bawah 1280 px kolom kiri dilebarkan agar keempat langkah tetap muat dalam satu layar (diuji 1024 × 576). */
+@media (max-width: 79.99rem) {
+  .story[data-story="on"] .caraGrid {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+/* Model selebar kolom, tetapi tidak lebih tinggi dari layar dikurangi keterangan dan tautan di bawahnya (rasio 5:4). */
+.story[data-story="on"] .caraFigure {
+  width: min(100%, calc((100vh - 10rem) * 1.25));
+  justify-self: end;
+  align-self: center;
+}
+/* --lit (0..1) digerakkan timeline GSAP yang mengikuti gulir: langkah aktif bertinta penuh dan bergeser 0,75 rem.
+   Langkah lain memakai --muted (5,8:1 di atas --surface), bukan opacity, supaya kontrasnya tetap lolos. */
+.story[data-story="on"] .step {
+  color: color-mix(in srgb, var(--ink) calc(var(--lit, 1) * 100%), var(--muted));
+  transform: translateX(calc(var(--lit, 0) * 0.75rem));
+}
+
 /* Target */
 .target {
   background: var(--daun-900);
@@ -281,21 +318,6 @@
 }
 
 @media (min-width: 64rem) {
-  /* Mode cerita (diaktifkan lewat JavaScript): tiap langkah memakai satu "layar", yang aktif terang, lainnya redup. */
-  .steps[data-story="on"] {
-    gap: 0;
-  }
-  .steps[data-story="on"] .step {
-    padding-block: 15vh;
-    opacity: 0.4;
-    transition: opacity 0.3s;
-  }
-  .steps[data-story="on"] .step[data-active="true"] {
-    opacity: 1;
-  }
-  .steps[data-story="on"] .step::before {
-    top: calc(15vh - 0.1rem);
-  }
   .masalahGrid {
     grid-template-columns: 1fr 1.2fr;
   }
@@ -308,9 +330,5 @@
   .caraGrid {
     max-width: 84rem;
     grid-template-columns: 0.8fr 1.2fr;
-  }
-  .caraFigure {
-    position: sticky;
-    top: 8vh;
   }
 }

@@ -1,8 +1,9 @@
 "use client";
 
 import Image from "next/image";
-import { useEffect, useRef, useState, useSyncExternalStore, type PointerEvent as ReactPointerEvent } from "react";
+import { useEffect, useRef, useState, type PointerEvent as ReactPointerEvent } from "react";
 import { useReducedMotion } from "@/lib/useReducedMotion";
+import type { StoryProgress } from "@/lib/storyProgress";
 import s from "./spin3d.module.css";
 
 type Props = {
@@ -18,38 +19,27 @@ type Props = {
   mobileRatio?: string;
   eager?: boolean;
   /**
-   * Mode cerita (hanya layar lebar dan tanpa "kurangi gerak"): kamera terbang ke bagian yang dibahas
-   * oleh langkah yang sedang di tengah layar. `listId` = id elemen daftar yang anak-anaknya adalah langkah.
+   * Mode cerita (dipasang CaraStory hanya di layar lebar tanpa "kurangi gerak"): model dirakit dan kameranya
+   * terbang mengikuti progres panggung, bukan berputar mengikuti posisi elemen.
    */
-  story?: { listId: string };
+  progress?: StoryProgress;
   storyRatio?: string;
 };
-
-const WIDE = "(min-width: 64rem)";
-function useWide(): boolean {
-  return useSyncExternalStore(
-    (cb) => {
-      const mq = window.matchMedia(WIDE);
-      mq.addEventListener("change", cb);
-      return () => mq.removeEventListener("change", cb);
-    },
-    () => window.matchMedia(WIDE).matches,
-    () => false,
-  );
-}
 
 /**
  * Model 3D yang berputar mengikuti scroll. Putarannya dikendalikan lewat postMessage ke halaman
  * prototipe (satu asal), jadi landing tidak perlu memuat Three.js sendiri.
  */
-export default function Spin3D({ src, poster, alt, width, height, sizes, mobileRatio, eager, story, storyRatio }: Props) {
+export default function Spin3D({ src, poster, alt, width, height, sizes, mobileRatio, eager, progress, storyRatio }: Props) {
   const reduced = useReducedMotion();
-  const wide = useWide();
-  const storyOn = Boolean(story) && wide && !reduced;
+  const storyOn = Boolean(progress) && !reduced;
+  const frameSrc = storyOn ? `${src}&story=1` : src;
   const wrap = useRef<HTMLDivElement>(null);
   const frame = useRef<HTMLIFrameElement>(null);
   const [mounted, setMounted] = useState(false);
-  const [ready, setReady] = useState(false);
+  // Siap dicatat per alamat: saat mode cerita berganti, iframe baru dimuat dan poster tampil lagi sampai siap.
+  const [readySrc, setReadySrc] = useState<string | null>(null);
+  const ready = readySrc === frameSrc;
   const drag = useRef<{ id: number; x: number } | null>(null);
 
   // Seret mendatar diteruskan ke model lewat postMessage (lihat lapisan seret di bawah).
@@ -80,50 +70,25 @@ export default function Spin3D({ src, poster, alt, width, height, sizes, mobileR
     let isReady = false;
     let visible = false;
     const post = (msg: object) => f.contentWindow?.postMessage(msg, window.location.origin);
-    const progress = () => {
+    const orbit = () => {
       const r = box.getBoundingClientRect();
       const vh = window.innerHeight;
       return Math.min(1, Math.max(0, (vh - r.top) / (vh + r.height)));
     };
-    // Mode cerita: langkah ke-i dianggap "aktif" saat pusatnya melewati tengah layar; nilai u berpecahan antar-langkah.
-    const list = storyOn && story ? document.getElementById(story.listId) : null;
-    if (list) list.dataset.story = "on";
-    const storyU = () => {
-      const items = Array.from(list?.children ?? []) as HTMLElement[];
-      const focus = window.innerHeight * 0.5;
-      const mids = items.map((el) => {
-        const r = el.getBoundingClientRect();
-        return r.top + r.height / 2;
-      });
-      let u = mids.length - 1;
-      if (focus <= mids[0]) u = 0;
-      else {
-        for (let i = 0; i < mids.length - 1; i++) {
-          if (focus < mids[i + 1]) {
-            u = i + (focus - mids[i]) / (mids[i + 1] - mids[i]);
-            break;
-          }
-        }
-      }
-      items.forEach((el, i) => {
-        el.dataset.active = String(i === Math.round(u));
-      });
-      return u;
-    };
     const send = () => {
       raf = 0;
       if (!isReady) return;
-      if (list) post({ type: "irri-story", u: storyU() });
-      else post({ type: "irri-orbit", p: progress() });
+      if (storyOn && progress) post({ type: "irri-progress", p: progress.get() });
+      else post({ type: "irri-orbit", p: orbit() });
     };
-    const onScroll = () => {
+    const schedule = () => {
       if (!raf) raf = requestAnimationFrame(send);
     };
     const onMessage = (e: MessageEvent) => {
       if (e.origin !== window.location.origin || e.source !== f.contentWindow) return;
       if ((e.data as { type?: string } | null)?.type === "irri-ready") {
         isReady = true;
-        setReady(true);
+        setReadySrc(frameSrc);
         post({ type: "irri-visible", v: visible });
         send();
       }
@@ -137,21 +102,21 @@ export default function Spin3D({ src, poster, alt, width, height, sizes, mobileR
     );
     io.observe(box);
     window.addEventListener("message", onMessage);
-    window.addEventListener("scroll", onScroll, { passive: true });
-    window.addEventListener("resize", onScroll);
-    if (list) onScroll();
+    // Mode cerita: progres datang dari ScrollTrigger CaraStory. Mode biasa: putaran dihitung dari posisi elemen.
+    const unsubscribe = storyOn && progress ? progress.subscribe(schedule) : null;
+    if (!unsubscribe) {
+      window.addEventListener("scroll", schedule, { passive: true });
+      window.addEventListener("resize", schedule);
+    }
     return () => {
-      if (list) {
-        delete list.dataset.story;
-        Array.from(list.children).forEach((el) => delete (el as HTMLElement).dataset.active);
-      }
       cancelAnimationFrame(raf);
       io.disconnect();
       window.removeEventListener("message", onMessage);
-      window.removeEventListener("scroll", onScroll);
-      window.removeEventListener("resize", onScroll);
+      unsubscribe?.();
+      window.removeEventListener("scroll", schedule);
+      window.removeEventListener("resize", schedule);
     };
-  }, [reduced, mounted, storyOn, story]);
+  }, [reduced, mounted, storyOn, progress, frameSrc]);
 
   return (
     <div
@@ -172,10 +137,12 @@ export default function Spin3D({ src, poster, alt, width, height, sizes, mobileR
         loading={eager ? "eager" : undefined}
       />
       {!reduced && mounted && (
+        // key: elemen baru tiap alamat berganti, supaya pergantian mode tidak menambah riwayat tombol Kembali.
         <iframe
+          key={frameSrc}
           ref={frame}
-          src={storyOn ? `${src}&story=1` : src}
-          title="Model 3D prototipe IrriSense yang berputar mengikuti gulir halaman"
+          src={frameSrc}
+          title={`Model 3D prototipe IrriSense yang ${storyOn ? "dirakit" : "berputar"} mengikuti gulir halaman`}
           aria-hidden="true"
           tabIndex={-1}
           className={s.frame}

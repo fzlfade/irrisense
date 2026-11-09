@@ -1,5 +1,6 @@
 import Image from "next/image";
 import Spin3D from "./Spin3D";
+import CaraStory from "./CaraStory";
 import CountUp from "./reactbits/CountUp";
 import Magnet from "./reactbits/Magnet";
 import ScrollReveal from "./reactbits/ScrollReveal";
@@ -107,38 +108,7 @@ export function CaraKerja() {
           Sensor membaca, ESP32 memutuskan, pompa menyiram
         </h2>
       </div>
-      <div className={`${s.wrap} ${s.caraGrid}`}>
-        <div>
-          <ol id="cara-langkah" className={s.steps}>
-            {steps.map((step) => (
-              <li key={step.title} className={s.step}>
-                <h3 className={s.h3}>{step.title}</h3>
-                <p className={s.body}>{step.text}</p>
-              </li>
-            ))}
-          </ol>
-        </div>
-        <figure className={s.caraFigure}>
-          <div className={s.caraFrame}>
-            <Spin3D
-              src="/prototipe/?embed=1&bg=fbf8ee&open=1&cam=0,66,110&tgt=0,8,10"
-              poster="/img/prototipe-terbuka.webp"
-              alt="Rancangan 3D susunan prototipe dengan casing terbuka, memperlihatkan ESP32, relay, pompa, sensor tanah, dan sensor suhu di atas papan dasar."
-              width={1500}
-              height={900}
-              sizes="(min-width: 64rem) 60vw, 100vw"
-              story={{ listId: "cara-langkah" }}
-              storyRatio="5 / 4"
-            />
-          </div>
-          <figcaption className={s.captionDark}>
-            Susunan prototipe di atas papan 100 × 76 cm (rancangan 3D, casing terbuka). Gulir atau seret untuk memutar.
-          </figcaption>
-          <a className={s.link} href="/prototipe/">
-            Coba prototipe 3D dengan live test
-          </a>
-        </figure>
-      </div>
+      <CaraStory steps={steps} />
     </section>
   );
 }

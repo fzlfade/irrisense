@@ -38,18 +38,23 @@ Object.assign(sun.shadow.camera, { left: -90, right: 90, top: 90, bottom: -90, n
 scene.add(sun);
 
 // ---------- pembantu geometri ----------
+// Objek yang ditambahkan sesudah part('x') dicatat di kelompok rakit 'x'; mode cerita (bawah) merakit model per kelompok.
+const parts = {};
+let curPart = null;
+const part = (key) => { curPart = key; };
+function add(o) { scene.add(o); if (curPart) (parts[curPart] ||= []).push(o); return o; }
 const M = (c, o = {}) => new THREE.MeshStandardMaterial({ color: c, roughness: 0.65, metalness: 0, ...o });
 function box(w, h, d, c, x, y, z, o) {
   const m = new THREE.Mesh(new THREE.BoxGeometry(w, h, d), o?.mat || M(c, o));
-  m.position.set(x, y, z); m.castShadow = m.receiveShadow = true; scene.add(m); return m;
+  m.position.set(x, y, z); m.castShadow = m.receiveShadow = true; return add(m);
 }
 function cyl(r, h, c, x, y, z, o = {}, seg = 32) {
   const m = new THREE.Mesh(new THREE.CylinderGeometry(r, r, h, seg), M(c, o));
-  m.position.set(x, y, z); m.castShadow = true; scene.add(m); return m;
+  m.position.set(x, y, z); m.castShadow = true; return add(m);
 }
 function tube(pts, r, c) {
   const g = new THREE.TubeGeometry(new THREE.CatmullRomCurve3(pts.map((p) => new THREE.Vector3(...p)), false, 'chordal'), 64, r, 8);
-  const m = new THREE.Mesh(g, M(c)); m.castShadow = true; scene.add(m); return m;
+  const m = new THREE.Mesh(g, M(c)); m.castShadow = true; return add(m);
 }
 
 // ---------- hotspot (bagian yang bisa diklik) ----------
@@ -65,6 +70,7 @@ box(100, 2, 76, 0, 0, 1, 14, { mat: M(0xcaa877) });
 const floor = box(240, 0.5, 160, 0, 0, -0.3, 0, { mat: M(0xcfd9cb) });
 
 // ---------- bedengan ----------
+part('bed');
 const wood = M(0x8a6339);
 const px = 20, pw = 54, pd = 18;
 box(pw, 12, 1, 0, px, 8, -pd / 2, { mat: wood }); box(pw, 12, 1, 0, px, 8, pd / 2, { mat: wood });
@@ -77,20 +83,23 @@ const xs = []; for (let i = 0; i < 6; i++) xs.push(px - 20 + i * 8);
 const patches = [], leds = [];
 const dryColor = new THREE.Color(0x8c6a47), wetColor = new THREE.Color(0x2b1b11);
 xs.forEach((x, i) => {
+  part('bed');
   cyl(0.35, 22, 0xb59a6a, x, 24, -4);
-  const s = new THREE.Mesh(new THREE.CylinderGeometry(0.25, 0.25, 10, 8), stem); s.position.set(x + 0.4, 18, -4); scene.add(s);
+  const s = new THREE.Mesh(new THREE.CylinderGeometry(0.25, 0.25, 10, 8), stem); s.position.set(x + 0.4, 18, -4); add(s);
   for (let k = 0; k < 4; k++) {
     const l = new THREE.Mesh(new THREE.SphereGeometry(2.1, 12, 8), leaf); l.scale.set(1.6, 0.22, 0.9);
     l.position.set(x + (k % 2 ? 2.6 : -2.2), 16 + k * 3.4, -4 + (k % 2 ? 0.6 : -0.6)); l.rotation.z = (k % 2 ? 1 : -1) * 0.35;
-    l.castShadow = true; scene.add(l);
+    l.castShadow = true; add(l);
   }
-  cyl(0.5, 1.4, 0x111111, x, 16.4, 0); cyl(0.12, 3, 0x4fb0de, x, 14.6, 0, { transparent: true, opacity: 0.7 });
   const patch = box(7.6, 0.15, pd - 2, 0, x, 12.58, 0, { mat: M(0x4a3020) });
+  part('air');
+  cyl(0.5, 1.4, 0x111111, x, 16.4, 0); cyl(0.12, 3, 0x4fb0de, x, 14.6, 0, { transparent: true, opacity: 0.7 });
+  part('sensor');
   const casing = box(1.6, 4, 0.8, 0, x, 15, 4, { mat: M(0x1f3a52) });
   const blade = box(1.4, 2.6, 0.3, 0, x, 12.6, 4.4, { mat: M(0x222222) });
   const mod = box(2.2, 1.2, 0.8, 0, x, 17.4, 4, { mat: M(0xb52a2a) });
   const led = new THREE.Mesh(new THREE.SphereGeometry(0.5, 12, 8), new THREE.MeshBasicMaterial({ color: 0x5fbf85 }));
-  led.position.set(x, 18.5, 4); scene.add(led);
+  led.position.set(x, 18.5, 4); add(led);
   patches.push(patch); leds.push(led);
   reg(`s${i}`, [patch, casing, blade, mod, led], {
     title: `Sensor tanah S${i + 1}`,
@@ -108,6 +117,7 @@ xs.forEach((x, i) => {
 });
 
 // ---------- selang, tandon, pompa ----------
+part('air');
 const hoses = [];
 hoses.push(tube([[-30, 10, -12], [-20, 22, -8], [-8, 20, 0], [xs[0] - 3, 17.2, 0], [xs[5] + 3, 17.2, 0]], 0.55, 0x111111));
 const tank = cyl(7.5, 18, 0x4fb0de, -37, 11, -12, { transparent: true, opacity: 0.35, roughness: 0.2 });
@@ -131,13 +141,15 @@ reg('pump', [pump], {
 // ---------- casing 16x14x4, LCD, isi ----------
 const encX = -14, encZ = 22;
 // Casing berongga (alas + 4 dinding) agar ESP32 dan relay terlihat saat tutup dibuka.
+part('kontrol');
 const encMat = M(0x2b3a36);
 const enclosureParts = [
   box(16, 0.4, 14, 0, encX, 2.2, encZ, { mat: encMat }),
   box(16, 4, 0.6, 0, encX, 4, encZ - 6.7, { mat: encMat }), box(16, 4, 0.6, 0, encX, 4, encZ + 6.7, { mat: encMat }),
   box(0.6, 4, 13.4, 0, encX - 7.7, 4, encZ, { mat: encMat }), box(0.6, 4, 13.4, 0, encX + 7.7, 4, encZ, { mat: encMat }),
 ];
-const lidGroup = new THREE.Group(); lidGroup.position.set(encX, 6.2, encZ); scene.add(lidGroup);
+part('data');
+const lidGroup = new THREE.Group(); lidGroup.position.set(encX, 6.2, encZ); add(lidGroup);
 const lid = new THREE.Mesh(new THREE.BoxGeometry(16, 0.4, 14), M(0x3a4a45)); lid.castShadow = true; lidGroup.add(lid);
 const lcdCanvas = document.createElement('canvas'); lcdCanvas.width = 400; lcdCanvas.height = 240;
 const lcdTex = new THREE.CanvasTexture(lcdCanvas); lcdTex.colorSpace = THREE.SRGBColorSpace;
@@ -151,12 +163,13 @@ function drawLcd() {
 const lcdBody = new THREE.Mesh(new THREE.BoxGeometry(9.8, 0.5, 4), M(0x0a2a20)); lcdBody.position.set(0, 0.45, -2.5); lidGroup.add(lcdBody);
 const lcdScr = new THREE.Mesh(new THREE.PlaneGeometry(7.6, 2.9), new THREE.MeshBasicMaterial({ map: lcdTex }));
 lcdScr.rotation.x = -Math.PI / 2; lcdScr.position.set(0, 0.72, -2.5); lidGroup.add(lcdScr);
+part('kontrol');
 const esp = box(5.2, 0.5, 2.6, 0, encX - 4, 6.2 - 3.3 + 0.2, encZ + 2, { mat: M(0x15203a) });
 const espChip = box(2.2, 0.25, 1.2, 0, encX - 4, 6.2 - 3, encZ + 2, { mat: M(0xc0c0c0) });
 const relay = box(4.2, 1.6, 2.8, 0, encX + 3.5, 5.1, encZ + 2.5, { mat: M(0x2358a6) });
 box(4.2, 0.3, 6, 0, encX + 3.5, 3.1, encZ + 1, { mat: M(0x1f6b3a) });
 const relayLed = new THREE.Mesh(new THREE.SphereGeometry(0.35, 10, 8), new THREE.MeshBasicMaterial({ color: 0x331111 }));
-relayLed.position.set(encX + 3.5 + 1.4, 6.0, encZ + 2.5); scene.add(relayLed);
+relayLed.position.set(encX + 3.5 + 1.4, 6.0, encZ + 2.5); add(relayLed);
 reg('casing', [...enclosureParts, lid], {
   title: 'Casing 16 × 14 × 4 cm',
   text: 'Wadah elektronik. Klik untuk membuka atau menutup tutupnya dan melihat ESP32 serta relay di dalam.',
@@ -181,11 +194,14 @@ reg('relay', [relay], {
 });
 
 // adaptor, kabel duct, DHT11
+part('air');
 const adaptor = box(5, 4, 3, 0, -45, 3, 22, { mat: M(0x151515) });
 tube([[-42.5, 3, 22], [-30, 2.3, 24], [encX - 8, 3.5, encZ]], 0.35, 0x111111);
+part('kontrol');
 box(66, 2, 2, 0, 18, 3, 34, { mat: M(0xf2f2f2) });
 tube([[encX + 8, 3.5, encZ], [-3, 3, 30], [-4, 3, 34]], 0.3, 0x222222);
 xs.forEach((x) => tube([[x, 3.2, 34], [x, 3.2, 11], [x, 15.6, 9.4], [x, 16, 4.4]], 0.12, 0x2a8d4f));
+part('data');
 cyl(0.4, 12, 0xb59a6a, 52, 8, 12);
 const dht = box(2.6, 3.4, 1.6, 0, 52, 15, 12, { mat: M(0x4fa0d8) });
 tube([[52, 4, 12], [52, 3, 30], [40, 3, 34]], 0.2, 0x222222);
@@ -200,12 +216,14 @@ reg('dht', [dht], {
 });
 
 // ---------- tetesan air ----------
+part('air');
 const DROPS_PER = 5;
 const drops = new THREE.InstancedMesh(new THREE.SphereGeometry(0.3, 8, 6), M(0x4fb0de, { emissive: 0x1a6a96 }), 6 * DROPS_PER);
-drops.frustumCulled = false; scene.add(drops);
+drops.frustumCulled = false; add(drops);
 const dummy = new THREE.Object3D();
 
 // ---------- panel tombol virtual ----------
+part(null);
 const panelStart = scene.children.length;
 const panelZ = 60;
 box(46, 2, 14, 0, -9, 1, panelZ, { mat: M(0x2b3a36) });
@@ -473,22 +491,49 @@ const SWEEP = Math.PI * 1.5;   // total putaran dari ujung bawah sampai ujung at
 const orbitAngle = (p) => { const u = (p - 0.5) * 2; return Math.sign(u) * u * u * (SWEEP / 2); };
 const off0 = camera.position.clone().sub(controls.target);
 const r0 = Math.hypot(off0.x, off0.z), th0 = Math.atan2(off0.x, off0.z), h0 = off0.y;
-// ---------- mode story (?story=1): kamera terbang antar-bagian mengikuti langkah yang sedang digulir ----------
+// ---------- mode cerita (?story=1): progres gulir 0..1 dari landing merakit model dan menerbangkan kamera ----------
 const story = embed && q.get('story') === '1';
+// Progres saat kamera tiba di tiap langkah. Harus sama dengan landing/lib/storyProgress.ts (dijaga backend/test/story.test.js).
+const WAYPOINTS = [0.15, 0.4, 0.65, 0.9];
+const HOLD = 0.05;   // kamera diam selama ±HOLD di sekitar tiap waypoint
 const STORY = [
   { cam: [0, 46, 86], tgt: [18, 12, 0], lid: 0, keys: ['s0', 's1', 's2', 's3', 's4', 's5'] },   // 1 sensor tanah
-  { cam: [-14, 36, 56], tgt: [-14, 4, 22], lid: 1, keys: ['esp', 'relay'] },                    // 2 ESP32 + relay (casing terbuka)
+  { cam: [-14, 36, 56], tgt: [-14, 4, 22], lid: 1, keys: ['esp', 'relay'] },                    // 2 ESP32 + relay (casing belum bertutup)
   { cam: [-64, 30, 38], tgt: [-37, 7, -6], lid: 0, keys: ['pump', 'tank'] },                    // 3 pompa + tandon
-  { cam: [-14, 36, 58], tgt: [-14, 6, 22], lid: 0, keys: ['lcd'] },                             // 4 LCD / data
+  { cam: [4, 74, 130], tgt: [4, 9, 14], lid: 0, keys: ['lcd', 'dht'] },                         // 4 data: model utuh, LCD dan DHT11
 ];
+// Kunci kamera: pose awal (progres 0) memperlihatkan papan dasar dengan bedeng dan sensor yang masih melayang,
+// lalu satu pose per langkah.
+const KEYS = [{ t: 0, cam: [0, 80, 130], tgt: [0, 22, 6] }, ...STORY.map((s, i) => ({ t: WAYPOINTS[i], cam: s.cam, tgt: s.tgt }))];
+// Tiap kelompok turun lurus dari atas (rise) dan mendarat tepat di waypoint langkah yang membahasnya. Kelompok langkah 2
+// sampai 4 disembunyikan sampai gilirannya, supaya tidak melayang di depan kamera atau membuat bayangan lebih dulu.
+const ASSEMBLY = [
+  { key: 'bed', from: 0, to: 0.1, rise: 20 },
+  { key: 'sensor', from: 0.03, to: 0.15, rise: 30 },
+  { key: 'kontrol', from: 0.25, to: 0.4, rise: 60, hide: true },
+  { key: 'air', from: 0.5, to: 0.65, rise: 60, hide: true },
+  { key: 'data', from: 0.75, to: 0.9, rise: 70, hide: true },
+];
+if (story) ASSEMBLY.forEach((a) => {
+  a.group = new THREE.Group(); scene.add(a.group);
+  (parts[a.key] || []).forEach((o) => a.group.add(o));
+});
 let storyGoal = 0, storyNow = 0, storyIdx = -1;
 const ease3 = (x) => x * x * (3 - 2 * x);
-// u = nomor langkah berpecahan (0 sampai 3). Kamera diam sejenak di tiap langkah, lalu terbang ke berikutnya.
-function storyPose(u) {
-  const t = clamp(u, 0, STORY.length - 1), i = Math.min(Math.floor(t), STORY.length - 2);
-  const f = ease3(clamp((t - i - 0.25) / 0.5, 0, 1)), a = STORY[i], b = STORY[i + 1];
-  const mix = (x, y) => x.map((v, k) => v + (y[k] - v) * f);
+const easeOut3 = (x) => 1 - (1 - x) ** 3;
+// Langkah aktif = waypoint terdekat; batasnya di tengah antara dua waypoint.
+const stepAt = (p) => { let i = 0; while (i < WAYPOINTS.length - 1 && p > (WAYPOINTS[i] + WAYPOINTS[i + 1]) / 2) i++; return i; };
+function storyPose(p) {
+  let j = 0; while (j < KEYS.length - 2 && p > KEYS[j + 1].t) j++;
+  const a = KEYS[j], b = KEYS[j + 1], from = a.t + (j ? HOLD : 0), to = b.t - HOLD;
+  const f = ease3(clamp((p - from) / (to - from), 0, 1)), mix = (x, y) => x.map((v, k) => v + (y[k] - v) * f);
   return { cam: mix(a.cam, b.cam), tgt: mix(a.tgt, b.tgt) };
+}
+function assemble(p) {
+  ASSEMBLY.forEach((a) => {
+    a.group.position.y = a.rise * (1 - easeOut3(clamp((p - a.from) / (a.to - a.from), 0, 1)));
+    a.group.visible = !a.hide || p > a.from;
+  });
 }
 function highlight(keys) {
   Object.values(hot).forEach((h) => h.meshes.forEach((m) => { if (m.material?.emissive) m.material.emissive.setHex(0x000000); }));
@@ -509,7 +554,7 @@ if (embed) {
     if (e.origin !== location.origin || e.source !== parent) return;
     const d = e.data;
     if (d?.type === 'irri-orbit' && Number.isFinite(d.p)) orbitGoal = clamp(d.p, 0, 1);
-    if (d?.type === 'irri-story' && Number.isFinite(d.u)) storyGoal = d.u;
+    if (d?.type === 'irri-progress' && Number.isFinite(d.p)) storyGoal = clamp(d.p, 0, 1);
     if (d?.type === 'irri-visible') paused = !d.v;
     if (d?.type === 'irri-drag' && Number.isFinite(d.dx)) { dragging = true; dragAngle += d.dx * 0.012; }
     if (d?.type === 'irri-dragend') { dragging = false; dragIdleAt = performance.now(); }
@@ -544,8 +589,9 @@ renderer.setAnimationLoop(() => {
     // Setelah dilepas 1,5 detik, putaran manual perlahan kembali agar model menghadap depan lagi.
     if (!dragging && (reduceMotion || performance.now() - dragIdleAt > 1500)) dragAngle *= reduceMotion ? 0 : 0.93;
     if (story) {
-      storyNow += (storyGoal - storyNow) * (reduceMotion ? 1 : 0.1);
-      const idx = Math.round(clamp(storyNow, 0, STORY.length - 1));
+      storyNow += (storyGoal - storyNow) * (reduceMotion ? 1 : 0.15);
+      assemble(storyNow);
+      const idx = stepAt(storyNow);
       if (idx !== storyIdx) {                                   // langkah berganti: casing, sorotan, dan pompa
         const prev = storyIdx; storyIdx = idx;
         open = STORY[idx].lid === 1; highlight(STORY[idx].keys);
@@ -566,4 +612,4 @@ renderer.setAnimationLoop(() => {
   sendReady();
 });
 drawLcd(); refreshUI();
-window.__prototype = { act, get sim() { return sim; }, hot, get orbit() { return orbitNow; }, get orbitGoal() { return orbitGoal; }, get paused() { return paused; }, get dragAngle() { return dragAngle; }, get flowStill() { return flowStill; }, get story() { return { on: story, now: storyNow, goal: storyGoal, idx: storyIdx }; }, get open() { return open; }, get lidY() { return lidGroup.position.y; } };
+window.__prototype = { act, get sim() { return sim; }, hot, get orbit() { return orbitNow; }, get orbitGoal() { return orbitGoal; }, get paused() { return paused; }, get dragAngle() { return dragAngle; }, get flowStill() { return flowStill; }, get story() { return { on: story, now: storyNow, goal: storyGoal, idx: storyIdx }; }, get assembled() { return story ? ASSEMBLY.map((a) => +(1 - a.group.position.y / a.rise).toFixed(3)) : null; }, get open() { return open; }, get lidY() { return lidGroup.position.y; } };
