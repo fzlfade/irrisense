@@ -11,7 +11,7 @@ const out = path.join(root, 'landing', 'public', 'img');
 const kb = (f) => Math.round(statSync(f).size / 102.4) / 10;
 
 const jobs = [
-  { src: 'docs/banner/prototipe-hero-crop.png', dst: 'prototipe-hero.webp' },
+  { src: 'docs/prototype/prototipe-3d-hero.png', dst: 'prototipe-hero.webp' },
   { src: 'docs/prototype/prototipe-3d-terbuka.png', dst: 'prototipe-terbuka.webp' },
 ];
 

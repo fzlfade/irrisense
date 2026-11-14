@@ -33,9 +33,9 @@ export function Hero() {
       </div>
       <figure className={s.heroFigure}>
         <Spin3D
-          src="/prototipe/?embed=1&bg=12301f&cam=0,52,104&tgt=0,12,6"
+          src="/prototipe/?embed=1&bg=12301f&cam=-12,138,243&tgt=-12,28,8"
           poster="/img/prototipe-hero.webp"
-          alt="Rancangan 3D prototipe: bak tanah berisi enam tanaman vanili dengan selang tetes, tandon air, dan kotak elektronik berlayar kecil."
+          alt="Rancangan 3D prototipe: rangka paralon atap pelana berisi enam polybag vanili dengan selang tetes, galon air, dan kotak elektronik berlayar kecil di tiang depan."
           width={1520}
           height={560}
           mobileRatio="4 / 3"

@@ -1,5 +1,6 @@
 import * as THREE from 'three';
 import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+import { createStrokedToon, setToonOutline } from './stroked-toon.js';
 import * as Sim from './sim.js';
 
 const reduceMotion = matchMedia('(prefers-reduced-motion: reduce)').matches;
@@ -12,101 +13,154 @@ if (embed) document.querySelectorAll('aside, .toolbar, #card, .note').forEach((e
 const vec = (str, def) => { const a = (str || '').split(',').map(Number); return a.length === 3 && a.every(Number.isFinite) ? a : def; };
 const clamp = (v, lo, hi) => Math.min(hi, Math.max(lo, v));
 
-// ---------- renderer, kamera, cahaya ----------
+// ---------- renderer, kamera, cahaya (satuan adegan: cm) ----------
 const view = $('view');
 const renderer = new THREE.WebGLRenderer({ antialias: true });
-renderer.setPixelRatio(Math.min(devicePixelRatio, 2));
-renderer.shadowMap.enabled = true;
-renderer.shadowMap.type = THREE.PCFSoftShadowMap;
-renderer.domElement.setAttribute('aria-label', 'Model 3D prototipe IrriSense. Gunakan tombol di samping untuk mengontrol simulasi.');
+const look = createStrokedToon(renderer);
+renderer.domElement.setAttribute('aria-label', 'Model 3D prototipe IrriSense di rangka paralon. Gunakan tombol di samping untuk mengontrol simulasi.');
 view.insertBefore(renderer.domElement, view.firstChild);
 
 const scene = new THREE.Scene();
 scene.background = new THREE.Color(0xdfe8dc);
-const camera = new THREE.PerspectiveCamera(38, 1, 1, 1000);
-camera.position.set(...vec(q.get('cam'), [-64, 100, 142]));
+const camera = new THREE.PerspectiveCamera(30, 1, 1, 2000);
+camera.position.set(...vec(q.get('cam'), [-150, 160, 300]));
 const controls = new OrbitControls(camera, renderer.domElement);
-controls.target.set(...vec(q.get('tgt'), [0, 6, 16]));
+controls.target.set(...vec(q.get('tgt'), [-14, 26, 8]));
 controls.enableDamping = !reduceMotion;
 controls.maxPolarAngle = Math.PI * 0.48;
-scene.add(new THREE.HemisphereLight(0xffffff, 0x8a9a85, 1.0));
-const sun = new THREE.DirectionalLight(0xffffff, 1.6);
-sun.position.set(60, 110, 70);
-sun.castShadow = true;
-sun.shadow.mapSize.set(2048, 2048);
-Object.assign(sun.shadow.camera, { left: -90, right: 90, top: 90, bottom: -90, near: 10, far: 320 });
-scene.add(sun);
+const keyLight = new THREE.DirectionalLight(0xfff1dc, 2.55);
+keyLight.position.set(140, 260, 180); keyLight.castShadow = true;
+keyLight.shadow.mapSize.set(2048, 2048); keyLight.shadow.bias = -0.0004; keyLight.shadow.normalBias = 1;
+Object.assign(keyLight.shadow.camera, { left: -130, right: 130, top: 110, bottom: -110, near: 50, far: 600 });
+const fillLight = new THREE.DirectionalLight(0xdfe9ff, 0.72); fillLight.position.set(-200, 120, -100);
+scene.add(new THREE.HemisphereLight(0xfff6e6, 0x7a6a58, 1.55), keyLight, fillLight);
 
 // ---------- pembantu geometri ----------
+// Model rangka paralon dari docs/prototype/diorama/src/main.js ditulis dalam meter; grup `world` berskala 100
+// membuatnya cm seperti sisa adegan (kamera, label, panel, parameter URL cam/tgt).
+const world = new THREE.Group(); world.scale.setScalar(100); scene.add(world);
 // Objek yang ditambahkan sesudah part('x') dicatat di kelompok rakit 'x'; mode cerita (bawah) merakit model per kelompok.
 const parts = {};
 let curPart = null;
 const part = (key) => { curPart = key; };
-function add(o) { scene.add(o); if (curPart) (parts[curPart] ||= []).push(o); return o; }
-const M = (c, o = {}) => new THREE.MeshStandardMaterial({ color: c, roughness: 0.65, metalness: 0, ...o });
-function box(w, h, d, c, x, y, z, o) {
-  const m = new THREE.Mesh(new THREE.BoxGeometry(w, h, d), o?.mat || M(c, o));
-  m.position.set(x, y, z); m.castShadow = m.receiveShadow = true; return add(m);
+function add(o, parent = world) {
+  if (o.isMesh) o.castShadow = o.receiveShadow = true;
+  parent.add(o); if (parent === world && curPart) (parts[curPart] ||= []).push(o); return o;
 }
-function cyl(r, h, c, x, y, z, o = {}, seg = 32) {
-  const m = new THREE.Mesh(new THREE.CylinderGeometry(r, r, h, seg), M(c, o));
-  m.position.set(x, y, z); m.castShadow = true; return add(m);
+const toon = (c, o) => look.toon(c, o);
+const V = (x, y, z) => new THREE.Vector3(x, y, z);
+function box(w, h, d, mat, x, y, z, parent) { const m = add(new THREE.Mesh(new THREE.BoxGeometry(w, h, d), mat), parent); m.position.set(x, y, z); return m; }
+function cyl(r, h, mat, x, y, z, parent, seg = 24) { const m = add(new THREE.Mesh(new THREE.CylinderGeometry(r, r, h, seg), mat), parent); m.position.set(x, y, z); return m; }
+function rod(a, b, r, mat, parent, seg = 20) {
+  const d = b.clone().sub(a), m = add(new THREE.Mesh(new THREE.CylinderGeometry(r, r, d.length(), seg), mat), parent);
+  m.position.copy(a).add(b).multiplyScalar(0.5); m.quaternion.setFromUnitVectors(V(0, 1, 0), d.normalize()); return m;
 }
-function tube(pts, r, c) {
-  const g = new THREE.TubeGeometry(new THREE.CatmullRomCurve3(pts.map((p) => new THREE.Vector3(...p)), false, 'chordal'), 64, r, 8);
-  const m = new THREE.Mesh(g, M(c)); m.castShadow = true; return add(m);
+function tube(points, r, mat, parent, seg = 80) {
+  return add(new THREE.Mesh(new THREE.TubeGeometry(new THREE.CatmullRomCurve3(points, false, 'centripetal'), seg, r, 10), mat), parent);
 }
+function group(x, y, z) { const g = new THREE.Group(); g.position.set(x, y, z); return add(g); }
 
 // ---------- hotspot (bagian yang bisa diklik) ----------
 const hot = {};            // key -> { title, meshes, text, live, acts }
 const hotMeshes = [];
 function reg(key, meshes, def) {
-  meshes.forEach((m) => { m.userData.hot = key; hotMeshes.push(m); });
+  // Material diklon per hotspot: sorotan (emissive) satu bagian tidak boleh ikut menyalakan bagian lain yang berbagi material.
+  meshes.forEach((m) => { m.material = m.material.clone(); m.userData.hot = key; hotMeshes.push(m); });
   hot[key] = { meshes, ...def };
 }
 
-// ---------- lantai, papan dasar ----------
-box(100, 2, 76, 0, 0, 1, 14, { mat: M(0xcaa877) });
-const floor = box(240, 0.5, 160, 0, 0, -0.3, 0, { mat: M(0xcfd9cb) });
+// ---------- ukuran rangka (meter, PERKIRAAN dari foto; sama dengan diorama) ----------
+const L = 1.0, W = 0.6, H = 0.75, POST = 0.25, R = 0.0135;  // pipa 3/4" (OD ~27 mm)
+const BY = R * 1.45;              // sumbu pipa alas: fitting menapak lantai
+const HY = BY + R * 1.45 + 0.009; // sumbu selang utama di atas rel tengah
+const GX = -0.82;                 // posisi galon
+const SOIL_Y = 0.1845, POT_R = 0.098;
+const PZ = W / 2, BOX_Z = PZ + R + 0.006 + 0.02, BOX_Y = 0.15;
+const C = {
+  pvc: toon(0xf1f0ea), fit: toon(0x7d8287), floor: toon(0xb5644f), grout: toon(0x8e4a3a, { outline: false }),
+  bag: toon(0x232320), stake: toon(0xc9a46a), leaf: toon(0x3f8f55), leaf2: toon(0x2f7647), vine: toon(0x4f9a58, { outline: false }),
+  pcb: toon(0x1d1d1d), prong: toon(0xc9a24a, { outline: false }), scase: toon(0x2e5f86),
+  cable: toon(0x262626, { outline: false }), hose: toon(0x161616), micro: toon(0x1c1c1c, { outline: false }),
+  drip: toon(0x6b3fa0), cap: toon(0xb52a2a), conn: toon(0x2a2a2a),
+  box: toon(0x2b3a36), lid: toon(0x3a4a45), bezel: toon(0x0f2a20), screw: toon(0x9aa3a0, { outline: false }),
+  dht: toon(0x4fa0d8), black: toon(0x151515), strip: toon(0xefeee8), socket: toon(0x6b6b6b, { outline: false }),
+  pump: toon(0xb9892b),
+  glass: toon(0xcfe8f2, { outline: false, transparent: true, opacity: 0.28, depthWrite: false }),
+  water: toon(0x2d8fc0, { outline: false, transparent: true, opacity: 0.55, depthWrite: false }),
+  board: toon(0x1f6b3a), esp: toon(0x15203a), chip: toon(0xc0c0c0, { outline: false }), relay: toon(0x2358a6),
+};
+const hash = (n) => { const s = Math.sin(n * 127.1) * 43758.5453; return s - Math.floor(s); };
 
-// ---------- bedengan ----------
+// ---------- lantai ----------
+const floor = box(10, 0.005, 8, toon(0xcfd9cb, { outline: false }), -0.15, -0.0425, 0.1); floor.castShadow = false;
+const SLAB = { x0: -1.04, x1: 0.74, z0: -0.46, z1: 0.68 };
+box(SLAB.x1 - SLAB.x0, 0.04, SLAB.z1 - SLAB.z0, C.floor, (SLAB.x0 + SLAB.x1) / 2, -0.02, (SLAB.z0 + SLAB.z1) / 2).castShadow = false;
+for (let x = -0.84; x < SLAB.x1; x += 0.4) box(0.006, 0.0012, SLAB.z1 - SLAB.z0, C.grout, x, 0.0006, (SLAB.z0 + SLAB.z1) / 2).castShadow = false;
+for (let z = -0.26; z < SLAB.z1; z += 0.4) box(SLAB.x1 - SLAB.x0, 0.0012, 0.006, C.grout, (SLAB.x0 + SLAB.x1) / 2, 0.0006, z).castShadow = false;
 part('bed');
-const wood = M(0x8a6339);
-const px = 20, pw = 54, pd = 18;
-box(pw, 12, 1, 0, px, 8, -pd / 2, { mat: wood }); box(pw, 12, 1, 0, px, 8, pd / 2, { mat: wood });
-box(1, 12, pd, 0, px - pw / 2, 8, 0, { mat: wood }); box(1, 12, pd, 0, px + pw / 2, 8, 0, { mat: wood });
-box(pw - 1, 10, pd - 1, 0, px, 7.5, 0, { mat: M(0x4a3020) });
 
-// ---------- 6 tanaman, emitter, sensor ----------
-const leaf = M(0x3f9a5e), stem = M(0x2f7d4f);
-const xs = []; for (let i = 0; i < 6; i++) xs.push(px - 20 + i * 8);
-const patches = [], leds = [];
-const dryColor = new THREE.Color(0x8c6a47), wetColor = new THREE.Color(0x2b1b11);
-xs.forEach((x, i) => {
+// ---------- rangka paralon: alas kisi, 3 kuda-kuda, bubungan ----------
+const frame = group(0, 0, 0);
+function pipe(a, b) { // pipa + selongsong fitting di kedua ujung
+  rod(a, b, R, C.pvc, frame);
+  const dir = b.clone().sub(a).normalize();
+  for (const [p, s] of [[a, 1], [b, -1]]) rod(p.clone().addScaledVector(dir, s * 0.004), p.clone().addScaledVector(dir, s * 0.034), R * 1.26, C.fit, frame, 18);
+}
+const joint = (p) => { add(new THREE.Mesh(new THREE.SphereGeometry(R * 1.45, 18, 12), C.fit), frame).position.copy(p); };
+const XS = [-0.5, -0.25, 0, 0.25, 0.5], ZS = [-W / 2, 0, W / 2], TRUSS = [-0.5, 0, 0.5];
+for (const z of ZS) for (let i = 0; i < XS.length - 1; i++) pipe(V(XS[i], BY, z), V(XS[i + 1], BY, z));
+for (const x of XS) { pipe(V(x, BY, -W / 2), V(x, BY, 0)); pipe(V(x, BY, 0), V(x, BY, W / 2)); for (const z of ZS) joint(V(x, BY, z)); }
+for (const x of TRUSS) {
+  for (const z of [-W / 2, W / 2]) { pipe(V(x, BY, z), V(x, POST, z)); pipe(V(x, POST, z), V(x, H, 0)); joint(V(x, POST, z)); }
+  joint(V(x, H, 0));
+}
+for (let i = 0; i < TRUSS.length - 1; i++) pipe(V(TRUSS[i], H, 0), V(TRUSS[i + 1], H, 0));
+
+// ---------- 6 polybag vanili, sensor tanah, dripper ----------
+const POTS = []; for (const x of [-0.375, -0.125, 0.125]) for (const z of [-0.15, 0.15]) POTS.push([x, z]);
+const xs = POTS.map(([x]) => x * 100);   // posisi tanaman dalam cm (dipakai label)
+const patches = [], leds = [], drips = [];
+const dryColor = new THREE.Color(0x8a6a48), wetColor = new THREE.Color(0x2a1a10);
+POTS.forEach(([px, pz], i) => {
   part('bed');
-  cyl(0.35, 22, 0xb59a6a, x, 24, -4);
-  const s = new THREE.Mesh(new THREE.CylinderGeometry(0.25, 0.25, 10, 8), stem); s.position.set(x + 0.4, 18, -4); add(s);
-  for (let k = 0; k < 4; k++) {
-    const l = new THREE.Mesh(new THREE.SphereGeometry(2.1, 12, 8), leaf); l.scale.set(1.6, 0.22, 0.9);
-    l.position.set(x + (k % 2 ? 2.6 : -2.2), 16 + k * 3.4, -4 + (k % 2 ? 0.6 : -0.6)); l.rotation.z = (k % 2 ? 1 : -1) * 0.35;
-    l.castShadow = true; add(l);
+  const g = group(px, 0, pz);
+  const prof = [[0.001, 0], [0.083, 0], [0.087, 0.012], [0.095, 0.192], [POT_R, 0.2], [0.094, 0.2], [0.091, 0.183], [0.001, 0.183]].map(([a, b]) => new THREE.Vector2(a, b));
+  add(new THREE.Mesh(new THREE.LatheGeometry(prof, 36), C.bag), g);
+  for (const y of [0.07, 0.13]) { const fold = add(new THREE.Mesh(new THREE.TorusGeometry(0.087 + y * 0.04, 0.0018, 6, 36), C.black), g); fold.rotation.x = Math.PI / 2; fold.position.y = y; }
+  const soil = add(new THREE.Mesh(new THREE.CircleGeometry(0.0905, 32), toon(0x7b5a3c, { outline: false })), g);
+  soil.rotation.x = -Math.PI / 2; soil.position.y = SOIL_Y;
+  // ajir + sulur spiral + daun
+  rod(V(0.035, 0.12, 0), V(0.035, 0.62, 0), 0.0055, C.stake, g, 10);
+  const turns = 2.1 + hash(i) * 0.5, ph = hash(i + 9) * Math.PI * 2, spiral = [];
+  for (let k = 0; k <= 40; k++) { const u = k / 40, a = ph + u * turns * Math.PI * 2; spiral.push(V(0.035 + Math.cos(a) * 0.011, SOIL_Y + 0.004 + u * 0.4, Math.sin(a) * 0.011)); }
+  tube(spiral, 0.0032, C.vine, g, 120);
+  for (let k = 0; k < 7; k++) {
+    const u = 0.12 + k * 0.125, a = ph + u * turns * Math.PI * 2;
+    const lg = new THREE.Group(); lg.position.set(0.035 + Math.cos(a) * 0.011, SOIL_Y + 0.004 + u * 0.4, Math.sin(a) * 0.011); lg.rotation.y = -a; g.add(lg);
+    rod(V(0, 0, 0), V(0.014, -0.002, 0), 0.0016, C.vine, lg, 6);
+    const leaf = add(new THREE.Mesh(new THREE.SphereGeometry(1, 14, 10), k % 2 ? C.leaf : C.leaf2), lg);
+    leaf.scale.set(0.034 + hash(i * 7 + k) * 0.01, 0.0045, 0.017); leaf.position.set(0.045, -0.006, 0); leaf.rotation.z = -0.28;
   }
-  const patch = box(7.6, 0.15, pd - 2, 0, x, 12.58, 0, { mat: M(0x4a3020) });
-  part('air');
-  cyl(0.5, 1.4, 0x111111, x, 16.4, 0); cyl(0.12, 3, 0x4fb0de, x, 14.6, 0, { transparent: true, opacity: 0.7 });
+  // sensor kapasitif: garpu di tanah, PCB, casing, lampu status di atasnya
   part('sensor');
-  const casing = box(1.6, 4, 0.8, 0, x, 15, 4, { mat: M(0x1f3a52) });
-  const blade = box(1.4, 2.6, 0.3, 0, x, 12.6, 4.4, { mat: M(0x222222) });
-  const mod = box(2.2, 1.2, 0.8, 0, x, 17.4, 4, { mat: M(0xb52a2a) });
-  const led = new THREE.Mesh(new THREE.SphereGeometry(0.5, 12, 8), new THREE.MeshBasicMaterial({ color: 0x5fbf85 }));
-  led.position.set(x, 18.5, 4); add(led);
-  patches.push(patch); leds.push(led);
-  reg(`s${i}`, [patch, casing, blade, mod, led], {
+  const sg = group(px, 0, pz), sx = -0.05;
+  const prongs = [-0.006, 0.006].map((dx) => box(0.004, 0.08, 0.0018, C.prong, sx + dx, SOIL_Y - 0.035, 0, sg));
+  const pcb = box(0.024, 0.045, 0.0018, C.pcb, sx, SOIL_Y + 0.028, 0, sg);
+  const scase = box(0.028, 0.026, 0.012, C.scase, sx, SOIL_Y + 0.044, 0, sg);
+  const led = add(new THREE.Mesh(new THREE.SphereGeometry(0.0045, 12, 8), look.flat(0x5fbf85)), sg); led.position.set(sx, SOIL_Y + 0.061, 0);
+  // dripper stik: kepala ungu di atas tanah, stik tertancap
+  part('air');
+  const s = Math.sign(pz), dg = group(px, 0, pz - s * 0.06);
+  cyl(0.008, 0.011, C.drip, 0, SOIL_Y + 0.034, 0, dg);
+  const stick = add(new THREE.Mesh(new THREE.ConeGeometry(0.0038, 0.07, 10), C.drip), dg); stick.rotation.x = Math.PI; stick.position.y = SOIL_Y - 0.007;
+  drips.push([px + 0.0075, pz - s * 0.06]);
+  patches.push(soil); leds.push(led);
+  reg(`s${i}`, [soil, scase, pcb, ...prongs, led], {
     title: `Sensor tanah S${i + 1}`,
     text: `Terhubung ke GPIO ${Sim.SENSOR_GPIO[i]} (ADC1). Lampu di atas sensor: kuning di bawah 60 %, hijau 60 sampai 80 %, biru di atas 80 %, abu-abu bila sensor rusak.`,
     live: () => {
-      const s = sim.sensors[i];
-      return s.valid ? `Kelembapan: ${s.pct.toFixed(1)} %` : 'Sensor rusak (diabaikan dari rata-rata)';
+      const s2 = sim.sensors[i];
+      return s2.valid ? `Kelembapan: ${s2.pct.toFixed(1)} %` : 'Sensor rusak (diabaikan dari rata-rata)';
     },
     acts: [
       { label: 'Keringkan', act: 'sensor-dry', arg: i },
@@ -115,64 +169,102 @@ xs.forEach((x, i) => {
     ],
   });
 });
+// kabel sensor: menyusuri rel melintang di sebelah polybag, melompati selang di rel tengah, masuk duct
+part('sensor');
+const DUCT_Y = 0.0125, DUCT_Z = PZ + 0.03;
+POTS.forEach(([px, pz]) => {
+  const rx = px - 0.125, sx = px - 0.05, y = BY + R + 0.0028, pts = [V(sx, SOIL_Y + 0.057, pz), V(sx - 0.012, SOIL_Y + 0.07, pz), V(px - POT_R - 0.004, 0.214, pz), V(px - 0.115, 0.1, pz), V(rx, y + 0.004, pz)];
+  if (pz < 0) pts.push(V(rx, y, -0.05), V(rx, HY + 0.014, -0.012), V(rx, HY + 0.014, 0.012), V(rx, y, 0.05));
+  pts.push(V(rx, y, PZ - 0.045), V(rx + 0.03, y + 0.002, PZ - 0.035), V(rx + 0.03, BY + R + 0.0058, PZ), V(rx + 0.03, 0.0265, DUCT_Z));
+  tube(pts, 0.0026, C.cable, world, 90);
+});
 
-// ---------- selang, tandon, pompa ----------
+// ---------- selang utama, klip, cabang, galon, pompa celup ----------
 part('air');
 const hoses = [];
-hoses.push(tube([[-30, 10, -12], [-20, 22, -8], [-8, 20, 0], [xs[0] - 3, 17.2, 0], [xs[5] + 3, 17.2, 0]], 0.55, 0x111111));
-const tank = cyl(7.5, 18, 0x4fb0de, -37, 11, -12, { transparent: true, opacity: 0.35, roughness: 0.2 });
-const water = cyl(7.1, 12, 0x2d8fc0, -37, 8, -12, { transparent: true, opacity: 0.75 });
-const pump = cyl(2, 3.8, 0xb9892b, -37, 3.2, -1.5);
-hoses.push(tube([[-37, 5, -1.5], [-37, 10, -5], [-30, 10, -12]], 0.5, 0x111111));
-hoses.push(tube([[-37, 12, -12], [-37, 13, -6], [-37, 5.2, -1.5]], 0.4, 0x111111));
+const hoseEnd = 0.2;
+hoses.push(tube([V(GX, 0.045, 0), V(GX, 0.3, 0), V(GX, 0.49, 0), V(GX + 0.045, 0.53, 0), V(GX + 0.12, 0.47, 0), V(GX + 0.16, 0.42, 0),
+  V(GX + 0.175, 0.2, 0), V(GX + 0.2, 0.012, 0), V(-0.6, 0.009, 0), V(-0.545, 0.02, 0), V(-0.5, HY, 0)], 0.008, C.hose, world, 160));
+hoses.push(rod(V(-0.5, HY, 0), V(hoseEnd, HY, 0), 0.008, C.hose));
+rod(V(hoseEnd - 0.004, HY, 0), V(hoseEnd + 0.016, HY, 0), 0.0095, C.cap);
+for (const x of [-0.44, -0.19, 0.06]) box(0.01, HY - BY - R, 0.022, C.black, x, (BY + R + HY) / 2, 0);
+POTS.forEach(([px, pz]) => {
+  const s = Math.sign(pz);
+  cyl(0.005, 0.016, C.conn, px, HY + 0.012, 0);
+  hoses.push(tube([V(px, HY + 0.018, 0), V(px, 0.1, s * 0.02), V(px, 0.2, s * 0.038), V(px, 0.232, s * 0.062), V(px + 0.004, SOIL_Y + 0.045, pz - s * 0.06)], 0.0028, C.micro, world, 60));
+});
+const galonProf = [[0.001, 0], [0.12, 0], [0.135, 0.02], [0.135, 0.38], [0.11, 0.425], [0.04, 0.45], [0.03, 0.465], [0.03, 0.49], [0.034, 0.495], [0.034, 0.505], [0.028, 0.505]].map(([a, b]) => new THREE.Vector2(a, b));
+const tank = add(new THREE.Mesh(new THREE.LatheGeometry(galonProf, 48), C.glass)); tank.position.set(GX, 0, 0); tank.castShadow = false;
+tank.userData.seeThrough = true;   // klik menembus dinding galon ke pompa di dalamnya
+for (const y of [0.12, 0.24]) { const rib = add(new THREE.Mesh(new THREE.TorusGeometry(0.136, 0.0025, 6, 48), C.glass)); rib.rotation.x = Math.PI / 2; rib.position.set(GX, y, 0); rib.castShadow = false; }
+const WATER_TOP = 0.3;
+const water = add(new THREE.Mesh(new THREE.CylinderGeometry(0.131, 0.131, WATER_TOP - 0.004, 48), C.water)); water.position.set(GX, (WATER_TOP + 0.004) / 2, 0);
+water.castShadow = false; water.userData.seeThrough = true;
+const ripple = add(new THREE.Mesh(new THREE.TorusGeometry(1, 0.0025, 6, 40), look.flat(0x4fb0de, { transparent: true, opacity: 0.9 })));
+ripple.rotation.x = Math.PI / 2; ripple.position.set(GX, WATER_TOP + 0.001, 0); ripple.scale.set(0.05, 0.05, 1); ripple.castShadow = false;
+const pump = group(GX, 0, 0);
+const pumpParts = [box(0.05, 0.034, 0.04, C.pump, 0, 0.021, 0, pump), cyl(0.007, 0.012, C.pump, 0, 0.044, 0, pump, 12)];
+// kabel pompa: ikut selang keluar lewat mulut galon, menyusur lantai ke ujung kiri kabel duct
+tube([V(GX + 0.025, 0.03, 0.01), V(GX + 0.015, 0.25, 0.012), V(GX + 0.012, 0.49, 0.012), V(GX + 0.05, 0.525, 0.012), V(GX + 0.125, 0.47, 0.012), V(GX + 0.165, 0.42, 0.012), V(GX + 0.18, 0.2, 0.012), V(GX + 0.205, 0.006, 0.02), V(-0.62, 0.004, 0.2), V(-0.56, 0.006, 0.33), V(-0.5, 0.0125, 0.33)], 0.0022, C.cable, world, 140);
 reg('tank', [tank, water], {
-  title: 'Tandon air',
+  title: 'Tandon air (galon)',
   text: 'Level turun saat pompa menyala. Bila tandon kosong, pompa berputar tanpa membasahi tanah, sehingga pengaman 10 menit memicu FAULT: MAX RUN.',
   live: () => `Isi tandon: ${sim.tank.toFixed(0)} %`,
   acts: [{ label: 'Kosongkan', act: 'tank-empty' }, { label: 'Isi penuh', act: 'tank-fill' }],
 });
-reg('pump', [pump], {
+reg('pump', pumpParts, {
   title: 'Mini pompa 5 VDC',
-  text: 'Dialiri adaptor lewat terminal relay, dengan dioda 1N4007 paralel di pompa. Di mode Manual, klik pompa atau tombol di bawah untuk menyalakannya.',
+  text: 'Pompa celup di dasar galon, dialiri adaptor lewat terminal relay, dengan dioda 1N4007 paralel di pompa. Di mode Manual, klik pompa atau tombol di bawah untuk menyalakannya.',
   live: () => `Pompa: ${sim.pump ? 'ON' : 'OFF'} (mode ${sim.mode === 'auto' ? 'Auto' : 'Manual'})`,
   acts: [{ label: 'Tekan pompa', act: 'pump-toggle' }],
 });
 
-// ---------- casing 16x14x4, LCD, isi ----------
-const encX = -14, encZ = 22;
-// Casing berongga (alas + 4 dinding) agar ESP32 dan relay terlihat saat tutup dibuka.
+// ---------- casing 16 × 14 × 4 cm di tiang depan kuda-kuda tengah ----------
+// Casing berongga (dinding belakang + 4 sisi); tutup depan berengsel di sisi kanan, membawa LCD dan LED pompa.
+// Engsel kanan: tutup terbuka ke kanan depan, menjauh dari kamera bawaan yang melihat dari kiri.
 part('kontrol');
-const encMat = M(0x2b3a36);
 const enclosureParts = [
-  box(16, 0.4, 14, 0, encX, 2.2, encZ, { mat: encMat }),
-  box(16, 4, 0.6, 0, encX, 4, encZ - 6.7, { mat: encMat }), box(16, 4, 0.6, 0, encX, 4, encZ + 6.7, { mat: encMat }),
-  box(0.6, 4, 13.4, 0, encX - 7.7, 4, encZ, { mat: encMat }), box(0.6, 4, 13.4, 0, encX + 7.7, 4, encZ, { mat: encMat }),
+  box(0.16, 0.14, 0.004, C.box, 0, BOX_Y, BOX_Z - 0.018),
+  box(0.16, 0.004, 0.04, C.box, 0, BOX_Y + 0.068, BOX_Z), box(0.16, 0.004, 0.04, C.box, 0, BOX_Y - 0.068, BOX_Z),
+  box(0.004, 0.132, 0.04, C.box, -0.078, BOX_Y, BOX_Z), box(0.004, 0.132, 0.04, C.box, 0.078, BOX_Y, BOX_Z),
 ];
+for (const y of [0.11, 0.19]) box(0.04, 0.006, 0.036, C.black, 0, y, PZ + 0.002); // cable tie mengikat casing ke tiang
+for (const x of [0.0, 0.045]) cyl(0.0065, 0.012, C.black, x, BOX_Y - 0.076, BOX_Z); // kelenjar kabel di bawah casing
+// isi casing: PCB prototipe di dinding belakang, ESP32 dan relay di atasnya, kabel jumper
+const IN_Z = BOX_Z - 0.016;
+const pcbBoard = box(0.14, 0.12, 0.002, C.board, 0, BOX_Y, IN_Z + 0.001);
+const esp = box(0.03, 0.054, 0.004, C.esp, -0.035, BOX_Y + 0.008, IN_Z + 0.004);
+const espChip = box(0.017, 0.019, 0.002, C.chip, -0.035, BOX_Y + 0.02, IN_Z + 0.007);
+const relay = box(0.04, 0.026, 0.016, C.relay, 0.037, BOX_Y + 0.025, IN_Z + 0.01);
+const relayBase = box(0.044, 0.05, 0.002, C.pcb, 0.037, BOX_Y + 0.012, IN_Z + 0.003);
+const relayLed = add(new THREE.Mesh(new THREE.SphereGeometry(0.003, 10, 8), look.flat(0x331111))); relayLed.position.set(0.05, BOX_Y - 0.004, IN_Z + 0.005);
+[[0xd23b2b, -0.01], [0x2b2b2b, -0.004], [0xe0a94d, 0.002]].forEach(([c, dy]) => tube(
+  [V(-0.019, BOX_Y + 0.01 + dy, IN_Z + 0.005), V(0, BOX_Y + 0.004 + dy, IN_Z + 0.009), V(0.016, BOX_Y + 0.006 + dy, IN_Z + 0.005)], 0.0011, toon(c, { outline: false }), world, 16));
+// kabel duct di lantai depan rel depan + berkas kabel naik ke casing
+const duct = box(L, 0.025, 0.025, C.strip, 0, DUCT_Y, DUCT_Z);
+tube([V(0.03, 0.025, DUCT_Z), V(0.024, 0.05, DUCT_Z + 0.004), V(0.004, BOX_Y - 0.082, BOX_Z)], 0.0045, C.cable, world, 24);
+
 part('data');
-const lidGroup = new THREE.Group(); lidGroup.position.set(encX, 6.2, encZ); add(lidGroup);
-const lid = new THREE.Mesh(new THREE.BoxGeometry(16, 0.4, 14), M(0x3a4a45)); lid.castShadow = true; lidGroup.add(lid);
-const lcdCanvas = document.createElement('canvas'); lcdCanvas.width = 400; lcdCanvas.height = 240;
+const lidGroup = group(0.08, BOX_Y, BOX_Z + 0.02);   // engsel di tepi kanan depan casing
+const lid = box(0.16, 0.14, 0.004, C.lid, -0.08, 0, -0.002, lidGroup);
+for (const [x, y] of [[-0.07, 0.06], [0.07, 0.06], [-0.07, -0.06], [0.07, -0.06]]) { const sc = cyl(0.0035, 0.003, C.screw, -0.08 + x, y, 0.0015, lidGroup); sc.rotation.x = Math.PI / 2; }
+const lcdBody = box(0.098, 0.06, 0.006, C.bezel, -0.08, 0.015, 0.003, lidGroup);
+const lcdCanvas = document.createElement('canvas'); lcdCanvas.width = 420; lcdCanvas.height = 150;
 const lcdTex = new THREE.CanvasTexture(lcdCanvas); lcdTex.colorSpace = THREE.SRGBColorSpace;
 function drawLcd() {
   const g = lcdCanvas.getContext('2d');
-  g.fillStyle = '#0d3b2e'; g.fillRect(0, 0, 400, 240);
-  g.fillStyle = '#8cffb8'; g.font = 'bold 32px monospace'; g.textBaseline = 'alphabetic';
-  Sim.lcdLines(sim).forEach((t, i) => g.fillText(t, 0, 48 + i * 54));
+  g.fillStyle = '#0d3b2e'; g.fillRect(0, 0, 420, 150);
+  g.fillStyle = '#8cffb8'; g.font = 'bold 30px monospace'; g.textBaseline = 'alphabetic';
+  Sim.lcdLines(sim).forEach((t, i) => g.fillText(t, 6, 31 + i * 36));
   lcdTex.needsUpdate = true;
 }
-const lcdBody = new THREE.Mesh(new THREE.BoxGeometry(9.8, 0.5, 4), M(0x0a2a20)); lcdBody.position.set(0, 0.45, -2.5); lidGroup.add(lcdBody);
-const lcdScr = new THREE.Mesh(new THREE.PlaneGeometry(7.6, 2.9), new THREE.MeshBasicMaterial({ map: lcdTex }));
-lcdScr.rotation.x = -Math.PI / 2; lcdScr.position.set(0, 0.72, -2.5); lidGroup.add(lcdScr);
-part('kontrol');
-const esp = box(5.2, 0.5, 2.6, 0, encX - 4, 6.2 - 3.3 + 0.2, encZ + 2, { mat: M(0x15203a) });
-const espChip = box(2.2, 0.25, 1.2, 0, encX - 4, 6.2 - 3, encZ + 2, { mat: M(0xc0c0c0) });
-const relay = box(4.2, 1.6, 2.8, 0, encX + 3.5, 5.1, encZ + 2.5, { mat: M(0x2358a6) });
-box(4.2, 0.3, 6, 0, encX + 3.5, 3.1, encZ + 1, { mat: M(0x1f6b3a) });
-const relayLed = new THREE.Mesh(new THREE.SphereGeometry(0.35, 10, 8), new THREE.MeshBasicMaterial({ color: 0x331111 }));
-relayLed.position.set(encX + 3.5 + 1.4, 6.0, encZ + 2.5); add(relayLed);
+const lcdScr = add(new THREE.Mesh(new THREE.PlaneGeometry(0.084, 0.03), setToonOutline(new THREE.MeshBasicMaterial({ map: lcdTex, toneMapped: false }), false)), lidGroup);
+lcdScr.position.set(-0.08, 0.016, 0.0062); lcdScr.castShadow = false;
+const pumpLed = add(new THREE.Mesh(new THREE.SphereGeometry(0.0045, 12, 8), look.flat(0x24452f)), lidGroup); pumpLed.position.set(-0.025, -0.038, 0.002);
+box(0.018, 0.004, 0.002, C.screw, -0.05, -0.038, 0.0005, lidGroup); // label kecil di samping LED
 reg('casing', [...enclosureParts, lid], {
   title: 'Casing 16 × 14 × 4 cm',
-  text: 'Wadah elektronik. Klik untuk membuka atau menutup tutupnya dan melihat ESP32 serta relay di dalam.',
+  text: 'Wadah elektronik, diikat dua cable tie ke tiang depan. Klik untuk membuka atau menutup tutupnya dan melihat ESP32, relay, dan PCB di dalam. Lampu hijau di tutup menyala saat pompa ON.',
   acts: [{ label: 'Buka / tutup', act: 'lid' }],
 });
 reg('lcd', [lcdBody, lcdScr], {
@@ -186,59 +278,71 @@ reg('esp', [esp, espChip], {
   live: () => `Rata-rata: ${Number.isNaN(Sim.average(sim.sensors)) ? '---' : Sim.average(sim.sensors).toFixed(1) + ' %'}`,
   opensLid: true,
 });
-reg('relay', [relay], {
+reg('relay', [relay, relayBase], {
   title: 'Relay 1 channel',
-  text: 'IN ke D26, VCC ke 5 V (baris VIN). Saat ON, relay menyambungkan adaptor ke pompa. Lampu kecil di sebelahnya menyala merah saat pompa ON.',
+  text: 'IN ke D26, VCC ke 5 V (baris VIN). Saat ON, relay menyambungkan adaptor ke pompa. Lampu kecil di bawahnya menyala merah saat pompa ON.',
   live: () => `Relay: ${sim.pump ? 'ON' : 'OFF'}`,
   opensLid: true,
 });
+reg('pcb', [pcbBoard], {
+  title: 'PCB prototipe + kabel jumper',
+  text: 'Papan tempat ESP32 dan relay dipasang. Kabel jumper menyambung pin D26 ke IN relay serta jalur 5 V dan GND.',
+  opensLid: true,
+});
 
-// adaptor, kabel duct, DHT11
-part('air');
-const adaptor = box(5, 4, 3, 0, -45, 3, 22, { mat: M(0x151515) });
-tube([[-42.5, 3, 22], [-30, 2.3, 24], [encX - 8, 3.5, encZ]], 0.35, 0x111111);
-part('kontrol');
-box(66, 2, 2, 0, 18, 3, 34, { mat: M(0xf2f2f2) });
-tube([[encX + 8, 3.5, encZ], [-3, 3, 30], [-4, 3, 34]], 0.3, 0x222222);
-xs.forEach((x) => tube([[x, 3.2, 34], [x, 3.2, 11], [x, 15.6, 9.4], [x, 16, 4.4]], 0.12, 0x2a8d4f));
+// ---------- DHT11 di tiang atas casing, adaptor + stopkontak ----------
 part('data');
-cyl(0.4, 12, 0xb59a6a, 52, 8, 12);
-const dht = box(2.6, 3.4, 1.6, 0, 52, 15, 12, { mat: M(0x4fa0d8) });
-tube([[52, 4, 12], [52, 3, 30], [40, 3, 34]], 0.2, 0x222222);
+const DHT_Z = PZ + 0.027;
+const dht = box(0.017, 0.023, 0.008, C.dht, 0, 0.238, DHT_Z);
+for (let k = 0; k < 4; k++) box(0.012, 0.0012, 0.0005, C.box, 0, 0.231 + k * 0.004, DHT_Z + 0.0042);
+box(0.03, 0.005, 0.03, C.black, 0, 0.238, PZ + 0.006);
+tube([V(0.004, 0.2265, DHT_Z), V(0.012, 0.223, DHT_Z + 0.004), V(0.03, 0.2205, BOX_Z)], 0.0018, C.cable, world, 20);
+part('air');
+box(0.2, 0.024, 0.05, C.strip, 0.27, 0.012, 0.55);
+for (const x of [0.2, 0.26, 0.32]) box(0.022, 0.002, 0.03, C.socket, x, 0.0245, 0.55);
+const adaptor = box(0.05, 0.04, 0.035, C.black, 0.215, 0.044, 0.55);
+tube([V(0.19, 0.04, 0.55), V(0.12, 0.008, 0.5), V(0.06, 0.008, 0.42), V(0.046, 0.04, BOX_Z + 0.03), V(0.045, BOX_Y - 0.082, BOX_Z)], 0.003, C.cable, world, 40);
+tube([V(0.37, 0.012, 0.55), V(0.5, 0.006, 0.6), V(SLAB.x1 - 0.002, 0.006, 0.62), V(SLAB.x1 + 0.004, -0.03, 0.62)], 0.0035, C.cable, world, 24);
 reg('adaptor', [adaptor], {
   title: 'Adaptor 5 VDC 2 A',
   text: 'Pada rangkaian yang dibangun, adaptor hanya menyuplai jalur pompa lewat relay. ESP32 dipasok kabel USB, dan keduanya tidak boleh disambung bersamaan ke pin VIN.',
 });
 reg('dht', [dht], {
   title: 'Sensor DHT11',
-  text: 'DATA ke D4. Mengukur suhu dan kelembapan udara; nilainya tampil di LCD dan dashboard.',
+  text: 'DATA ke D4. Diikat ke tiang tepat di atas casing; mengukur suhu dan kelembapan udara, nilainya tampil di LCD dan dashboard.',
   live: () => `Suhu ${sim.temp.toFixed(1)} °C, RH ${sim.hum.toFixed(0)} %`,
+});
+reg('duct', [duct], {
+  title: 'Kabel duct',
+  text: 'Di lantai tepat di depan rel depan. Merapikan enam kabel sensor dan kabel pompa sebelum naik ke casing.',
 });
 
 // ---------- tetesan air ----------
 part('air');
 const DROPS_PER = 5;
-const drops = new THREE.InstancedMesh(new THREE.SphereGeometry(0.3, 8, 6), M(0x4fb0de, { emissive: 0x1a6a96 }), 6 * DROPS_PER);
-drops.frustumCulled = false; add(drops);
+const drops = new THREE.InstancedMesh(new THREE.SphereGeometry(0.0042, 8, 6), look.flat(0x4fb0de, { transparent: true, opacity: 0.9 }), 6 * DROPS_PER);
+drops.frustumCulled = false; add(drops); drops.castShadow = false;
 const dummy = new THREE.Object3D();
 
 // ---------- panel tombol virtual ----------
 part(null);
 const panelStart = scene.children.length;
-const panelZ = 60;
-box(46, 2, 14, 0, -9, 1, panelZ, { mat: M(0x2b3a36) });
+const panelZ = 92, panelX = -20, FY = -4.25;   // FY: permukaan lantai di luar lempeng teras
+const M = (c) => toon(c);
+const sbox = (w, h, d, c, x, y, z) => { const m = new THREE.Mesh(new THREE.BoxGeometry(w, h, d), M(c)); m.position.set(x, y, z); m.castShadow = m.receiveShadow = true; scene.add(m); return m; };
+sbox(46, 2, 14, 0x2b3a36, panelX, FY + 1, panelZ);
 function textPlane(w, h, draw, x, y, z, rotX) {
   const c = document.createElement('canvas'); c.width = 512; c.height = Math.round(512 * h / w);
   const g = c.getContext('2d'); draw(g, c.width, c.height);
   const t = new THREE.CanvasTexture(c); t.colorSpace = THREE.SRGBColorSpace;
-  const m = new THREE.Mesh(new THREE.PlaneGeometry(w, h), new THREE.MeshBasicMaterial({ map: t, transparent: true }));
+  const m = new THREE.Mesh(new THREE.PlaneGeometry(w, h), setToonOutline(new THREE.MeshBasicMaterial({ map: t, transparent: true }), false));
   m.rotation.x = rotX; m.position.set(x, y, z); scene.add(m); return m;
 }
 textPlane(42, 6, (g, w, h) => {
   g.fillStyle = '#f3ecd8'; g.textAlign = 'center'; g.textBaseline = 'middle';
   g.font = 'bold 34px sans-serif'; g.fillText('PANEL SIMULASI', w / 2, h * 0.36);
   g.font = '24px sans-serif'; g.fillText('alat asli dikontrol lewat dashboard', w / 2, h * 0.74);
-}, -9, 2.05, panelZ - 3.8, -Math.PI / 2);
+}, panelX, FY + 2.05, panelZ - 3.8, -Math.PI / 2);
 
 function btnTexture(l1, l2, bg) {
   const c = document.createElement('canvas'); c.width = c.height = 256;
@@ -252,14 +356,14 @@ function btnTexture(l1, l2, bg) {
 const buttons = {};
 function makeButton(key, x, bg) {
   const m = new THREE.Mesh(new THREE.CylinderGeometry(3.4, 3.6, 2, 32), M(0x1b2a21));
-  const cap = new THREE.Mesh(new THREE.CircleGeometry(3.4, 32), new THREE.MeshBasicMaterial({ map: btnTexture(key.toUpperCase(), '', bg) }));
+  const cap = new THREE.Mesh(new THREE.CircleGeometry(3.4, 32), setToonOutline(new THREE.MeshBasicMaterial({ map: btnTexture(key.toUpperCase(), '', bg) }), false));
   cap.rotation.x = -Math.PI / 2; cap.position.y = 1.02; m.add(cap); m.userData.cap = cap;
-  m.position.set(x, 3, panelZ + 3.2); m.castShadow = true; scene.add(m);
-  m.userData.btn = key; m.userData.baseY = 3; m.userData.press = 0; m.userData.bg = bg;
+  m.position.set(panelX + x, FY + 3, panelZ + 3.2); m.castShadow = true; scene.add(m);
+  m.userData.btn = key; m.userData.baseY = FY + 3; m.userData.press = 0; m.userData.bg = bg;
   buttons[key] = m; hotMeshes.push(m); return m;
 }
-makeButton('mode', -27, '#b9892b'); makeButton('pompa', -15, '#1f6f9c');
-makeButton('kering', -3, '#8a6339'); makeButton('basah', 9, '#1f4a31');
+makeButton('mode', -18, '#b9892b'); makeButton('pompa', -6, '#1f6f9c');
+makeButton('kering', 6, '#8a6339'); makeButton('basah', 18, '#1f4a31');
 const panelObjs = scene.children.slice(panelStart);
 function relabelButtons() {
   const set = (k, l1, l2) => {
@@ -279,12 +383,12 @@ const items = [
   ['Casing sensor tanah', '10 buah, 1 per sensor'],
   ['Sensor DHT11', '6 dibeli, 1 terpasang di tiang'],
   ['Relay 1 channel', '1 buah, di dalam casing'],
-  ['Mini pompa 5 VDC', '1 buah, mengalirkan air dari tandon'],
+  ['Mini pompa 5 VDC', '1 buah, pompa celup di dalam galon'],
   ['Adaptor 5 VDC 2 A', '1 buah, menyuplai jalur pompa (ESP32 lewat USB)'],
-  ['Enclosure 16 × 14 × 4 cm', '1 buah, wadah elektronik'],
+  ['Enclosure 16 × 14 × 4 cm', '1 buah, wadah elektronik di tiang depan'],
   ['Kabel duct', '1 meter, merapikan kabel sensor'],
-  ['Selang irigasi tetes + emitter', '1 set, satu emitter per tanaman'],
-  ['Kabel jumper, PCB prototipe', 'di dalam casing (tidak terlihat)'],
+  ['Selang irigasi tetes + emitter', '1 set, satu dripper stik per tanaman'],
+  ['Kabel jumper, PCB prototipe', 'di dalam casing (buka tutup untuk melihat)'],
 ];
 const lg = $('legend');
 if (lg) items.forEach((it, i) => {
@@ -302,10 +406,9 @@ function label(n, x, y, z) {
   const sp = new THREE.Sprite(new THREE.SpriteMaterial({ map: new THREE.CanvasTexture(c), depthTest: false }));
   sp.position.set(x, y, z); sp.scale.set(4.4, 4.4, 1); sp.renderOrder = 9; scene.add(sp); labelSprites.push(sp);
 }
-label(1, encX - 6, 10, encZ - 1); label(2, encX + 3, 12, encZ - 4); label(3, xs[1] + 1, 21, 5); label(4, xs[3] + 3, 17, 8);
-label(5, 52, 21, 12); label(6, encX + 7, 9, encZ + 1); label(7, -37, 11, 2); label(8, -45, 10, 22);
-label(9, encX - 9, 6, encZ + 9); label(10, -12, 8, 35); label(11, xs[4], 21, -1);
-
+label(1, -12, 18, 40); label(2, 3, 25, 41); label(3, xs[0] - 9, 23, -15); label(4, xs[2] - 5, 28, -15);
+label(5, -6, 25, 35); label(6, 11, 19, 40); label(7, -82, 10, 18); label(8, 21.5, 11, 55);
+label(9, 12, 7, 40); label(10, 38, 5, 37); label(11, -32, 7, 4); label(12, -4, 9, 39);
 // ---------- simulasi + aksi ----------
 let sim = Sim.createSim();
 let playing = true, speed = 30, open = false, spin = false, toast = '', toastUntil = 0;
@@ -436,7 +539,9 @@ function pick(e) {
   const r = renderer.domElement.getBoundingClientRect();
   ptr.set(((e.clientX - r.left) / r.width) * 2 - 1, -((e.clientY - r.top) / r.height) * 2 + 1);
   ray.setFromCamera(ptr, camera);
-  const hit = ray.intersectObjects(hotMeshes, false)[0]; return hit?.object ?? null;
+  const hits = ray.intersectObjects(hotMeshes, false).filter((h) => h.object.visible && h.object.parent.visible);
+  // Dinding galon dan air tembus pandang: bagian di baliknya (pompa) yang dipilih, galon hanya bila tidak ada yang lain.
+  return (hits.find((h) => !h.object.userData.seeThrough) ?? hits[0])?.object ?? null;
 }
 let down = null, hovered = null;
 renderer.domElement.addEventListener('pointerdown', (e) => { down = { x: e.clientX, y: e.clientY }; });
@@ -497,25 +602,25 @@ const story = embed && q.get('story') === '1';
 const WAYPOINTS = [0.15, 0.4, 0.65, 0.9];
 const HOLD = 0.05;   // kamera diam selama ±HOLD di sekitar tiap waypoint
 const STORY = [
-  { cam: [0, 46, 86], tgt: [18, 12, 0], lid: 0, keys: ['s0', 's1', 's2', 's3', 's4', 's5'] },   // 1 sensor tanah
-  { cam: [-14, 36, 56], tgt: [-14, 4, 22], lid: 1, keys: ['esp', 'relay'] },                    // 2 ESP32 + relay (casing belum bertutup)
-  { cam: [-64, 30, 38], tgt: [-37, 7, -6], lid: 0, keys: ['pump', 'tank'] },                    // 3 pompa + tandon
-  { cam: [4, 74, 130], tgt: [4, 9, 14], lid: 0, keys: ['lcd', 'dht'] },                         // 4 data: model utuh, LCD dan DHT11
+  { cam: [-20, 140, 225], tgt: [-14, 28, 0], lid: 0, keys: ['s0', 's1', 's2', 's3', 's4', 's5'] },   // 1 sensor tanah
+  { cam: [35, 50, 120], tgt: [0, 15, 32], lid: 1, keys: ['esp', 'relay', 'pcb'] },                  // 2 ESP32 + relay (casing belum bertutup)
+  { cam: [-150, 75, 120], tgt: [-72, 18, 0], lid: 0, keys: ['pump', 'tank'] },                      // 3 pompa + galon
+  { cam: [40, 125, 255], tgt: [-12, 26, 10], lid: 0, keys: ['lcd', 'dht'] },                        // 4 data: model utuh, LCD dan DHT11
 ];
-// Kunci kamera: pose awal (progres 0) memperlihatkan papan dasar dengan bedeng dan sensor yang masih melayang,
+// Kunci kamera: pose awal (progres 0) memperlihatkan lantai teras dengan rangka, polybag, dan sensor yang masih melayang,
 // lalu satu pose per langkah.
-const KEYS = [{ t: 0, cam: [0, 80, 130], tgt: [0, 22, 6] }, ...STORY.map((s, i) => ({ t: WAYPOINTS[i], cam: s.cam, tgt: s.tgt }))];
+const KEYS = [{ t: 0, cam: [0, 150, 270], tgt: [-12, 40, 6] }, ...STORY.map((s, i) => ({ t: WAYPOINTS[i], cam: s.cam, tgt: s.tgt }))];
 // Tiap kelompok turun lurus dari atas (rise) dan mendarat tepat di waypoint langkah yang membahasnya. Kelompok langkah 2
 // sampai 4 disembunyikan sampai gilirannya, supaya tidak melayang di depan kamera atau membuat bayangan lebih dulu.
 const ASSEMBLY = [
-  { key: 'bed', from: 0, to: 0.1, rise: 20 },
-  { key: 'sensor', from: 0.03, to: 0.15, rise: 30 },
+  { key: 'bed', from: 0, to: 0.1, rise: 25 },
+  { key: 'sensor', from: 0.03, to: 0.15, rise: 40 },
   { key: 'kontrol', from: 0.25, to: 0.4, rise: 60, hide: true },
-  { key: 'air', from: 0.5, to: 0.65, rise: 60, hide: true },
-  { key: 'data', from: 0.75, to: 0.9, rise: 70, hide: true },
+  { key: 'air', from: 0.5, to: 0.65, rise: 80, hide: true },
+  { key: 'data', from: 0.75, to: 0.9, rise: 80, hide: true },
 ];
 if (story) ASSEMBLY.forEach((a) => {
-  a.group = new THREE.Group(); scene.add(a.group);
+  a.group = new THREE.Group(); world.add(a.group);
   (parts[a.key] || []).forEach((o) => a.group.add(o));
 });
 let storyGoal = 0, storyNow = 0, storyIdx = -1;
@@ -531,7 +636,7 @@ function storyPose(p) {
 }
 function assemble(p) {
   ASSEMBLY.forEach((a) => {
-    a.group.position.y = a.rise * (1 - easeOut3(clamp((p - a.from) / (a.to - a.from), 0, 1)));
+    a.group.position.y = (a.rise / 100) * (1 - easeOut3(clamp((p - a.from) / (a.to - a.from), 0, 1)));
     a.group.visible = !a.hide || p > a.from;
   });
 }
@@ -545,7 +650,8 @@ if (embed) {
   document.body.classList.add('embed'); controls.enabled = false;
   // Seret ditangkap lapisan di halaman induk (Spin3D.tsx) dan datang sebagai pesan 'irri-drag' / 'irri-dragend',
   // karena gulir halus (lenis.css) mematikan pointer di iframe ini.
-  scene.background = new THREE.Color('#' + hex); floor.material.color.set('#' + hex);
+  // Lantai besar disembunyikan: warna toon-nya tidak pernah persis sama dengan latar halaman induk; lempeng teras jadi alasnya.
+  scene.background = new THREE.Color('#' + hex); floor.visible = false;
   document.documentElement.style.background = '#' + hex;
   labelSprites.forEach((sp) => { sp.visible = false; }); panelObjs.forEach((o) => { o.visible = false; });
   if (q.get('open') === '1') open = true;
@@ -570,18 +676,20 @@ renderer.setAnimationLoop(() => {
   flowStill = reduceMotion || (embed && sim.pump && now - pumpSince > 5);
 
   patches.forEach((p, i) => { p.material.color.lerpColors(dryColor, wetColor, clamp(sim.sensors[i].pct / 100, 0, 1)); leds[i].material.color.setHex(ledColor(sim.sensors[i])); });
-  const lvl = Math.max(sim.tank / 100, 0.001); water.scale.y = lvl; water.position.y = 2 + 6 * lvl; water.visible = sim.tank > 0.5;
+  const lvl = Math.max(sim.tank / 100, 0.001); water.scale.y = lvl; water.position.y = 0.004 + (WATER_TOP - 0.004) * lvl / 2; water.visible = sim.tank > 0.5;
+  ripple.visible = flowing; ripple.position.y = 0.006 + (WATER_TOP - 0.004) * lvl;
+  { const ru = flowStill ? 0.5 : (now * 0.9) % 1; ripple.scale.set(0.02 + ru * 0.09, 0.02 + ru * 0.09, 1); }
   hoses.forEach((h) => h.material.emissive.setHex(flowing ? 0x1a6a96 : 0x000000));
-  relayLed.material.color.setHex(sim.pump ? 0xff3b30 : 0x331111);
-  pump.position.x = -37 + (sim.pump && !flowStill ? Math.sin(now * 70) * 0.05 : 0);
+  relayLed.material.color.setHex(sim.pump ? 0xff3b30 : 0x331111); pumpLed.material.color.setHex(sim.pump ? 0x3ad06b : 0x24452f);
+  pump.position.x = GX + (sim.pump && !flowStill ? Math.sin(now * 90) * 0.0007 : 0);
   for (let i = 0; i < 6 * DROPS_PER; i++) {
     const k = Math.floor(i / DROPS_PER), ph = flowStill ? (i % DROPS_PER) / DROPS_PER : (now * 1.6 + i * 0.37) % 1;
-    dummy.position.set(xs[k], 13.2 - ph * 0.8, 0); dummy.scale.setScalar(flowing ? 1 : 0.0001); dummy.updateMatrix(); drops.setMatrixAt(i, dummy.matrix);
+    dummy.position.set(drips[k][0], SOIL_Y + 0.03 - ph * 0.03, drips[k][1]); dummy.scale.setScalar(flowing ? 1 : 0.0001); dummy.updateMatrix(); drops.setMatrixAt(i, dummy.matrix);
   }
   drops.instanceMatrix.needsUpdate = true;
   Object.values(buttons).forEach((b) => { b.userData.press *= 0.86; b.position.y = b.userData.baseY - 0.9 * b.userData.press; });
 
-  const ty = open ? 19 : 6.2; lidGroup.position.y = reduceMotion ? ty : lidGroup.position.y + (ty - lidGroup.position.y) * 0.12;
+  const ty = open ? 1.9 : 0; lidGroup.rotation.y = reduceMotion ? ty : lidGroup.rotation.y + (ty - lidGroup.rotation.y) * 0.12;
   if (spin) { const a = 0.004, p = camera.position.clone().sub(controls.target); camera.position.set(controls.target.x + p.x * Math.cos(a) - p.z * Math.sin(a), p.y + controls.target.y, controls.target.z + p.x * Math.sin(a) + p.z * Math.cos(a)); }
 
   const key = Sim.lcdLines(sim).join('|'); if (key !== lcdKey) { lcdKey = key; drawLcd(); }
@@ -608,8 +716,8 @@ renderer.setAnimationLoop(() => {
       camera.lookAt(controls.target);
     }
   } else controls.update();
-  renderer.render(scene, camera); window.__ready = true;
+  look.render(scene, camera); window.__ready = true;
   sendReady();
 });
 drawLcd(); refreshUI();
-window.__prototype = { act, get sim() { return sim; }, hot, get orbit() { return orbitNow; }, get orbitGoal() { return orbitGoal; }, get paused() { return paused; }, get dragAngle() { return dragAngle; }, get flowStill() { return flowStill; }, get story() { return { on: story, now: storyNow, goal: storyGoal, idx: storyIdx }; }, get assembled() { return story ? ASSEMBLY.map((a) => +(1 - a.group.position.y / a.rise).toFixed(3)) : null; }, get open() { return open; }, get lidY() { return lidGroup.position.y; } };
+window.__prototype = { act, scene, camera, get sim() { return sim; }, hot, get orbit() { return orbitNow; }, get orbitGoal() { return orbitGoal; }, get paused() { return paused; }, get dragAngle() { return dragAngle; }, get flowStill() { return flowStill; }, get story() { return { on: story, now: storyNow, goal: storyGoal, idx: storyIdx }; }, get assembled() { return story ? ASSEMBLY.map((a) => +(1 - a.group.position.y * 100 / a.rise).toFixed(3)) : null; }, get open() { return open; }, get lidAngle() { return lidGroup.rotation.y; } };

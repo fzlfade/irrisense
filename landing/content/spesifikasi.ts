@@ -34,12 +34,12 @@ export const komponen: readonly Komponen[] = [
   { nama: "Casing sensor tanah", keterangan: "10 buah, 1 per sensor" },
   { nama: "Sensor DHT11", keterangan: "6 dibeli, 1 terpasang di tiang" },
   { nama: "Relay 1 channel", keterangan: "1 buah, di dalam casing" },
-  { nama: "Mini pompa 5 VDC", keterangan: "1 buah, mengalirkan air dari tandon" },
+  { nama: "Mini pompa 5 VDC", keterangan: "1 buah, pompa celup di dalam galon" },
   { nama: "Adaptor 5 VDC 2 A", keterangan: "1 buah, menyuplai jalur pompa (ESP32 lewat USB)" },
-  { nama: "Enclosure 16 × 14 × 4 cm", keterangan: "1 buah, wadah elektronik" },
+  { nama: "Enclosure 16 × 14 × 4 cm", keterangan: "1 buah, wadah elektronik di tiang depan" },
   { nama: "Kabel duct", keterangan: "1 meter, merapikan kabel sensor" },
-  { nama: "Selang irigasi tetes + emitter", keterangan: "1 set, satu emitter per tanaman" },
-  { nama: "Kabel jumper, PCB prototipe", keterangan: "di dalam casing (tidak terlihat)" },
+  { nama: "Selang irigasi tetes + emitter", keterangan: "1 set, satu dripper stik per tanaman" },
+  { nama: "Kabel jumper, PCB prototipe", keterangan: "di dalam casing (buka tutup untuk melihat)" },
 ];
 
 export type Topik = { akhiran: string; isi: string };

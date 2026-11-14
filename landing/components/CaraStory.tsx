@@ -90,10 +90,10 @@ export default function CaraStory({ steps }: { steps: Step[] }) {
   );
 
   const caption = on
-    ? "Rancangan 3D prototipe di atas papan 100 × 76 cm. Gulir untuk merakitnya langkah demi langkah, seret untuk memutar."
+    ? "Rancangan 3D prototipe di rangka paralon, ukuran perkiraan 100 × 60 × 75 cm. Gulir untuk merakitnya langkah demi langkah, seret untuk memutar."
     : reduced
-      ? "Susunan prototipe di atas papan 100 × 76 cm (rancangan 3D, casing terbuka)."
-      : "Susunan prototipe di atas papan 100 × 76 cm (rancangan 3D, casing terbuka). Gulir atau seret untuk memutar.";
+      ? "Susunan prototipe di rangka paralon, ukuran perkiraan 100 × 60 × 75 cm (rancangan 3D, casing terbuka)."
+      : "Susunan prototipe di rangka paralon, ukuran perkiraan 100 × 60 × 75 cm (rancangan 3D, casing terbuka). Gulir atau seret untuk memutar.";
 
   return (
     <div ref={root} className={s.story} data-story={on ? "on" : undefined}>
@@ -118,9 +118,9 @@ export default function CaraStory({ steps }: { steps: Step[] }) {
           <figure className={s.caraFigure}>
             <div className={s.caraFrame}>
               <Spin3D
-                src="/prototipe/?embed=1&bg=fbf8ee&open=1&cam=0,66,110&tgt=0,8,10"
+                src="/prototipe/?embed=1&bg=fbf8ee&open=1&cam=-110,120,230&tgt=-10,25,10"
                 poster="/img/prototipe-terbuka.webp"
-                alt="Rancangan 3D susunan prototipe dengan casing terbuka, memperlihatkan ESP32, relay, pompa, sensor tanah, dan sensor suhu di atas papan dasar."
+                alt="Rancangan 3D prototipe di rangka paralon dengan casing terbuka, memperlihatkan ESP32, relay, galon dan pompa, sensor tanah, dan sensor suhu di tiang."
                 width={1500}
                 height={900}
                 sizes="(min-width: 64rem) 60vw, 100vw"
