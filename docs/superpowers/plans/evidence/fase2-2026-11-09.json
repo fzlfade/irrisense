@@ -1,0 +1,228 @@
+{
+  "meta": {
+    "url": "http://localhost:3000/",
+    "date": "2026-11-08T20:41:02.747Z",
+    "commit": "643b985",
+    "rea": "rea-agents@6.8.0",
+    "budgets": "tools\\audit\\budgets.json",
+    "browserMode": true
+  },
+  "metrics": {
+    "static": {
+      "landingJs": {
+        "files": 11,
+        "rawKB": 792.3,
+        "gzipKB": 257.3
+      },
+      "landingCss": {
+        "files": 2,
+        "rawKB": 9.8,
+        "gzipKB": 3.3
+      },
+      "landingFonts": {
+        "files": 5,
+        "rawKB": 183.3,
+        "gzipKB": 183.4
+      },
+      "iframeJs": {
+        "files": 4,
+        "rawKB": 721.3,
+        "gzipKB": 183.5
+      },
+      "heroPoster": {
+        "src": "/img/prototipe-hero.webp",
+        "KB": 20.5
+      }
+    },
+    "browser": {
+      "browser": "Edg/157.0.4341.42",
+      "transfer": {
+        "totalKB": 784.5,
+        "byType": {
+          "Document": {
+            "count": 3,
+            "KB": 9.4
+          },
+          "Font": {
+            "count": 2,
+            "KB": 95.6
+          },
+          "Stylesheet": {
+            "count": 6,
+            "KB": 10
+          },
+          "Image": {
+            "count": 2,
+            "KB": 78.2
+          },
+          "Script": {
+            "count": 14,
+            "KB": 588.3
+          },
+          "Other": {
+            "count": 1,
+            "KB": 3
+          }
+        },
+        "compressedResponses": 24,
+        "responses": 28
+      },
+      "rea": {
+        "evidenceId": "ev_b132a4c42451a061203844bbc5c0c2b9151c6c8ef17dd45298ae2804b91befab",
+        "frames": 3,
+        "domNodes": 305,
+        "a11yNodes": 201,
+        "scripts": 22,
+        "landmarks": [
+          "banner",
+          "main",
+          "contentinfo",
+          "region"
+        ],
+        "controls": 3,
+        "unnamedControls": 0,
+        "resources": {
+          "Font": {
+            "count": 2,
+            "KB": 95
+          },
+          "Script": {
+            "count": 10,
+            "KB": 1389.6
+          },
+          "Stylesheet": {
+            "count": 4,
+            "KB": 16.1
+          },
+          "Image": {
+            "count": 2,
+            "KB": 77.6
+          }
+        }
+      },
+      "cls": 0.002,
+      "pageScreens": 5.6,
+      "reducedMotion": {
+        "overlayShown": false,
+        "iframes": 0,
+        "h1Visible": true,
+        "targets": [
+          "< 2 detik",
+          "± 5 %",
+          "30 %"
+        ],
+        "spoken": [
+          "< 2 detik",
+          "± 5 %",
+          "30 %"
+        ]
+      },
+      "noJavaScript": {
+        "overlayShown": false,
+        "iframes": 0,
+        "h1Visible": true,
+        "targets": [
+          "< 2 detik",
+          "± 5 %",
+          "30 %"
+        ],
+        "spoken": [
+          "< 2 detik",
+          "± 5 %",
+          "30 %"
+        ]
+      }
+    }
+  },
+  "results": [
+    {
+      "key": "landingJsGzipKB",
+      "label": "JS landing (gzip)",
+      "value": 257.3,
+      "unit": "KB",
+      "limit": "<= 300",
+      "status": "LULUS"
+    },
+    {
+      "key": "iframeJsGzipKB",
+      "label": "JS iframe 3D (gzip)",
+      "value": 183.5,
+      "unit": "KB",
+      "limit": "<= 200",
+      "status": "LULUS"
+    },
+    {
+      "key": "landingCssKB",
+      "label": "CSS landing (mentah)",
+      "value": 9.8,
+      "unit": "KB",
+      "limit": "<= 30",
+      "status": "LULUS"
+    },
+    {
+      "key": "landingFontsKB",
+      "label": "Font landing",
+      "value": 183.3,
+      "unit": "KB",
+      "limit": "<= 200",
+      "status": "LULUS"
+    },
+    {
+      "key": "heroPosterKB",
+      "label": "Poster hero",
+      "value": 20.5,
+      "unit": "KB",
+      "limit": "<= 60",
+      "status": "LULUS"
+    },
+    {
+      "key": "domNodesTotal",
+      "label": "DOM node total (semua frame)",
+      "value": 305,
+      "unit": "",
+      "limit": "<= 450",
+      "status": "LULUS"
+    },
+    {
+      "key": "unnamedControls",
+      "label": "Tautan/tombol tanpa nama",
+      "value": 0,
+      "unit": "",
+      "limit": "<= 0",
+      "status": "LULUS"
+    },
+    {
+      "key": "cls",
+      "label": "CLS saat scroll penuh",
+      "value": 0.002,
+      "unit": "",
+      "limit": "<= 0.05",
+      "status": "LULUS"
+    },
+    {
+      "key": "landmarks",
+      "label": "Landmark wajib",
+      "value": "banner, main, contentinfo, region",
+      "limit": "banner, navigation, main, contentinfo",
+      "status": "GAGAL",
+      "missing": [
+        "navigation"
+      ]
+    },
+    {
+      "key": "reducedMotion",
+      "label": "Kurangi gerak: tanpa intro/iframe, angka final",
+      "value": "{\"intro\":false,\"iframes\":0,\"h1\":true,\"targets\":[\"< 2 detik\",\"± 5 %\",\"30 %\"],\"spoken\":[\"< 2 detik\",\"± 5 %\",\"30 %\"]}",
+      "limit": "intro=false, iframes=0, h1, angka final",
+      "status": "LULUS"
+    },
+    {
+      "key": "noJavaScript",
+      "label": "Tanpa JavaScript: judul dan angka final",
+      "value": "{\"intro\":false,\"h1\":true,\"targets\":[\"< 2 detik\",\"± 5 %\",\"30 %\"],\"spoken\":[\"< 2 detik\",\"± 5 %\",\"30 %\"]}",
+      "limit": "intro=false, h1, angka final",
+      "status": "LULUS"
+    }
+  ],
+  "passed": false
+}

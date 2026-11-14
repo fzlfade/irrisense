@@ -1,27 +1,18 @@
-import Image from "next/image";
 import Spin3D from "./Spin3D";
+import CaraStory from "./CaraStory";
 import CountUp from "./reactbits/CountUp";
 import Magnet from "./reactbits/Magnet";
 import ScrollReveal from "./reactbits/ScrollReveal";
-import SplitText from "./reactbits/SplitText";
+import HeroTitle from "./HeroTitle";
 import s from "./sections.module.css";
 
 export function Hero() {
   return (
-    <header className={s.hero}>
+    // data-motion: sasaran gerak gulir di ScrollMotion.tsx (hero menyempit saat ditinggalkan).
+    <section className={s.hero} data-motion="hero">
       <div className={s.wrap}>
         <p className={s.meta}>Capstone Design 2026 · Universitas Tidar</p>
-        <SplitText
-          tag="h1"
-          text="IrriSense"
-          className={s.heroTitle}
-          textAlign="left"
-          splitType="chars"
-          effect="rise"
-          trigger="load"
-          delay={55}
-          duration={0.9}
-        />
+        <HeroTitle />
         <p className={s.lead}>
           Sistem penyiraman tetes otomatis untuk kebun vanili. Sensor membaca tanah, ESP32
           memutuskan, pompa menyiram.
@@ -42,18 +33,19 @@ export function Hero() {
       </div>
       <figure className={s.heroFigure}>
         <Spin3D
-          src="/prototipe/?embed=1&bg=12301f&cam=0,52,104&tgt=0,12,6"
-          poster="/img/prototipe-hero.png"
-          alt="Rancangan 3D prototipe: bak tanah berisi enam tanaman vanili dengan selang tetes, tandon air, dan kotak elektronik berlayar kecil."
+          src="/prototipe/?embed=1&bg=12301f&cam=-12,138,243&tgt=-12,28,8"
+          poster="/img/prototipe-hero.webp"
+          alt="Rancangan 3D prototipe: rangka paralon atap pelana berisi enam polybag vanili dengan selang tetes, galon air, dan kotak elektronik berlayar kecil di tiang depan."
           width={1520}
           height={560}
           mobileRatio="4 / 3"
           sizes="100vw"
           eager
+          reportsLoad
         />
         <figcaption className={s.caption}>Rancangan prototipe dalam 3D, bukan foto alat. Gulir atau seret untuk memutar.</figcaption>
       </figure>
-    </header>
+    </section>
   );
 }
 
@@ -62,7 +54,9 @@ export function Masalah() {
     <section className={s.masalah} aria-label="Masalah penyiraman manual">
       <div className={`${s.wrap} ${s.masalahGrid}`}>
         <div className={s.bigNumber} aria-label="60 sampai 80 persen">
-          <span className={s.bigValue}>60–80 %</span>
+          <span className={s.bigValue} data-motion="drift">
+            60–80 %
+          </span>
           <span className={s.bigNote}>kelembapan tanah yang dibutuhkan tanaman vanili agar tumbuh baik</span>
         </div>
         <div>
@@ -112,39 +106,12 @@ const steps = [
 export function CaraKerja() {
   return (
     <section id="cara-kerja" className={s.cara} aria-labelledby="cara-judul">
-      <div className={`${s.wrap} ${s.caraGrid}`}>
-        <div>
-          <h2 id="cara-judul" className={s.h2}>
-            Sensor membaca, ESP32 memutuskan, pompa menyiram
-          </h2>
-          <ol className={s.steps}>
-            {steps.map((step) => (
-              <li key={step.title} className={s.step}>
-                <h3 className={s.h3}>{step.title}</h3>
-                <p className={s.body}>{step.text}</p>
-              </li>
-            ))}
-          </ol>
-        </div>
-        <figure className={s.caraFigure}>
-          <div className={s.caraFrame}>
-            <Spin3D
-              src="/prototipe/?embed=1&bg=fbf8ee&open=1&cam=0,66,110&tgt=0,8,10"
-              poster="/img/prototipe-terbuka.png"
-              alt="Rancangan 3D susunan prototipe dengan casing terbuka, memperlihatkan ESP32, relay, pompa, sensor tanah, dan sensor suhu di atas papan dasar."
-              width={1500}
-              height={900}
-              sizes="(min-width: 64rem) 50vw, 100vw"
-            />
-          </div>
-          <figcaption className={s.captionDark}>
-            Susunan prototipe di atas papan 100 × 76 cm (rancangan 3D, casing terbuka). Gulir atau seret untuk memutar.
-          </figcaption>
-          <a className={s.link} href="/prototipe/">
-            Coba prototipe 3D dengan live test
-          </a>
-        </figure>
+      <div className={`${s.wrap} ${s.caraHead}`}>
+        <h2 id="cara-judul" className={s.h2}>
+          Sensor membaca, ESP32 memutuskan, pompa menyiram
+        </h2>
       </div>
+      <CaraStory steps={steps} />
     </section>
   );
 }
@@ -178,43 +145,5 @@ export function Target() {
         </p>
       </div>
     </section>
-  );
-}
-
-const team = [
-  "Faizal Deshta Nugraha (ketua)",
-  "Muhamad Rifa'i",
-  "Fahmi Aulia Mustofa",
-  "Vincensius A. M. Prabaswara",
-  "Ilhan Ha'is Munjazi",
-];
-
-export function Tim() {
-  return (
-    <footer className={s.tim} aria-labelledby="tim-judul">
-      <div className={`${s.wrap} ${s.timGrid}`}>
-        <div>
-          <h2 id="tim-judul" className={s.h2}>
-            Tim IrriSense
-          </h2>
-          <p className={s.body}>Capstone Design 2026, Fakultas Teknik, Universitas Tidar.</p>
-          <ul className={s.team}>
-            {team.map((n) => (
-              <li key={n}>{n}</li>
-            ))}
-          </ul>
-          <p className={s.body}>
-            Dosen pembimbing: <strong>Kukuh Trisna Pambudi, S.T., M.Eng.</strong>
-          </p>
-        </div>
-        <Image
-          src="/img/logo-untidar.png"
-          alt="Logo Universitas Tidar"
-          width={500}
-          height={500}
-          className={s.logo}
-        />
-      </div>
-    </footer>
   );
 }

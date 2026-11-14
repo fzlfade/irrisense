@@ -1,0 +1,13 @@
+{
+  "name": "irrisense-tools",
+  "private": true,
+  "type": "module",
+  "description": "Alat pengembangan (audit, konversi gambar); tidak dikirim ke landing.",
+  "scripts": {
+    "audit": "node audit/audit.mjs",
+    "images": "node images/convert.mjs"
+  },
+  "devDependencies": {
+    "sharp": "0.35.5"
+  }
+}

@@ -1,15 +1,14 @@
-import { CaraKerja, Hero, Masalah, Target, Tim } from "@/components/Sections";
+import { CaraKerja, Hero, Masalah, Target } from "@/components/Sections";
+import ScrollMotion from "@/components/ScrollMotion";
 
 export default function Home() {
   return (
-    <>
+    <main id="konten">
       <Hero />
-      <main>
-        <Masalah />
-        <CaraKerja />
-        <Target />
-      </main>
-      <Tim />
-    </>
+      <Masalah />
+      <CaraKerja />
+      <Target />
+      <ScrollMotion />
+    </main>
   );
 }

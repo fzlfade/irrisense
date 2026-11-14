@@ -1,0 +1,183 @@
+{
+  "waktu": "2026-11-09T12:28:58.524Z",
+  "halaman": {
+    "/": {
+      "struktur": {
+        "lang": "id",
+        "title": "IrriSense | Penyiraman tetes otomatis untuk kebun vanili",
+        "gambarTanpaAlt": [],
+        "gambar": [
+          {
+            "src": "/img/prototipe-hero.webp",
+            "alt": "Rancangan 3D prototipe: bak tanah berisi enam tanaman vanili dengan selang tetes, tandon air, dan kotak elektronik berlayar kecil."
+          },
+          {
+            "src": "/img/prototipe-terbuka.webp",
+            "alt": "Rancangan 3D susunan prototipe dengan casing terbuka, memperlihatkan ESP32, relay, pompa, sensor tanah, dan sensor suhu di atas papan dasar."
+          },
+          {
+            "src": "/img/logo-untidar.png",
+            "alt": "Logo Universitas Tidar"
+          }
+        ],
+        "iframeTanpaTitle": 0,
+        "iframe": [
+          {
+            "title": "Model 3D prototipe IrriSense yang berputar mengikuti gulir halaman",
+            "ariaHidden": "true",
+            "tabIndex": -1
+          },
+          {
+            "title": "Model 3D prototipe IrriSense yang dirakit mengikuti gulir halaman",
+            "ariaHidden": "true",
+            "tabIndex": -1
+          }
+        ],
+        "h1": 1,
+        "lompatHeading": 0
+      },
+      "tab": {
+        "jumlah": 9,
+        "urutan": [
+          "Lewati ke konten",
+          "IrriSense",
+          "Cara kerja",
+          "Spesifikasi",
+          "Uji coba",
+          "Dashboard",
+          "Lihat cara kerja",
+          "Buka dashboard",
+          "Coba prototipe 3D dengan live test"
+        ],
+        "tidakTerlihat": [],
+        "tanpaCincin": [],
+        "selesai": true
+      },
+      "shiftTab": {
+        "dapat": [
+          "Buka dashboard",
+          "Lihat cara kerja",
+          "Dashboard"
+        ],
+        "harap": [
+          "Buka dashboard",
+          "Lihat cara kerja",
+          "Dashboard"
+        ]
+      },
+      "lewati": {
+        "hash": "#konten",
+        "fokusDiMain": true,
+        "fokus": "Lihat cara kerja"
+      },
+      "target": {
+        "375": {
+          "kecil": [],
+          "overflowPx": 0
+        },
+        "768": {
+          "kecil": [],
+          "overflowPx": -15
+        },
+        "1280": {
+          "kecil": [],
+          "overflowPx": -15
+        }
+      },
+      "menu": {
+        "tombolTerfokus": true,
+        "terbukaEnter": true,
+        "tertutupEsc": true,
+        "fokusKembali": true
+      }
+    },
+    "/spesifikasi/": {
+      "struktur": {
+        "lang": "id",
+        "title": "Spesifikasi | IrriSense",
+        "gambarTanpaAlt": [],
+        "gambar": [
+          {
+            "src": "/img/logo-untidar.png",
+            "alt": "Logo Universitas Tidar"
+          }
+        ],
+        "iframeTanpaTitle": 0,
+        "iframe": [],
+        "h1": 1,
+        "lompatHeading": 0
+      },
+      "tab": {
+        "jumlah": 13,
+        "urutan": [
+          "Lewati ke konten",
+          "IrriSense",
+          "Cara kerja",
+          "Spesifikasi",
+          "Uji coba",
+          "Dashboard",
+          "Aturan pompa",
+          "Komponen",
+          "Pin ESP32",
+          "Data dan jaringan",
+          "API server",
+          "Mode firmware",
+          "Lihat letaknya di prototipe 3D"
+        ],
+        "tidakTerlihat": [],
+        "tanpaCincin": [],
+        "selesai": true
+      },
+      "shiftTab": {
+        "dapat": [
+          "Mode firmware",
+          "API server",
+          "Data dan jaringan"
+        ],
+        "harap": [
+          "Mode firmware",
+          "API server",
+          "Data dan jaringan"
+        ]
+      },
+      "lewati": {
+        "hash": "#konten",
+        "fokusDiMain": true,
+        "fokus": "Aturan pompa"
+      },
+      "target": {
+        "375": {
+          "kecil": [],
+          "overflowPx": 0
+        },
+        "768": {
+          "kecil": [],
+          "overflowPx": -15
+        },
+        "1280": {
+          "kecil": [],
+          "overflowPx": -15
+        }
+      },
+      "menu": {
+        "tombolTerfokus": true,
+        "terbukaEnter": true,
+        "tertutupEsc": true,
+        "fokusKembali": true
+      }
+    }
+  },
+  "errorKonsol": [],
+  "cek": {
+    "langDanTitle": true,
+    "altDanIframe": true,
+    "heading": true,
+    "jalurTab": true,
+    "shiftTab": true,
+    "lewatiKeMain": true,
+    "menuKeyboard": true,
+    "targetSentuh": true,
+    "konsolBersih": true
+  },
+  "lulusSemua": true
+}

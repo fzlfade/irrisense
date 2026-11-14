@@ -1,0 +1,52 @@
+{
+  "url": "http://localhost:3000/",
+  "waktu": "2026-11-09T08:03:33.061Z",
+  "batasKenaikan": 0.25,
+  "modelSiap": true,
+  "scrollTrigger": 2,
+  "lintasan": [
+    {
+      "langkah": 40,
+      "layoutPerLangkah": 5.6,
+      "recalcStylePerLangkah": 15.6,
+      "layoutTotal": 224,
+      "recalcStyleTotal": 624,
+      "recalcStyleMs": 5.801,
+      "layoutMs": 2.899,
+      "scriptMs": 155.376,
+      "taskMs": 254.252
+    },
+    {
+      "langkah": 40,
+      "layoutPerLangkah": 0,
+      "recalcStylePerLangkah": 7.55,
+      "layoutTotal": 0,
+      "recalcStyleTotal": 302,
+      "recalcStyleMs": 4.315,
+      "layoutMs": 0,
+      "scriptMs": 116.296,
+      "taskMs": 195.324
+    },
+    {
+      "langkah": 40,
+      "layoutPerLangkah": 0,
+      "recalcStylePerLangkah": 7.53,
+      "layoutTotal": 0,
+      "recalcStyleTotal": 301,
+      "recalcStyleMs": 4.352,
+      "layoutMs": 0,
+      "scriptMs": 113.959,
+      "taskMs": 195.076
+    }
+  ],
+  "stabil": {
+    "layoutPerLangkah": 0,
+    "recalcStylePerLangkah": 7.54,
+    "recalcStyleMs": 4.33,
+    "layoutMs": 0,
+    "scriptMs": 115.13,
+    "taskMs": 195.2
+  },
+  "errorKonsol": [],
+  "lulusSemua": true
+}

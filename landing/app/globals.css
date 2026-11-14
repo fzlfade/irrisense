@@ -29,6 +29,16 @@ h3 {
   margin: 0;
 }
 
+/* Semua kontrol menampilkan kursor tangan, kontrol nonaktif menampilkan larangan (R-39). Ditulis sekali di sini. */
+a[href],
+button:not(:disabled),
+summary {
+  cursor: pointer;
+}
+button:disabled {
+  cursor: not-allowed;
+}
+
 a:focus-visible,
 button:focus-visible {
   outline: 2px solid var(--blue);
@@ -46,5 +56,131 @@ button:focus-visible {
     animation-duration: 0.01ms !important;
     animation-iteration-count: 1 !important;
     transition-duration: 0.01ms !important;
+  }
+}
+
+/*
+  Layar muat "tetes air". Air naik mengikuti progres muat (--intro-progress, 0 sampai 1, dari Intro.tsx).
+  Batas atasnya murni CSS: penutup memudar di detik 3,0 sampai 3,4 setelah tampil, bahkan bila JavaScript gagal.
+  Jam animasi bisa mulai sedikit setelah penutup tergambar saat halaman sibuk; Intro.tsx menyamakannya dengan saat
+  tergambar pertama, dan sisa 0,1 detik sampai 3,5 detik menutup selisih itu bila JavaScript gagal.
+  Intro.tsx juga mempercepatnya, paling cepat mulai memudar di detik 1,2.
+*/
+.intro {
+  position: fixed;
+  inset: 0;
+  z-index: 100;
+  display: flex;
+  flex-direction: column;
+  background: var(--daun-900);
+  color: var(--kertas-100);
+  animation:
+    intro-fade 0.4s ease-in 3s forwards,
+    intro-hide 1ms linear 3.4s forwards;
+}
+/* Baris atas tidak terendam air: teks kecil di atas --air-600 hanya 3,1:1, di atas hijau tua 12,1:1. */
+.intro__bar {
+  width: 100%;
+  max-width: 72rem;
+  margin: 0 auto;
+  padding: 0.5rem clamp(1rem, 5vw, 3rem);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+}
+.intro__status {
+  font-size: 0.9rem;
+  font-variant-numeric: tabular-nums;
+}
+.intro__tank {
+  position: relative;
+  flex: 1;
+  overflow: hidden;
+}
+.intro__water {
+  position: absolute;
+  inset: 0;
+  background: var(--air-600);
+  transform: scaleY(var(--intro-progress, 0));
+  transform-origin: 50% 100%;
+  transition: transform 0.6s cubic-bezier(0.22, 1, 0.36, 1);
+}
+.intro__drop {
+  position: absolute;
+  left: calc(50% - 7px);
+  top: -16px;
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background: var(--air-600);
+  animation: intro-fall 0.7s cubic-bezier(0.5, 0, 1, 0.7) forwards;
+}
+.intro__word {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--font-display), Georgia, serif;
+  font-size: clamp(3rem, 12vw, 8rem);
+  opacity: 0;
+  transition: opacity 0.4s ease-out;
+}
+/* Kata muncul saat hurufnya siap, supaya tidak berganti dari huruf cadangan di depan mata. */
+.intro[data-fonts] .intro__word {
+  opacity: 1;
+}
+.intro__skip {
+  min-height: 44px;
+  padding: 0.45rem 0.9rem;
+  border: 1px solid rgb(243 236 216 / 0.45);
+  border-radius: var(--radius-sm);
+  background: var(--daun-900);
+  color: var(--kertas-100);
+  font: inherit;
+  font-size: 0.85rem;
+}
+.intro__skip:hover {
+  background: var(--daun-700);
+  border-color: var(--kertas-100);
+}
+.intro__skip:active {
+  transform: translateY(1px);
+}
+/* --blue hanya 2,6:1 di atas hijau tua; krem 12,1:1. */
+.intro__skip:focus-visible {
+  outline-color: var(--kertas-100);
+}
+@keyframes intro-fall {
+  to { transform: translateY(calc(100vh + 16px)); }
+}
+/* Pudar hanya opacity supaya dijalankan compositor dan tetap tepat waktu walau main thread sibuk menyiapkan model 3D.
+   visibility dipisah ke intro-hide (properti itu membuat animasi kembali ke main thread). */
+@keyframes intro-fade {
+  to { opacity: 0; }
+}
+@keyframes intro-hide {
+  to { visibility: hidden; }
+}
+html[data-intro="skip"] .intro,
+html[data-intro="done"] .intro {
+  display: none;
+}
+html[data-intro="play"] {
+  overflow: hidden;
+}
+/* Judul biasa disembunyikan sampai React menggantinya dengan judul beranimasi. Jaring pengaman bila JavaScript gagal:
+   judul biasa tampil sendiri saat batas layar muat habis (detik 3,4). */
+html[data-intro] .hero-plain {
+  visibility: hidden;
+  animation: hero-plain-show 1ms linear 3.4s forwards;
+}
+@keyframes hero-plain-show {
+  to { visibility: visible; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .intro {
+    display: none;
   }
 }

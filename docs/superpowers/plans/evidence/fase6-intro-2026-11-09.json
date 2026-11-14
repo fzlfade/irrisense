@@ -1,0 +1,289 @@
+{
+  "url": "http://localhost:3000/",
+  "waktu": "2026-11-09T04:13:26.107Z",
+  "batas": {
+    "minMs": 1200,
+    "maxMs": 3500,
+    "toleransiFrameMs": 50
+  },
+  "profilLambat": {
+    "offline": false,
+    "latency": 150,
+    "downloadThroughput": 256000,
+    "uploadThroughput": 128000
+  },
+  "profilSedang": {
+    "offline": false,
+    "latency": 60,
+    "downloadThroughput": 512000,
+    "uploadThroughput": 256000
+  },
+  "cepat": {
+    "tampil": true,
+    "t0": "first-paint",
+    "jamAnimasiTerlambatMs": null,
+    "jadwalPudarMs": 1812,
+    "jadwalHilangMs": 2212,
+    "mulaiPudarTeramatiMs": 1832,
+    "hilangTeramatiMs": 2214,
+    "progres": [
+      {
+        "t": -105,
+        "v": "0"
+      },
+      {
+        "t": 166,
+        "v": "0.5"
+      },
+      {
+        "t": 1270,
+        "v": "1"
+      }
+    ],
+    "teks": [
+      {
+        "t": -105,
+        "v": "Memuat halaman 0 %"
+      },
+      {
+        "t": 166,
+        "v": "Memuat halaman 50 %"
+      },
+      {
+        "t": 1270,
+        "v": "Memuat halaman 100 %"
+      }
+    ],
+    "kataMunculMs": 631,
+    "progresSaatPudar": 1,
+    "progresNaik": true,
+    "adaProgresAntara": true,
+    "teksValid": true,
+    "perubahanTeks": 2,
+    "heroSiapSaatHilang": true,
+    "cls": 0.005,
+    "sesudah": {
+      "dataIntro": "done",
+      "tersimpan": "1",
+      "overflow": "visible",
+      "lenisBerhenti": false,
+      "h1Terlihat": true,
+      "penutupTampil": false,
+      "iframe": 2,
+      "gulirPx": 498
+    }
+  },
+  "kunjunganKedua": {
+    "dataIntro": "skip",
+    "penutupTampil": false,
+    "perekam": true
+  },
+  "lambat": {
+    "tampil": true,
+    "t0": "first-paint",
+    "jamAnimasiTerlambatMs": null,
+    "jadwalPudarMs": 3000,
+    "jadwalHilangMs": 3400,
+    "mulaiPudarTeramatiMs": 3012,
+    "hilangTeramatiMs": 3692,
+    "progres": [
+      {
+        "t": -92,
+        "v": "0"
+      },
+      {
+        "t": 1352,
+        "v": "0.4"
+      },
+      {
+        "t": 1408,
+        "v": "0.5"
+      }
+    ],
+    "teks": [
+      {
+        "t": -92,
+        "v": "Memuat halaman 0 %"
+      },
+      {
+        "t": 1352,
+        "v": "Memuat halaman 40 %"
+      },
+      {
+        "t": 1408,
+        "v": "Memuat halaman 50 %"
+      }
+    ],
+    "kataMunculMs": 1553,
+    "progresSaatPudar": 0.5,
+    "progresNaik": true,
+    "adaProgresAntara": true,
+    "teksValid": true,
+    "perubahanTeks": 2,
+    "heroSiapSaatHilang": true,
+    "cls": 0.005,
+    "sesudah": {
+      "dataIntro": "done",
+      "tersimpan": "1",
+      "overflow": "visible",
+      "lenisBerhenti": false,
+      "h1Terlihat": true,
+      "penutupTampil": false,
+      "iframe": 2
+    }
+  },
+  "jsGagal": {
+    "tampil": true,
+    "jadwalHilangMs": 3383,
+    "hilangTeramatiMs": 3385,
+    "progres": [
+      {
+        "t": -31,
+        "v": "0"
+      }
+    ],
+    "dataIntro": "done",
+    "tersimpan": "1",
+    "overflow": "visible",
+    "lenisBerhenti": false,
+    "h1Terlihat": false,
+    "penutupTampil": false,
+    "iframe": 0,
+    "judulBiasaTerlihat": true,
+    "gulirPx": 500
+  },
+  "interaksi": {
+    "jsJalanSaatTampil": true,
+    "kontras": {
+      "statusDiAtasHijau": 12.12,
+      "kataDiAtasAir": 3.07,
+      "ukuranKataPx": 128,
+      "ukuranStatusPx": 14.4
+    },
+    "role": "status",
+    "overflow": "clip",
+    "lenisBerhenti": true,
+    "gulirSaatTampilPx": 0,
+    "fokus": {
+      "kelas": "intro__skip",
+      "teks": "Lewati",
+      "cincin": "solid 2px rgb(243, 236, 216)",
+      "tinggiPx": 44,
+      "kursor": "pointer"
+    },
+    "masihTampilSaatTab": true,
+    "setelahEnter": {
+      "dataIntro": "done",
+      "tersimpan": "1",
+      "overflow": "visible",
+      "lenisBerhenti": false,
+      "h1Terlihat": true,
+      "penutupTampil": false,
+      "iframe": 2
+    }
+  },
+  "esc": {
+    "jsJalanSaatTampil": true,
+    "dataIntro": "done",
+    "tersimpan": "1",
+    "overflow": "visible",
+    "lenisBerhenti": false,
+    "h1Terlihat": true,
+    "penutupTampil": false,
+    "iframe": 2
+  },
+  "klik": {
+    "jsJalanSaatTampil": true,
+    "dataIntro": "done",
+    "tersimpan": "1",
+    "overflow": "visible",
+    "lenisBerhenti": false,
+    "h1Terlihat": true,
+    "penutupTampil": false,
+    "iframe": 2
+  },
+  "kurangiGerak": {
+    "dataIntro": "skip",
+    "tersimpan": null,
+    "overflow": "visible",
+    "lenisBerhenti": false,
+    "h1Terlihat": true,
+    "penutupTampil": false,
+    "iframe": 0,
+    "perekamTakPernahMelihat": true
+  },
+  "tanpaJs": {
+    "dataIntro": null,
+    "penutupDisplay": "none",
+    "h1Terlihat": true
+  },
+  "sentuh375": {
+    "statusKiriPx": 19,
+    "tombolKananPx": 356,
+    "lebar": 375,
+    "tombolTinggiPx": 44,
+    "tumpang": false,
+    "overflowPx": 0,
+    "jadwalPudarMs": 1929,
+    "jadwalHilangMs": 2329,
+    "hilangTeramatiMs": 2332
+  },
+  "gambar": [
+    "progres-0.jpg",
+    "progres-50.jpg"
+  ],
+  "compositor": {
+    "animasiPenutup": [
+      "intro-fade (DIV class='intro')",
+      "intro-hide (DIV class='intro')",
+      "transform (SPAN class='intro__water')",
+      "opacity (SPAN class='intro__word')"
+    ],
+    "gagalKomposit": [
+      {
+        "animasi": "hero-plain-show (H1 class='vfpu9G_heroTitle hero-plain')",
+        "properti": [
+          "visibility"
+        ]
+      },
+      {
+        "animasi": "intro-hide (DIV class='intro')",
+        "properti": [
+          "visibility"
+        ]
+      },
+      {
+        "animasi": "intro-hide (DIV class='intro')",
+        "properti": [
+          "visibility"
+        ]
+      }
+    ]
+  },
+  "errorKonsol": [],
+  "cek": {
+    "pudarDiCompositor": true,
+    "cepatTampilMinimal": true,
+    "cepatHilangMaksimal": true,
+    "cepatProgres100SebelumPudar": true,
+    "cepatHeroModelSiap": true,
+    "cepatTeks": true,
+    "cepatSesudah": true,
+    "cepatCls": true,
+    "kunjunganKedua": true,
+    "lambatHilangMaksimal": true,
+    "lambatBertahap": true,
+    "jsGagalTetapTerbuka": true,
+    "selamaTampil": true,
+    "tabKeLewati": true,
+    "enterMelewati": true,
+    "escMelewati": true,
+    "klikMelewati": true,
+    "kontras": true,
+    "kurangiGerak": true,
+    "tanpaJs": true,
+    "sentuh375": true,
+    "konsolBersih": true
+  },
+  "lulusSemua": true
+}

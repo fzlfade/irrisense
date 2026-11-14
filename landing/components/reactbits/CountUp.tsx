@@ -263,6 +263,8 @@ export default function CountUp({
   });
 
   useIsoLayoutEffect(() => {
+    // Diubah dari bawaan: dengan "kurangi gerak" angka akhir dibiarkan tampil, tidak dikosongkan ke angka awal.
+    if (window.matchMedia?.('(prefers-reduced-motion: reduce)').matches) return;
     if (!startedRef.current) valueRef.current = startValue;
     if (mode === 'count' && !runningRef.current && textRef.current) {
       textRef.current.textContent = formatValue(valueRef.current);
@@ -511,9 +513,13 @@ export default function CountUp({
           </svg>
         </>
       ) : (
-        <span key="count" ref={textRef}>
-          {initialText}
-        </span>
+        <>
+          {/* Diubah dari bawaan: angka yang beranimasi disembunyikan dari pembaca layar; nilai akhirnya dibacakan. */}
+          <span key="count" ref={textRef} aria-hidden="true">
+            {initialText}
+          </span>
+          <span style={SR_ONLY}>{finalText}</span>
+        </>
       )}
     </span>
   );

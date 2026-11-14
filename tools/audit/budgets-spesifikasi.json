@@ -1,0 +1,62 @@
+{
+  "sumber": "docs/superpowers/plans/2026-11-09-landing-refactor-rea-kasane.md bagian 3.6; versi halaman /spesifikasi/ (rencana Fase 7): anggaran sama kecuali DOM, tanpa cek angka target beranda",
+  "catatanDom": "450 disusun untuk beranda (baseline 817 node, sebagian besar isi tersembunyi dua iframe). Halaman Spesifikasi berisi enam tabel tanpa iframe, jadi memakai 800: batas peringatan Lighthouse untuk node di body (developer.chrome.com/docs/lighthouse/performance/dom-size). REA menghitung semua node termasuk teks, lebih ketat dari Lighthouse yang menghitung elemen.",
+  "limits": {
+    "landingJsGzipKB": {
+      "max": 300,
+      "label": "JS landing (gzip)",
+      "unit": "KB"
+    },
+    "iframeJsGzipKB": {
+      "max": 200,
+      "label": "JS iframe 3D (gzip)",
+      "unit": "KB"
+    },
+    "landingCssKB": {
+      "max": 30,
+      "label": "CSS landing (mentah)",
+      "unit": "KB"
+    },
+    "landingFontsKB": {
+      "max": 200,
+      "label": "Font landing",
+      "unit": "KB"
+    },
+    "heroPosterKB": {
+      "max": 60,
+      "label": "Poster hero",
+      "unit": "KB"
+    },
+    "domNodesTotal": {
+      "max": 800,
+      "label": "DOM node total (semua frame)",
+      "unit": "",
+      "browser": true
+    },
+    "unnamedControls": {
+      "max": 0,
+      "label": "Tautan/tombol tanpa nama",
+      "unit": "",
+      "browser": true
+    },
+    "cls": {
+      "max": 0.05,
+      "label": "CLS saat scroll penuh",
+      "unit": "",
+      "browser": true
+    }
+  },
+  "requiredLandmarks": [
+    "banner",
+    "navigation",
+    "main",
+    "contentinfo"
+  ],
+  "checks": {
+    "expectedTargets": [],
+    "targetSelector": "[data-audit-target]",
+    "introSelector": ".intro",
+    "skipIntroScript": "try{sessionStorage.setItem('irri-intro','1')}catch(e){}",
+    "firstTabSelector": "a[href=\"#konten\"]"
+  }
+}

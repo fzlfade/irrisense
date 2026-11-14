@@ -1,0 +1,193 @@
+{
+  "url": "http://localhost:3000/",
+  "waktu": "2026-11-09T12:32:16.044Z",
+  "batasKenaikan": 0.25,
+  "modelSiap": true,
+  "scrollTrigger": 4,
+  "lintasan": [
+    {
+      "langkah": 40,
+      "layoutPerLangkah": 4.85,
+      "recalcStylePerLangkah": 18.9,
+      "layoutTotal": 194,
+      "recalcStyleTotal": 756,
+      "recalcStyleMs": 8.313,
+      "layoutMs": 3.501,
+      "scriptMs": 153.801,
+      "taskMs": 245.735
+    },
+    {
+      "langkah": 40,
+      "layoutPerLangkah": 0,
+      "recalcStylePerLangkah": 14.07,
+      "layoutTotal": 0,
+      "recalcStyleTotal": 563,
+      "recalcStyleMs": 7.621,
+      "layoutMs": 0,
+      "scriptMs": 121.818,
+      "taskMs": 203.953
+    },
+    {
+      "langkah": 40,
+      "layoutPerLangkah": 0,
+      "recalcStylePerLangkah": 13.72,
+      "layoutTotal": 0,
+      "recalcStyleTotal": 549,
+      "recalcStyleMs": 7.242,
+      "layoutMs": 0,
+      "scriptMs": 127.506,
+      "taskMs": 207.366
+    }
+  ],
+  "stabil": {
+    "layoutPerLangkah": 0,
+    "recalcStylePerLangkah": 13.89,
+    "recalcStyleMs": 7.43,
+    "layoutMs": 0,
+    "scriptMs": 124.66,
+    "taskMs": 205.66
+  },
+  "desktop": {
+    "triggers": 4,
+    "awal": {
+      "heroInline": "inset(0%)",
+      "heroClip": "inset(0%)",
+      "driftInline": "translate(-2vw, 0px)",
+      "driftX": -25.6,
+      "storyBar": true,
+      "storyFill": 0,
+      "ticks": 4,
+      "overflowPx": -15
+    },
+    "heroSeparuh": [
+      0,
+      1.5,
+      0,
+      0,
+      7,
+      7
+    ],
+    "heroSelesai": [
+      0,
+      3,
+      0,
+      0,
+      14,
+      14
+    ],
+    "angkaMasuk": -18.3,
+    "angkaKeluar": 14.7,
+    "cerita": {
+      "bar": true,
+      "isi": 0.5,
+      "ticks": 4
+    },
+    "lebar700": {
+      "triggers": 1,
+      "heroInline": null,
+      "heroClip": "none",
+      "driftInline": null,
+      "driftX": 0,
+      "storyBar": false,
+      "storyFill": null,
+      "ticks": 0,
+      "overflowPx": -15
+    },
+    "lebar1280Lagi": {
+      "triggers": 4,
+      "heroInline": "inset(0%)",
+      "heroClip": "inset(0%)",
+      "driftInline": "translate(-2vw, 0px)",
+      "driftX": -25.6,
+      "storyBar": true,
+      "storyFill": 0,
+      "ticks": 4,
+      "overflowPx": -15
+    }
+  },
+  "tablet": {
+    "heroInline": "inset(0% 1.8486% round 0px 0px 8.627px 8.627px)",
+    "heroClip": "inset(0% 1.8486% round 0px 0px 8.627px 8.627px)",
+    "driftInline": "translate3d(-0.461vw, 0px, 0px)",
+    "driftX": -3.5,
+    "storyBar": false,
+    "storyFill": null,
+    "ticks": 0,
+    "overflowPx": -15,
+    "heroSeparuh": [
+      0,
+      1.8486,
+      0,
+      0,
+      8.627,
+      8.627
+    ]
+  },
+  "kurangiGerak": {
+    "heroInline": null,
+    "heroClip": "none",
+    "driftInline": null,
+    "driftX": 0,
+    "storyBar": false,
+    "storyFill": null,
+    "ticks": 0,
+    "overflowPx": -15
+  },
+  "sentuh375": {
+    "heroInline": null,
+    "heroClip": "none",
+    "driftInline": null,
+    "driftX": 0,
+    "storyBar": false,
+    "storyFill": null,
+    "ticks": 0,
+    "overflowPx": 0
+  },
+  "errorKonsol": [],
+  "perbandingan": {
+    "baselineScrollTrigger": 2,
+    "baselineStabil": {
+      "layoutPerLangkah": 0,
+      "recalcStylePerLangkah": 7.54,
+      "recalcStyleMs": 4.33,
+      "layoutMs": 0,
+      "scriptMs": 115.13,
+      "taskMs": 195.2
+    },
+    "sesudahStabil": {
+      "layoutPerLangkah": 0,
+      "recalcStylePerLangkah": 13.89,
+      "recalcStyleMs": 7.43,
+      "layoutMs": 0,
+      "scriptMs": 124.66,
+      "taskMs": 205.66
+    },
+    "waktuMainThreadRasio": 1.054,
+    "recalcStyleMsTambahan": 3.1,
+    "layoutRasio": null,
+    "recalcStyleRasio": 1.842,
+    "lintasanPertama": {
+      "layout": [
+        5.6,
+        4.85
+      ],
+      "recalcStyle": [
+        15.6,
+        18.9
+      ]
+    }
+  },
+  "cek": {
+    "bebanGulir": true,
+    "scrollTriggerTercatat": true,
+    "heroMenyempit": true,
+    "angkaBergeser": true,
+    "penandaCerita": true,
+    "gantiLebar": true,
+    "tablet": true,
+    "kurangiGerak": true,
+    "sentuh375": true,
+    "konsolBersih": true
+  },
+  "lulusSemua": true
+}

@@ -1,0 +1,25 @@
+# Skrip penemuan (Phase 0) untuk rencana refactor landing
+
+Skrip kami sendiri, tanpa isi pihak ketiga. Dipakai untuk menganalisis sisi publik situs referensi lewat CDP loopback dan REA 6.8.0, dan untuk mengukur IrriSense sendiri. Cara menjalankannya: lampiran B di `../2026-11-09-landing-refactor-rea-kasane.md`.
+
+- `probe.mjs`: jaringan, DOM, dan scroll bertahap (argumen: URL, berkas keluaran).
+- `emul.mjs`: emulasi reduced motion, tanpa JavaScript, jaringan lambat pada landing lokal.
+- `shots.mjs`: tangkapan layar JPEG kecil pada posisi scroll tertentu (khusus situs referensi).
+
+Fase 1 mengadaptasinya menjadi `tools/audit/audit.mjs`. Port debug hanya di `127.0.0.1`; matikan Edge setelah selesai.
+
+`baseline-2026-11-09.json`: laporan audit pertama (`node tools/audit/audit.mjs`), sebelum Fase 2.
+`fase2-2026-11-09.json`: audit setelah Fase 2.
+`fase3-2026-11-09.json`: audit setelah Fase 3; `delivery-gate-fase3.md`: laporan Delivery Gate antislop Fase 3.
+`fase4-2026-11-09.json`: audit setelah Fase 4; `delivery-gate-fase4.md`: laporan Delivery Gate Fase 4.
+`fase4-scroll.mjs`: uji CDP Fase 4 (roda di atas model 3D, seret, anchor, keyboard, kurangi gerak, layar sentuh 375 px); hasilnya `fase4-scroll-2026-11-09.json`. Jalankan dengan `node docs/superpowers/plans/evidence/fase4-scroll.mjs http://localhost:3000/` saat backend menyala.
+`fase5-2026-11-09.json`: audit setelah Fase 5; `delivery-gate-fase5.md`: laporan Delivery Gate Fase 5.
+`fase5-story.mjs`: uji CDP Fase 5 (panggung menempel, perakitan pada p = 0 / 0,33 / 0,66 / 1, langkah aktif, kontras langkah redup, ScrollTrigger tidak bocor saat ganti mode, roda, seret, Tab, CLS, kurangi gerak, layar pendek, sentuh 375 px); hasilnya `fase5-story-2026-11-09.json`, tangkapan layarnya di `fase5/`. Jalankan dengan `node docs/superpowers/plans/evidence/fase5-story.mjs http://localhost:3000/ --shots docs/superpowers/plans/evidence/fase5` saat backend menyala.
+`fase6-2026-11-09.json`: audit setelah Fase 6; `delivery-gate-fase6.md`: laporan Delivery Gate Fase 6.
+`fase6-intro.mjs`: uji CDP Fase 6, layar muat berbasis progres. Isinya: jaringan cepat, sedang, dan lambat; JavaScript diblokir; teks progres per 10 % dan `role="status"`; gulir terkunci selama penutup tampil; Tab, Enter, Esc, dan klik untuk melewati; kunjungan kedua; kurangi gerak; tanpa JavaScript; sentuh 375 px; kontras; dan trace compositor. Waktu dihitung dari first-paint. Hasilnya `fase6-intro-2026-11-09.json`, tangkapan layarnya di `fase6/`. Jalankan dengan `node docs/superpowers/plans/evidence/fase6-intro.mjs http://localhost:3000/ --shots docs/superpowers/plans/evidence/fase6` saat backend menyala.
+`fase7-2026-11-09.json`: audit beranda setelah Fase 7; `fase7-spesifikasi-audit-2026-11-09.json`: audit halaman Spesifikasi dengan `tools/audit/budgets-spesifikasi.json`; `delivery-gate-fase7.md`: laporan Delivery Gate Fase 7.
+`fase7-spesifikasi.mjs`: uji Fase 7, halaman Spesifikasi. Isinya: rute dan pengalihan; perayap semua href dan src internal di beranda dan Spesifikasi, termasuk anchor; isi tabel dibandingkan dengan `landing/content/spesifikasi.ts`; heading, landmark, dan `aria-current`; anchor daftar isi dan urutan Tab; kontras; tanpa overflow di 375, 768, dan 1280 px; menu ponsel; kurangi gerak; tanpa JavaScript; pindah ke beranda lewat tautan merek; dan beranda tetap memutar layar muat. Hasilnya `fase7-spesifikasi-2026-11-09.json`, tangkapan layarnya di `fase7/`. Jalankan dengan `node docs/superpowers/plans/evidence/fase7-spesifikasi.mjs http://localhost:3000/ --shots docs/superpowers/plans/evidence/fase7` saat backend menyala.
+`fase8-baseline-2026-11-09.json`: beban gulir sebelum Fase 8, diukur dari build tanpa Fase 8 dengan `fase8-gerak.mjs --metrics-only`. `delivery-gate-fase8.md`: laporan Delivery Gate Fase 8.
+`fase8-gerak.mjs`: uji Fase 8, tiga gerak gulir. Isinya: beban gulir dibanding baseline (total waktu main thread naik paling banyak 25 % dan tata letak tidak bertambah, sedangkan jumlah hitungan gaya hanya dicatat); peralihan clip-path hero; geser angka 60–80 %; penanda progres panggung cerita; efek dibongkar dan dipasang lagi saat lebar berganti; 768 px; kurangi gerak; dan sentuh 375 px. Hasilnya `fase8-gerak-2026-11-09.json`, tangkapan layarnya di `fase8/`. Jalankan dengan `node docs/superpowers/plans/evidence/fase8-gerak.mjs http://localhost:3000/ --baseline docs/superpowers/plans/evidence/fase8-baseline-2026-11-09.json --shots docs/superpowers/plans/evidence/fase8` saat backend menyala.
+`fase9-a11y.mjs`: uji Fase 9, aksesibilitas di beranda dan Spesifikasi. Isinya: lang dan title; alt dan title iframe; heading; jalur Tab penuh dengan fokus terlihat dan bercincin; Shift+Tab; Enter pada tautan lewati; Enter dan Esc pada tombol Menu; target sentuh 24 px di 375, 768, dan 1280 px. Hasilnya `fase9-a11y-2026-11-09.json`. Folder `fase9/` berisi hasil uji ulang Fase 4–8 dan audit kedua halaman. `delivery-gate-fase9.md`: laporan Delivery Gate Fase 9.
+`akhir-audit-beranda-2026-11-09.json` dan `akhir-audit-spesifikasi-2026-11-09.json`: audit Fase Akhir untuk beranda dan Spesifikasi (dibanding `baseline-2026-11-09.json` di rencana bagian 6).

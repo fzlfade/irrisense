@@ -1,0 +1,65 @@
+{
+  "sumber": "docs/superpowers/plans/2026-11-09-landing-refactor-rea-kasane.md bagian 3.6",
+  "limits": {
+    "landingJsGzipKB": {
+      "max": 300,
+      "label": "JS landing (gzip)",
+      "unit": "KB"
+    },
+    "iframeJsGzipKB": {
+      "max": 200,
+      "label": "JS iframe 3D (gzip)",
+      "unit": "KB"
+    },
+    "landingCssKB": {
+      "max": 30,
+      "label": "CSS landing (mentah)",
+      "unit": "KB"
+    },
+    "landingFontsKB": {
+      "max": 200,
+      "label": "Font landing",
+      "unit": "KB"
+    },
+    "heroPosterKB": {
+      "max": 60,
+      "label": "Poster hero",
+      "unit": "KB"
+    },
+    "domNodesTotal": {
+      "max": 450,
+      "label": "DOM node total (semua frame)",
+      "unit": "",
+      "browser": true
+    },
+    "unnamedControls": {
+      "max": 0,
+      "label": "Tautan/tombol tanpa nama",
+      "unit": "",
+      "browser": true
+    },
+    "cls": {
+      "max": 0.05,
+      "label": "CLS saat scroll penuh",
+      "unit": "",
+      "browser": true
+    }
+  },
+  "requiredLandmarks": [
+    "banner",
+    "navigation",
+    "main",
+    "contentinfo"
+  ],
+  "checks": {
+    "expectedTargets": [
+      "< 2 detik",
+      "± 5 %",
+      "30 %"
+    ],
+    "targetSelector": "dd",
+    "introSelector": ".intro",
+    "skipIntroScript": "try{sessionStorage.setItem('irri-intro','1')}catch(e){}",
+    "firstTabSelector": "a[href=\"#konten\"]"
+  }
+}

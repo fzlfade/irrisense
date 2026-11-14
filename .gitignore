@@ -21,3 +21,6 @@ backend/data/
 *.db
 *.db-wal
 *.db-shm
+
+# keluaran audit lokal
+tools/audit/out/
