@@ -1,0 +1,38 @@
+<!doctype html>
+<html lang="id">
+<head>
+<meta charset="utf-8" />
+<link rel="icon" href="data:," />
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+<title>Diorama IrriSense</title>
+<style>
+  :root { color-scheme: light; }
+  * { box-sizing: border-box; }
+  html, body { width: 100%; height: 100%; margin: 0; overflow: hidden; background: #f3ecd8; }
+  body { font: 500 15px/1.4 system-ui, "Segoe UI", sans-serif; color: #12301f; -webkit-tap-highlight-color: transparent; }
+  #stage { position: fixed; inset: 0; width: 100%; height: 100%; display: block; outline: none; touch-action: none; }
+  #stage:focus-visible { box-shadow: inset 0 0 0 3px #b9892b; }
+  .ctl { position: fixed; left: 16px; bottom: 16px; display: flex; gap: 8px; align-items: center; flex-wrap: wrap; max-width: calc(100% - 32px); }
+  .ctl button { min-height: 44px; padding: 0 16px; border: 0; border-radius: 10px; background: #1f4a31; color: #fff; font: 600 15px system-ui, "Segoe UI", sans-serif; cursor: pointer; }
+  .ctl button:hover { background: #12301f; }
+  .ctl button:active { transform: translateY(1px); }
+  .ctl button:focus-visible { outline: 3px solid #b9892b; outline-offset: 2px; }
+  .hint { font-size: 13px; color: #55655a; }
+  #fallback { position: fixed; inset: 0; display: grid; place-items: center; background: #f3ecd8; padding: 2rem; text-align: center; }
+  #fallback[hidden] { display: none; }
+</style>
+</head>
+<body>
+<main>
+<h1 style="position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)">Diorama prototipe IrriSense di rangka paralon</h1>
+<canvas id="stage" tabindex="0" aria-label="Diorama 3D prototipe IrriSense. Seret untuk memutar, gulir untuk zoom, panah untuk memutar, R untuk reset, spasi untuk jeda"></canvas>
+<div class="ctl" role="group" aria-label="Kontrol diorama">
+  <button id="play" type="button" aria-pressed="false">Jeda</button>
+  <button id="reset" type="button">Reset tampilan</button>
+  <span class="hint">Seret untuk memutar, gulir untuk zoom</span>
+</div>
+</main>
+<div id="fallback" hidden>Diorama ini butuh browser dengan WebGL.</div>
+<script src="./dist/app.js"></script>
+</body>
+</html>

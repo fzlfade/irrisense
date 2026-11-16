@@ -1,0 +1,174 @@
+<!doctype html>
+<html lang="id"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Prototipe 3D IrriSense (rangka paralon)</title>
+<style>
+:root{--daun:#12301f;--kertas:#f3ecd8;--vanili:#b9892b}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%;background:#dfe8dc;font-family:Raleway,"Segoe UI",sans-serif;color:var(--daun)}
+#app{display:grid;grid-template-columns:1fr 340px;height:100%}
+#view{position:relative;min-width:0}
+canvas{display:block;width:100%;height:100%}
+aside{background:var(--kertas);padding:22px;overflow:auto;border-left:3px solid var(--daun)}
+h1{font-size:24px;line-height:1.15}
+.sub{font-size:14px;margin:6px 0 14px;line-height:1.4}
+ol{list-style:none;font-size:14.5px;line-height:1.3}
+li{display:flex;gap:10px;padding:5px 0;border-bottom:1px solid #d8cfae}
+li i{flex:none;width:22px;height:22px;border-radius:50%;background:var(--daun);color:var(--kertas);font:700 12px/22px sans-serif;text-align:center;font-style:normal}
+li small{display:block;opacity:.75;font-size:12.5px}
+.btns{position:absolute;left:14px;top:14px;display:flex;gap:8px;flex-wrap:wrap}
+button{font:600 15px "Segoe UI",sans-serif;background:var(--daun);color:var(--kertas);border:0;padding:10px 14px;border-radius:6px;cursor:pointer;min-height:44px}
+button:focus-visible{outline:3px solid var(--vanili);outline-offset:2px}
+.note{position:absolute;left:14px;bottom:12px;font-size:13px;opacity:.75}
+@media(max-width:800px){#app{grid-template-columns:1fr;grid-template-rows:60% 40%}}
+</style>
+<script type="importmap">{"imports":{"three":"https://unpkg.com/three@0.160.0/build/three.module.js","three/addons/":"https://unpkg.com/three@0.160.0/examples/jsm/"}}</script>
+</head><body>
+<div id="app">
+  <div id="view">
+    <div class="btns"><button id="net" aria-pressed="false">Pasang paranet</button><button id="spin" aria-pressed="false">Putar otomatis</button></div>
+    <div class="note">Seret untuk memutar, gulir untuk zoom. Ukuran dalam cm (perkiraan dari foto).</div>
+  </div>
+  <aside>
+    <h1>Prototipe IrriSense di rangka paralon</h1>
+    <p class="sub">Rangka atap pelana dari pipa PVC, perkiraan 100 × 60 × 75 cm (panjang × lebar × tinggi bubungan). Ubah konstanta <code>L, W, H, POST</code> di kode bila ukuran asli berbeda.</p>
+    <ol id="legend"></ol>
+  </aside>
+</div>
+<script type="module">
+import * as THREE from 'three';
+import {OrbitControls} from 'three/addons/controls/OrbitControls.js';
+
+// Perkiraan dari foto: L = panjang bubungan, W = lebar alas, H = tinggi bubungan, POST = tiang tegak sebelum siku.
+const L=100, W=60, H=75, POST=25, R=1.35; // R: jari-jari pipa 3/4" (diameter luar ~2,7 cm)
+
+const view=document.getElementById('view');
+const renderer=new THREE.WebGLRenderer({antialias:true,preserveDrawingBuffer:true});
+renderer.setPixelRatio(Math.min(devicePixelRatio,2));
+renderer.shadowMap.enabled=true;renderer.shadowMap.type=THREE.PCFSoftShadowMap;
+view.appendChild(renderer.domElement);
+const scene=new THREE.Scene();scene.background=new THREE.Color(0xdfe8dc);
+const camera=new THREE.PerspectiveCamera(38,1,1,1000);
+camera.position.set(115,95,150);
+const controls=new OrbitControls(camera,renderer.domElement);
+controls.target.set(-5,28,0);controls.enableDamping=true;controls.maxPolarAngle=Math.PI*0.49;
+scene.add(new THREE.HemisphereLight(0xffffff,0x8a9a85,1.0));
+const sun=new THREE.DirectionalLight(0xffffff,1.6);sun.position.set(70,140,90);sun.castShadow=true;
+sun.shadow.mapSize.set(2048,2048);Object.assign(sun.shadow.camera,{left:-110,right:110,top:110,bottom:-110,near:10,far:400});
+scene.add(sun);
+
+const M=(c,o={})=>new THREE.MeshStandardMaterial({color:c,roughness:.6,...o});
+const V=(x,y,z)=>new THREE.Vector3(x,y,z);
+function add(m){m.castShadow=m.receiveShadow=true;scene.add(m);return m}
+function box(w,h,d,c,x,y,z){const m=add(new THREE.Mesh(new THREE.BoxGeometry(w,h,d),M(c)));m.position.set(x,y,z);return m}
+function cyl(r,h,c,x,y,z,o){const m=add(new THREE.Mesh(new THREE.CylinderGeometry(r,r,h,28),M(c,o)));m.position.set(x,y,z);return m}
+// pipa lurus antara dua titik
+const pvc=M(0xf4f4f0,{roughness:.35}),fit=M(0x7d8287,{roughness:.5});
+function pipe(a,b,r=R,mat=pvc){const d=b.clone().sub(a),m=add(new THREE.Mesh(new THREE.CylinderGeometry(r,r,d.length(),20),mat));
+  m.position.copy(a).add(b).multiplyScalar(.5);m.quaternion.setFromUnitVectors(V(0,1,0),d.normalize());return m}
+function joint(p){const m=add(new THREE.Mesh(new THREE.SphereGeometry(R*1.55,16,12),fit));m.position.copy(p)}
+function tube(pts,r,c){add(new THREE.Mesh(new THREE.TubeGeometry(new THREE.CatmullRomCurve3(pts.map(p=>V(...p)),false,'chordal'),64,r,8),M(c)))}
+
+// lantai
+const floor=new THREE.Mesh(new THREE.PlaneGeometry(400,300),M(0xb5644f,{roughness:.8}));floor.rotation.x=-Math.PI/2;floor.receiveShadow=true;scene.add(floor);
+
+// --- rangka paralon ---
+const y0=R, xs=[-L/2,0,L/2], zf=W/2, zb=-W/2;
+// alas: keliling + rel tengah memanjang + rel melintang tiap L/4
+pipe(V(-L/2,y0,zf),V(L/2,y0,zf));pipe(V(-L/2,y0,zb),V(L/2,y0,zb));pipe(V(-L/2,y0,0),V(L/2,y0,0));
+for(let i=0;i<=4;i++){const x=-L/2+i*L/4;pipe(V(x,y0,zb),V(x,y0,zf));[zb,0,zf].forEach(z=>joint(V(x,y0,z)))}
+// tiga kuda-kuda: tiang tegak + kaki miring ke bubungan
+xs.forEach(x=>{[zf,zb].forEach(z=>{pipe(V(x,y0,z),V(x,POST,z));pipe(V(x,POST,z),V(x,H,0));joint(V(x,POST,z))});joint(V(x,H,0))});
+pipe(V(-L/2,H,0),V(L/2,H,0)); // bubungan
+
+// --- paranet (opsional) ---
+const netMat=new THREE.MeshStandardMaterial({color:0x1f4a31,transparent:true,opacity:.55,side:THREE.DoubleSide});
+const net=new THREE.Group();scene.add(net);net.visible=false;
+[zf,zb].forEach(z=>{const g=new THREE.BufferGeometry().setFromPoints([V(-L/2,POST,z),V(L/2,POST,z),V(L/2,H,0),V(-L/2,POST,z),V(L/2,H,0),V(-L/2,H,0)]);g.computeVertexNormals();net.add(new THREE.Mesh(g,netMat))});
+
+// --- 6 polybag vanili di sel alas (2 baris x 3) ---
+const leaf=M(0x3f9a5e),soil=M(0x3b2618),bag=M(0x1a1a1a);
+const pots=[];[-L/3,0,L/3].forEach(x=>[-W/4,W/4].forEach(z=>pots.push([x,z])));
+pots.forEach(([x,z],i)=>{
+  cyl(9,17,0x1a1a1a,x,8.5+2*R,z);cyl(8.6,.6,0x3b2618,x,17.2+2*R,z);
+  // ajir: vanili merambat, diikat ke kaki kuda-kuda di atasnya
+  pipe(V(x+3,19,z),V(x+3,56,z*.55),.45,M(0xb59a6a));
+  for(let k=0;k<5;k++){const l=add(new THREE.Mesh(new THREE.SphereGeometry(2.3,12,8),leaf));l.scale.set(1.7,.22,.95);
+    const t=k/5;l.position.set(x+3+(k%2?2.8:-2.4),22+t*32,z*(1-.45*t));l.rotation.z=(k%2?1:-1)*.4}
+  // sensor tanah + casing
+  box(1.6,4,.8,0x1f3a52,x-4,21.5,z);box(2.2,1.2,.8,0xb52a2a,x-4,24,z);
+});
+
+// --- galon sebagai tandon + pompa celup 5 V di dalamnya ---
+const gx=-L/2-30;
+cyl(13.5,40,0x9fd3ef,gx,20,0,{transparent:true,opacity:.35,roughness:.15});
+cyl(13,26,0x2d8fc0,gx,13,0,{transparent:true,opacity:.6});
+cyl(2.2,4,0xb9892b,gx,3,0,{});
+// selang tetes: naik dari pompa, keluar dari mulut galon, menyusuri rel tengah alas
+// selang utama PE 16 mm di atas rel tengah; ujungnya ditutup end-stop
+const hy=2*R+1.4;
+tube([[gx,5,0],[gx,41,0],[gx+14,44,0],[-L/2-4,10,0],[-L/2+2,hy,0],[L/3+12,hy,0]],1.0,0x111111);
+cyl(1.3,2.4,0xb52a2a,L/3+13,hy,0,{}).rotation.z=Math.PI/2;
+// tiap polybag: konektor di selang utama -> selang mikro 4/7 mm naik ke bibir polybag -> dripper stik ditancap ke tanah
+const drip=M(0x7a2fa0),water=M(0x4fb0de,{transparent:true,opacity:.85});
+pots.forEach(([x,z])=>{
+  const s=Math.sign(z),px=x+5,pz=z-s*5;               // titik dripper di tanah, sisi dekat rel tengah
+  box(2.2,2.2,2.2,0x222222,px,hy,0);                  // konektor
+  tube([[px,hy,0],[px,hy+3,s*3],[px,22,pz-s*3],[px,21,pz]],.45,0x111111);
+  cyl(1.4,1.2,0x7a2fa0,px,20.6,pz,{});                // kepala dripper (ungu)
+  const st=add(new THREE.Mesh(new THREE.ConeGeometry(.6,5,10),drip));st.position.set(px,17.8,pz);st.rotation.x=Math.PI; // stik masuk tanah
+  [0,1].forEach(k=>{const d=add(new THREE.Mesh(new THREE.SphereGeometry(.7-k*.15,10,8),water));d.scale.y=1.4;d.position.set(px+1.6,19.6-k*1.6,pz)});
+});
+
+// --- casing 16x14x4 + LCD, diikat di tiang depan kuda-kuda tengah; LCD menghadap pengunjung ---
+const ex=0;
+box(16,14,4,0x2b3a36,ex,16,zf+R+2);
+function screenTex(){const c=document.createElement('canvas');c.width=400;c.height=240;const g=c.getContext('2d');
+  g.fillStyle='#0d3b2e';g.fillRect(0,0,400,240);g.fillStyle='#8cffb8';g.font='bold 34px monospace';
+  ['IrriSense   S1:72%','S2:65% S3:58% S4:69%','S5:75% S6:63%  29C','Pompa: ON   WiFi OK'].forEach((t,i)=>g.fillText(t,10,48+i*54));
+  const t=new THREE.CanvasTexture(c);t.colorSpace=THREE.SRGBColorSpace;return t}
+const scr=new THREE.Mesh(new THREE.PlaneGeometry(9.8,4.2),new THREE.MeshBasicMaterial({map:screenTex()}));scr.position.set(ex,18,zf+R+4.05);scene.add(scr);
+// adaptor di lantai depan + kabel ke casing; duct sepanjang rel depan
+box(5,4,3,0x151515,18,2,zf+12);
+tube([[15.5,2,zf+12],[8,6,zf+5],[ex+6,9.5,zf+R+2]],.35,0x111111);
+box(L,2,2,0xf2f2f2,0,4.6,zf-4.5);
+tube([[0,5.6,zf-4.5],[0,9,zf-1],[0,10,zf+R+1]],.3,0x2a8d4f); // kabel sensor dari duct naik ke casing
+pots.forEach(([x,z])=>tube([[x-4,24,z],[x-4,8,z+(zf-4.5-z)*.6],[x-4,5.6,zf-4.5]],.12,0x2a8d4f));
+// DHT11 tepat di atas casing, di tiang yang sama; kabelnya langsung masuk casing
+box(2.6,3.4,1.6,0x4fa0d8,ex,25.8,zf+R+2);box(4,.6,4,0x2b3a36,ex,23.3,zf+R+2);
+
+// --- label ---
+const items=[
+ ['Rangka paralon PVC 3/4"','alas kisi 2 × 4, tiga kuda-kuda, bubungan'],
+ ['Polybag + tanaman vanili','6 buah, 1 per sel alas; ajir diikat ke kaki kuda-kuda'],
+ ['Sensor kelembapan tanah + casing','6 terpasang (1 per polybag), 4 cadangan'],
+ ['Galon sebagai tandon','air untuk penyiraman'],
+ ['Mini pompa 5 VDC','dicelup di dasar galon'],
+ ['Selang tetes + dripper','selang utama di rel tengah alas; tiap polybag dapat selang mikro + dripper stik (ungu)'],
+ ['Casing 16 × 14 × 4 cm + LCD 20×4','berisi ESP32, relay, PCB; diikat di tiang depan kuda-kuda tengah'],
+ ['Kabel duct','di atas rel depan, merapikan kabel sensor'],
+ ['Adaptor 5 VDC 2 A','sumber daya'],
+ ['Sensor DHT11','tepat di atas casing, di tiang yang sama'],
+ ['Paranet (opsional)','peneduh; vanili butuh naungan']
+];
+const lg=document.getElementById('legend');
+items.forEach((it,i)=>{const li=document.createElement('li');li.innerHTML=`<i>${i+1}</i><span>${it[0]}<small>${it[1]}</small></span>`;lg.appendChild(li)});
+function label(n,x,y,z){const c=document.createElement('canvas');c.width=c.height=96;const g=c.getContext('2d');
+  g.fillStyle='#12301f';g.beginPath();g.arc(48,48,44,0,7);g.fill();g.fillStyle='#f3ecd8';g.font='bold 52px sans-serif';g.textAlign='center';g.textBaseline='middle';g.fillText(n,48,52);
+  const sp=new THREE.Sprite(new THREE.SpriteMaterial({map:new THREE.CanvasTexture(c),depthTest:false}));sp.position.set(x,y,z);sp.scale.set(5.5,5.5,1);sp.renderOrder=9;scene.add(sp);return sp}
+const labels=[label(1,L/2+4,H+6,0),label(2,L/3+8,44,W/4),label(3,-4,30,W/4+4),label(4,gx,50,0),label(5,gx+8,6,10),
+  label(6,L/3+18,9,0),label(7,ex-12,16,zf+8),label(8,-L/3,9,zf+3),label(9,18,9,zf+12),label(10,ex+6,31,zf+6)];
+const netLabel=label(11,-L/4,H-8,W/4);netLabel.visible=false;
+
+// kontrol
+const netBtn=document.getElementById('net'),spinBtn=document.getElementById('spin');let spin=false;
+netBtn.onclick=()=>{net.visible=netLabel.visible=!net.visible;netBtn.setAttribute('aria-pressed',net.visible);netBtn.textContent=net.visible?'Lepas paranet':'Pasang paranet'};
+spinBtn.onclick=()=>{spin=!spin;spinBtn.setAttribute('aria-pressed',spin);spinBtn.textContent=spin?'Berhenti putar':'Putar otomatis'};
+if(new URLSearchParams(location.search).get('net')==='1')netBtn.click();
+function resize(){const w=view.clientWidth,h=view.clientHeight;renderer.setSize(w,h);camera.aspect=w/h;camera.updateProjectionMatrix()}
+addEventListener('resize',resize);resize();
+renderer.setAnimationLoop(()=>{
+  if(spin){const a=.004,p=camera.position.clone().sub(controls.target);camera.position.set(controls.target.x+p.x*Math.cos(a)-p.z*Math.sin(a),camera.position.y,controls.target.z+p.x*Math.sin(a)+p.z*Math.cos(a))}
+  controls.update();renderer.render(scene,camera);window.__ready=true;
+});
+</script></body></html>

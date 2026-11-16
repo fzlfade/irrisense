@@ -1,0 +1,614 @@
+{
+  "page": "file:///C:/Users/faiza/Documents/Code/irrisense/docs/prototype/diorama/irrisense-diorama.html",
+  "runs": [
+    {
+      "inject": "normal",
+      "expectFail": null,
+      "ok": true,
+      "errors": [],
+      "results": [
+        {
+          "id": "geometri berhingga",
+          "pass": true,
+          "detail": "0 mesh dengan NaN"
+        },
+        {
+          "id": "dripper-1 tertancap di tanah",
+          "pass": true,
+          "detail": "-0.375,0.144,-0.090"
+        },
+        {
+          "id": "dripper-2 tertancap di tanah",
+          "pass": true,
+          "detail": "-0.375,0.144,0.090"
+        },
+        {
+          "id": "dripper-3 tertancap di tanah",
+          "pass": true,
+          "detail": "-0.125,0.144,-0.090"
+        },
+        {
+          "id": "dripper-4 tertancap di tanah",
+          "pass": true,
+          "detail": "-0.125,0.144,0.090"
+        },
+        {
+          "id": "dripper-5 tertancap di tanah",
+          "pass": true,
+          "detail": "0.125,0.144,-0.090"
+        },
+        {
+          "id": "dripper-6 tertancap di tanah",
+          "pass": true,
+          "detail": "0.125,0.144,0.090"
+        },
+        {
+          "id": "sensor-1 garpu di tanah",
+          "pass": true,
+          "detail": "0.110"
+        },
+        {
+          "id": "sensor-2 garpu di tanah",
+          "pass": true,
+          "detail": "0.110"
+        },
+        {
+          "id": "sensor-3 garpu di tanah",
+          "pass": true,
+          "detail": "0.110"
+        },
+        {
+          "id": "sensor-4 garpu di tanah",
+          "pass": true,
+          "detail": "0.110"
+        },
+        {
+          "id": "sensor-5 garpu di tanah",
+          "pass": true,
+          "detail": "0.110"
+        },
+        {
+          "id": "sensor-6 garpu di tanah",
+          "pass": true,
+          "detail": "0.110"
+        },
+        {
+          "id": "ajir-1 tertancap",
+          "pass": true,
+          "detail": "0.120"
+        },
+        {
+          "id": "ajir-2 tertancap",
+          "pass": true,
+          "detail": "0.120"
+        },
+        {
+          "id": "ajir-3 tertancap",
+          "pass": true,
+          "detail": "0.120"
+        },
+        {
+          "id": "ajir-4 tertancap",
+          "pass": true,
+          "detail": "0.120"
+        },
+        {
+          "id": "ajir-5 tertancap",
+          "pass": true,
+          "detail": "0.120"
+        },
+        {
+          "id": "ajir-6 tertancap",
+          "pass": true,
+          "detail": "0.120"
+        },
+        {
+          "id": "polybag-1 tidak menembus pipa",
+          "pass": true,
+          "detail": "0 pipa beririsan"
+        },
+        {
+          "id": "polybag-1 menapak lantai",
+          "pass": true,
+          "detail": "0.0000"
+        },
+        {
+          "id": "polybag-2 tidak menembus pipa",
+          "pass": true,
+          "detail": "0 pipa beririsan"
+        },
+        {
+          "id": "polybag-2 menapak lantai",
+          "pass": true,
+          "detail": "0.0000"
+        },
+        {
+          "id": "polybag-3 tidak menembus pipa",
+          "pass": true,
+          "detail": "0 pipa beririsan"
+        },
+        {
+          "id": "polybag-3 menapak lantai",
+          "pass": true,
+          "detail": "0.0000"
+        },
+        {
+          "id": "polybag-4 tidak menembus pipa",
+          "pass": true,
+          "detail": "0 pipa beririsan"
+        },
+        {
+          "id": "polybag-4 menapak lantai",
+          "pass": true,
+          "detail": "0.0000"
+        },
+        {
+          "id": "polybag-5 tidak menembus pipa",
+          "pass": true,
+          "detail": "0 pipa beririsan"
+        },
+        {
+          "id": "polybag-5 menapak lantai",
+          "pass": true,
+          "detail": "0.0000"
+        },
+        {
+          "id": "polybag-6 tidak menembus pipa",
+          "pass": true,
+          "detail": "0 pipa beririsan"
+        },
+        {
+          "id": "polybag-6 menapak lantai",
+          "pass": true,
+          "detail": "0.0000"
+        },
+        {
+          "id": "cabang-1 berpangkal di selang utama",
+          "pass": true,
+          "detail": "-0.375"
+        },
+        {
+          "id": "cabang-2 berpangkal di selang utama",
+          "pass": true,
+          "detail": "-0.375"
+        },
+        {
+          "id": "cabang-3 berpangkal di selang utama",
+          "pass": true,
+          "detail": "-0.125"
+        },
+        {
+          "id": "cabang-4 berpangkal di selang utama",
+          "pass": true,
+          "detail": "-0.125"
+        },
+        {
+          "id": "cabang-5 berpangkal di selang utama",
+          "pass": true,
+          "detail": "0.125"
+        },
+        {
+          "id": "cabang-6 berpangkal di selang utama",
+          "pass": true,
+          "detail": "0.125"
+        },
+        {
+          "id": "ujung selang terendam di galon",
+          "pass": true,
+          "detail": "0.045"
+        },
+        {
+          "id": "rangka menapak lantai",
+          "pass": true,
+          "detail": "0.0000"
+        }
+      ]
+    },
+    {
+      "inject": "dripper",
+      "expectFail": "dripper-1 tertancap di tanah",
+      "ok": true,
+      "errors": [],
+      "results": [
+        {
+          "id": "geometri berhingga",
+          "pass": true,
+          "detail": "0 mesh dengan NaN"
+        },
+        {
+          "id": "dripper-1 tertancap di tanah",
+          "pass": false,
+          "detail": "-0.375,0.224,-0.090"
+        },
+        {
+          "id": "dripper-2 tertancap di tanah",
+          "pass": true,
+          "detail": "-0.375,0.144,0.090"
+        },
+        {
+          "id": "dripper-3 tertancap di tanah",
+          "pass": true,
+          "detail": "-0.125,0.144,-0.090"
+        },
+        {
+          "id": "dripper-4 tertancap di tanah",
+          "pass": true,
+          "detail": "-0.125,0.144,0.090"
+        },
+        {
+          "id": "dripper-5 tertancap di tanah",
+          "pass": true,
+          "detail": "0.125,0.144,-0.090"
+        },
+        {
+          "id": "dripper-6 tertancap di tanah",
+          "pass": true,
+          "detail": "0.125,0.144,0.090"
+        },
+        {
+          "id": "sensor-1 garpu di tanah",
+          "pass": true,
+          "detail": "0.110"
+        },
+        {
+          "id": "sensor-2 garpu di tanah",
+          "pass": true,
+          "detail": "0.110"
+        },
+        {
+          "id": "sensor-3 garpu di tanah",
+          "pass": true,
+          "detail": "0.110"
+        },
+        {
+          "id": "sensor-4 garpu di tanah",
+          "pass": true,
+          "detail": "0.110"
+        },
+        {
+          "id": "sensor-5 garpu di tanah",
+          "pass": true,
+          "detail": "0.110"
+        },
+        {
+          "id": "sensor-6 garpu di tanah",
+          "pass": true,
+          "detail": "0.110"
+        },
+        {
+          "id": "ajir-1 tertancap",
+          "pass": true,
+          "detail": "0.120"
+        },
+        {
+          "id": "ajir-2 tertancap",
+          "pass": true,
+          "detail": "0.120"
+        },
+        {
+          "id": "ajir-3 tertancap",
+          "pass": true,
+          "detail": "0.120"
+        },
+        {
+          "id": "ajir-4 tertancap",
+          "pass": true,
+          "detail": "0.120"
+        },
+        {
+          "id": "ajir-5 tertancap",
+          "pass": true,
+          "detail": "0.120"
+        },
+        {
+          "id": "ajir-6 tertancap",
+          "pass": true,
+          "detail": "0.120"
+        },
+        {
+          "id": "polybag-1 tidak menembus pipa",
+          "pass": true,
+          "detail": "0 pipa beririsan"
+        },
+        {
+          "id": "polybag-1 menapak lantai",
+          "pass": true,
+          "detail": "0.0000"
+        },
+        {
+          "id": "polybag-2 tidak menembus pipa",
+          "pass": true,
+          "detail": "0 pipa beririsan"
+        },
+        {
+          "id": "polybag-2 menapak lantai",
+          "pass": true,
+          "detail": "0.0000"
+        },
+        {
+          "id": "polybag-3 tidak menembus pipa",
+          "pass": true,
+          "detail": "0 pipa beririsan"
+        },
+        {
+          "id": "polybag-3 menapak lantai",
+          "pass": true,
+          "detail": "0.0000"
+        },
+        {
+          "id": "polybag-4 tidak menembus pipa",
+          "pass": true,
+          "detail": "0 pipa beririsan"
+        },
+        {
+          "id": "polybag-4 menapak lantai",
+          "pass": true,
+          "detail": "0.0000"
+        },
+        {
+          "id": "polybag-5 tidak menembus pipa",
+          "pass": true,
+          "detail": "0 pipa beririsan"
+        },
+        {
+          "id": "polybag-5 menapak lantai",
+          "pass": true,
+          "detail": "0.0000"
+        },
+        {
+          "id": "polybag-6 tidak menembus pipa",
+          "pass": true,
+          "detail": "0 pipa beririsan"
+        },
+        {
+          "id": "polybag-6 menapak lantai",
+          "pass": true,
+          "detail": "0.0000"
+        },
+        {
+          "id": "cabang-1 berpangkal di selang utama",
+          "pass": true,
+          "detail": "-0.375"
+        },
+        {
+          "id": "cabang-2 berpangkal di selang utama",
+          "pass": true,
+          "detail": "-0.375"
+        },
+        {
+          "id": "cabang-3 berpangkal di selang utama",
+          "pass": true,
+          "detail": "-0.125"
+        },
+        {
+          "id": "cabang-4 berpangkal di selang utama",
+          "pass": true,
+          "detail": "-0.125"
+        },
+        {
+          "id": "cabang-5 berpangkal di selang utama",
+          "pass": true,
+          "detail": "0.125"
+        },
+        {
+          "id": "cabang-6 berpangkal di selang utama",
+          "pass": true,
+          "detail": "0.125"
+        },
+        {
+          "id": "ujung selang terendam di galon",
+          "pass": true,
+          "detail": "0.045"
+        },
+        {
+          "id": "rangka menapak lantai",
+          "pass": true,
+          "detail": "0.0000"
+        }
+      ]
+    },
+    {
+      "inject": "pot",
+      "expectFail": "polybag-1 tidak menembus pipa",
+      "ok": true,
+      "errors": [],
+      "results": [
+        {
+          "id": "geometri berhingga",
+          "pass": true,
+          "detail": "0 mesh dengan NaN"
+        },
+        {
+          "id": "dripper-1 tertancap di tanah",
+          "pass": true,
+          "detail": "-0.250,0.144,-0.090"
+        },
+        {
+          "id": "dripper-2 tertancap di tanah",
+          "pass": true,
+          "detail": "-0.375,0.144,0.090"
+        },
+        {
+          "id": "dripper-3 tertancap di tanah",
+          "pass": true,
+          "detail": "-0.125,0.144,-0.090"
+        },
+        {
+          "id": "dripper-4 tertancap di tanah",
+          "pass": true,
+          "detail": "-0.125,0.144,0.090"
+        },
+        {
+          "id": "dripper-5 tertancap di tanah",
+          "pass": true,
+          "detail": "0.125,0.144,-0.090"
+        },
+        {
+          "id": "dripper-6 tertancap di tanah",
+          "pass": true,
+          "detail": "0.125,0.144,0.090"
+        },
+        {
+          "id": "sensor-1 garpu di tanah",
+          "pass": true,
+          "detail": "0.110"
+        },
+        {
+          "id": "sensor-2 garpu di tanah",
+          "pass": true,
+          "detail": "0.110"
+        },
+        {
+          "id": "sensor-3 garpu di tanah",
+          "pass": true,
+          "detail": "0.110"
+        },
+        {
+          "id": "sensor-4 garpu di tanah",
+          "pass": true,
+          "detail": "0.110"
+        },
+        {
+          "id": "sensor-5 garpu di tanah",
+          "pass": true,
+          "detail": "0.110"
+        },
+        {
+          "id": "sensor-6 garpu di tanah",
+          "pass": true,
+          "detail": "0.110"
+        },
+        {
+          "id": "ajir-1 tertancap",
+          "pass": true,
+          "detail": "0.120"
+        },
+        {
+          "id": "ajir-2 tertancap",
+          "pass": true,
+          "detail": "0.120"
+        },
+        {
+          "id": "ajir-3 tertancap",
+          "pass": true,
+          "detail": "0.120"
+        },
+        {
+          "id": "ajir-4 tertancap",
+          "pass": true,
+          "detail": "0.120"
+        },
+        {
+          "id": "ajir-5 tertancap",
+          "pass": true,
+          "detail": "0.120"
+        },
+        {
+          "id": "ajir-6 tertancap",
+          "pass": true,
+          "detail": "0.120"
+        },
+        {
+          "id": "polybag-1 tidak menembus pipa",
+          "pass": false,
+          "detail": "1 pipa beririsan"
+        },
+        {
+          "id": "polybag-1 menapak lantai",
+          "pass": true,
+          "detail": "0.0000"
+        },
+        {
+          "id": "polybag-2 tidak menembus pipa",
+          "pass": true,
+          "detail": "0 pipa beririsan"
+        },
+        {
+          "id": "polybag-2 menapak lantai",
+          "pass": true,
+          "detail": "0.0000"
+        },
+        {
+          "id": "polybag-3 tidak menembus pipa",
+          "pass": true,
+          "detail": "0 pipa beririsan"
+        },
+        {
+          "id": "polybag-3 menapak lantai",
+          "pass": true,
+          "detail": "0.0000"
+        },
+        {
+          "id": "polybag-4 tidak menembus pipa",
+          "pass": true,
+          "detail": "0 pipa beririsan"
+        },
+        {
+          "id": "polybag-4 menapak lantai",
+          "pass": true,
+          "detail": "0.0000"
+        },
+        {
+          "id": "polybag-5 tidak menembus pipa",
+          "pass": true,
+          "detail": "0 pipa beririsan"
+        },
+        {
+          "id": "polybag-5 menapak lantai",
+          "pass": true,
+          "detail": "0.0000"
+        },
+        {
+          "id": "polybag-6 tidak menembus pipa",
+          "pass": true,
+          "detail": "0 pipa beririsan"
+        },
+        {
+          "id": "polybag-6 menapak lantai",
+          "pass": true,
+          "detail": "0.0000"
+        },
+        {
+          "id": "cabang-1 berpangkal di selang utama",
+          "pass": true,
+          "detail": "-0.375"
+        },
+        {
+          "id": "cabang-2 berpangkal di selang utama",
+          "pass": true,
+          "detail": "-0.375"
+        },
+        {
+          "id": "cabang-3 berpangkal di selang utama",
+          "pass": true,
+          "detail": "-0.125"
+        },
+        {
+          "id": "cabang-4 berpangkal di selang utama",
+          "pass": true,
+          "detail": "-0.125"
+        },
+        {
+          "id": "cabang-5 berpangkal di selang utama",
+          "pass": true,
+          "detail": "0.125"
+        },
+        {
+          "id": "cabang-6 berpangkal di selang utama",
+          "pass": true,
+          "detail": "0.125"
+        },
+        {
+          "id": "ujung selang terendam di galon",
+          "pass": true,
+          "detail": "0.045"
+        },
+        {
+          "id": "rangka menapak lantai",
+          "pass": true,
+          "detail": "0.0000"
+        }
+      ]
+    }
+  ]
+}
