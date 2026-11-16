@@ -1,0 +1,29 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "backend",
+      "runtimeExecutable": "npm",
+      "runtimeArgs": [
+        "--prefix",
+        "backend",
+        "start"
+      ],
+      "port": 3000
+    },
+    {
+      "name": "landing-static",
+      "runtimeExecutable": "npm",
+      "runtimeArgs": [
+        "--prefix",
+        "landing",
+        "run",
+        "serve",
+        "--",
+        "-l",
+        "3100"
+      ],
+      "port": 3100
+    }
+  ]
+}
