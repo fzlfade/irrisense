@@ -10,8 +10,8 @@ Sisi kiri board, urutan dari atas: `EN, VP, VN, D34, D35, D32, D33`.
 
 | Sensor | Baris di board | GPIO |
 |---|---|---|
-| S1 | VP  | 36 |
-| S2 | VN  | 39 |
+| S1 | VN  | 39 |
+| S2 | VP  | 36 |
 | S3 | D34 | 34 |
 | S4 | D35 | 35 |
 | S5 | D32 | 32 |
@@ -31,7 +31,7 @@ Kolom V harus **3,3 V** (cek jumper `JUMP` di board).
 
 | Pin relay | Ke |
 |---|---|
-| IN  | baris **D26**, kolom S |
+| IN  | baris **D27**, kolom S |
 | VCC | baris **VIN** (5 V) |
 | GND | kolom G |
 

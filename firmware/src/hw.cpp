@@ -9,14 +9,15 @@ static DHT dht(DHT_PIN, DHT11);
 static LiquidCrystal_I2C lcd(LCD_ADDR, 20, 4);
 
 void hwSetRelay(bool on) {
+  // Modul 5 V aktif-LOW tetap ON bila IN diberi HIGH 3,3 V, jadi OFF = pin mengambang.
+  if (RELAY_ACTIVE_LOW && !on) { pinMode(RELAY_PIN, INPUT); return; }
   bool level = RELAY_ACTIVE_LOW ? !on : on;       // level HIGH/LOW pada pin IN relay
   digitalWrite(RELAY_PIN, level ? HIGH : LOW);
+  pinMode(RELAY_PIN, OUTPUT);
 }
 
 void hwBegin() {
   hwSetRelay(false);                              // pompa OFF sebelum apa pun
-  pinMode(RELAY_PIN, OUTPUT);
-  hwSetRelay(false);
 
   analogReadResolution(12);
   analogSetAttenuation(ADC_11db);                 // jangkauan ~0-3.3 V

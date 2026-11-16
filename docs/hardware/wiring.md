@@ -6,11 +6,11 @@
 
 | Komponen | Pin komponen | Pin ESP32 | Catatan |
 |---|---|---|---|
-| Sensor tanah 1–6 | AOUT | GPIO 36, 39, 34, 35, 32, 33 | ADC1 saja (ADC2 bentrok dengan Wi-Fi). Semua pin input-only, tanpa pull-up |
+| Sensor tanah 1–6 | AOUT | GPIO 39, 36, 34, 35, 32, 33 | ADC1 saja (ADC2 bentrok dengan Wi-Fi). Semua pin input-only, tanpa pull-up |
 | Sensor tanah 1–6 | VCC / GND | 3V3 / GND | Pakai 3V3 agar keluaran ≤ 3.3 V |
 | DHT11 | DATA | GPIO 4 | Modul 3 pin sudah ada pull-up; DHT11 4 pin telanjang butuh 10 kΩ ke 3V3 |
 | DHT11 | VCC / GND | 3V3 / GND | |
-| Relay 1 ch | IN | GPIO 26 | Modul umumnya aktif-LOW (`RELAY_ACTIVE_LOW = true`) |
+| Relay 1 ch | IN | GPIO 27 | Modul aktif-LOW (`RELAY_ACTIVE_LOW = true`). HIGH 3,3 V tidak cukup mematikannya, jadi firmware membuat pin mengambang untuk OFF |
 | Relay 1 ch | VCC / GND | 5 V / GND | Koil 5 V |
 | LCD 20×4 I2C | SDA / SCL | GPIO 21 / GPIO 22 | Alamat 0x27, bila kosong ganti 0x3F di `config.h` |
 | LCD 20×4 I2C | VCC / GND | 5 V / GND | |
