@@ -32,7 +32,7 @@ const landingOut = path.join(root, '..', 'landing', 'out');
 const landingDir = existsSync(path.join(landingOut, 'index.html')) ? landingOut : undefined;
 if (!landingDir) console.warn('landing/out belum ada (jalankan `npm run build` di landing/): / diarahkan ke dashboard');
 
-const app = createApp({ db, bridge, bus, nodeId: NODE_ID, staticDir: path.join(root, 'public'), landingDir, prototypeDir: path.join(root, 'prototipe'), flowMlPerMin: FLOW });
+const app = createApp({ db, bridge, bus, nodeId: NODE_ID, staticDir: path.join(root, 'public'), landingDir, prototypeDir: path.join(root, 'prototipe'), flowMlPerMin: FLOW, password: process.env.DASHBOARD_PASSWORD });
 app.get('/api/node', (_req, res) => res.json({ online: nodeOnline }));
 
 app.listen(PORT, () => console.log(`IrriSense backend: http://localhost:${PORT}  dashboard: /dashboard/  (MQTT ${MQTT_URL}, node ${NODE_ID})`));

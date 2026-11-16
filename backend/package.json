@@ -4,7 +4,7 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "start": "node src/index.js",
+    "start": "node --env-file-if-exists=.env src/index.js",
     "test": "node --test",
     "sync:tokens": "node scripts/sync-tokens.js"
   },

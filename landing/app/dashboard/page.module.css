@@ -1,6 +1,0 @@
-/* Dua tautan sejajar di layar lebar, turun baris di ponsel. */
-.links {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0 2rem;
-}

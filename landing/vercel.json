@@ -1,0 +1,6 @@
+{
+  "redirects": [
+    { "source": "/dashboard", "destination": "https://dedsec-2.tail37da9b.ts.net/dashboard/", "permanent": false },
+    { "source": "/dashboard/", "destination": "https://dedsec-2.tail37da9b.ts.net/dashboard/", "permanent": false }
+  ]
+}

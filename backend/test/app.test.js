@@ -12,13 +12,13 @@ const R = (o = {}) => ({ nodeId: 'node1', boot: 1, seq: 1, ts: 1000, sentTs: 100
   latencyMs: 100, moisture: 50, valid: 4, temp: 28, hum: 65, pump: false, mode: 'auto',
   buffered: false, fault: 'none', ...o });
 
-async function setup(bridgeOver = {}) {
+async function setup(bridgeOver = {}, appOpts = {}) {
   const t = await makeTestDb();
   const db = t.db;
   const sent = [];
   const bridge = { connected: () => true, publishCommand: async (c) => { sent.push(c); }, ...bridgeOver };
   const bus = new EventEmitter();
-  const server = createApp({ db, bridge, bus, nodeId: 'node1' }).listen(0);
+  const server = createApp({ db, bridge, bus, nodeId: 'node1', ...appOpts }).listen(0);
   await new Promise((r) => server.once('listening', r));
   const base = `http://127.0.0.1:${server.address().port}`;
   return { db, bus, sent, base, close: async () => { server.closeAllConnections(); server.close(); await t.close(); } };
@@ -182,4 +182,30 @@ test('cache: berkas _next/static berhash disimpan lama, berkas tanpa hash tidak'
   const html = await fetch(`${base}/`);
   assert.doesNotMatch(html.headers.get('cache-control') ?? '', /immutable/);
   server.closeAllConnections(); server.close(); await t.close();
+});
+
+const basic = (p) => ({ authorization: 'Basic ' + Buffer.from(`operator:${p}`).toString('base64') });
+
+test('kunci: dashboard dan API butuh password, health tetap publik', async () => {
+  const dash = mkdtempSync(path.join(os.tmpdir(), 'irri-auth-'));
+  writeFileSync(path.join(dash, 'index.html'), '<title>dash</title>');
+  const s = await setup({}, { password: 'rahasia', staticDir: dash });
+  assert.equal((await fetch(`${s.base}/api/health`)).status, 200);
+  const r = await fetch(`${s.base}/api/latest`);
+  assert.equal(r.status, 401);
+  assert.match(r.headers.get('www-authenticate'), /^Basic realm=/);
+  assert.equal((await fetch(`${s.base}/dashboard/`)).status, 401);
+  assert.equal((await post(s.base, { pump: true })).status, 401);
+  assert.equal(s.sent.length, 0);
+  assert.equal((await fetch(`${s.base}/api/latest`, { headers: basic('salah') })).status, 401);
+  assert.equal((await fetch(`${s.base}/api/latest`, { headers: basic('rahasiaX') })).status, 401);
+  assert.equal((await fetch(`${s.base}/api/latest`, { headers: basic('rahasia') })).status, 404); // lolos kunci, DB kosong
+  assert.equal((await fetch(`${s.base}/dashboard/`, { headers: basic('rahasia') })).status, 200);
+  await s.close();
+});
+
+test('kunci: tanpa password perilaku lama', async () => {
+  const s = await setup();
+  assert.equal((await fetch(`${s.base}/api/latest`)).status, 404);
+  await s.close();
 });
