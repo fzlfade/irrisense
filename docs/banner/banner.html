@@ -2,14 +2,15 @@
 <html lang="id"><head><meta charset="utf-8">
 <title>Banner IrriSense D-02 (60x160 cm)</title>
 <style>
+@font-face{font-family:Raleway;font-weight:100 900;font-style:normal;src:url(fonts/Raleway-latin.woff2) format("woff2")}
 /* Kanvas 1200 x 3200 px = 60 x 160 cm (20 px per cm). Diekspor 3x -> 3600 x 9600 px.
    Gagasan: pita pengukur kelembapan tanah di kiri (skala 0-100%, zona vanili 60-80%)
    menjadi benang merah dari masalah, cara kerja, sampai dashboard. */
 :root{--daun:#12301f;--daun2:#1f4a31;--lumut:#6f9c78;--kertas:#f3ecd8;--kertas2:#e7dcbd;--vanili:#b9892b;--air:#2d8fc0;--tanah:#5a3b22;--tinta:#1b2a21}
 *{box-sizing:border-box;margin:0;padding:0}
 html,body{width:1200px;height:3200px;background:var(--kertas)}
-body{font-family:Constantia,Georgia,serif;color:var(--tinta);position:relative;overflow:hidden}
-.d{font-family:Bahnschrift,"Segoe UI",Arial,sans-serif}
+body{font-family:Raleway,sans-serif;font-variant-numeric:lining-nums;color:var(--tinta);position:relative;overflow:hidden}
+.d{font-family:Raleway,sans-serif}
 .sec{position:absolute;left:0;width:1200px}
 .hdr{top:0;height:190px;background:var(--daun);color:var(--kertas);display:flex;align-items:center;padding:0 60px;gap:30px}
 .logo{width:150px;height:150px;border-radius:50%;background:#fff;object-fit:cover;flex:none}
@@ -19,7 +20,7 @@ body{font-family:Constantia,Georgia,serif;color:var(--tinta);position:relative;o
 .hero{top:190px;height:740px;background:var(--daun);color:var(--kertas);overflow:hidden}
 .hero .name{position:absolute;left:60px;top:0;font-size:172px;font-weight:700;letter-spacing:-4px;line-height:1}
 .hero .id{position:absolute;left:64px;top:176px;width:900px;font-size:48px;font-weight:600;line-height:1.12}
-.hero .en{position:absolute;left:64px;top:296px;width:1100px;font-size:30px;font-style:italic;opacity:.8;line-height:1.3}
+.hero .en{position:absolute;left:64px;top:296px;width:1100px;font-size:30px;opacity:.85;line-height:1.3}
 .hero .capt{position:absolute;right:60px;bottom:14px;font-size:22px;color:#cfe0d2}
 .hero img{position:absolute;right:0;bottom:0;width:1115px;height:410px}
 .rail{position:absolute;left:44px;top:944px}
@@ -38,13 +39,13 @@ h2{width:940px!important;font-size:54px;line-height:1.08;font-weight:700;color:v
 .tgt{top:2770px;height:200px;background:var(--daun2);color:var(--kertas);display:flex;padding:0 60px 0 190px}
 .tgt div{flex:1;padding:34px 0 0 0}
 .tgt div+div{border-left:2px solid var(--lumut);padding-left:30px}
-.tgt b{display:block;font-size:72px;font-weight:700;line-height:1}
+.tgt b{display:block;font-size:62px;font-weight:700;line-height:1}
 .tgt span{display:block;font-size:30px;line-height:1.2;margin-top:10px;opacity:.9}
 .team{top:2970px;height:230px;background:var(--daun);color:var(--kertas);padding:26px 60px 0 190px}
-.team table{border-collapse:collapse;font-size:23px;line-height:1.4;width:100%}
+.team table{border-collapse:collapse;font-size:22px;line-height:1.4;width:100%}
 .team td{padding:0;white-space:nowrap}
 .team td.n{color:#d9b45e;font-weight:600;padding-right:22px}
-.team td.m{opacity:.9;padding-right:28px}
+.team td.m{opacity:.9;padding-right:20px}
 .team .dosen{margin-top:12px;padding-top:12px;border-top:2px solid var(--lumut);font-size:28px}
 .team .dosen b{color:#d9b45e;font-weight:600}
 </style></head><body>
@@ -58,13 +59,13 @@ h2{width:940px!important;font-size:54px;line-height:1.08;font-weight:700;color:v
 <div class="sec hero d">
   <div class="name">IrriSense</div>
   <div class="id">Sistem Penyiraman Tetes Otomatis pada Perkebunan Vanili Berbasis IoT</div>
-  <div class="en" style="font-family:Constantia,Georgia,serif">IoT-Based Automatic Drip Irrigation System for Vanilla Plantations</div>
+  <div class="en" style="font-family:Raleway,sans-serif">IoT-Based Automatic Drip Irrigation System for Vanilla Plantations</div>
   <img src="prototipe-hero-crop.png" alt="Rancangan prototipe IrriSense dalam 3D: tandon air, pompa, bedengan dengan 6 tanaman vanili dan sensor tanah, casing elektronik dengan LCD">
   <div class="capt">Rancangan prototipe dalam 3D, bukan foto alat</div>
 </div>
 
 <!-- Pita ukur kelembapan: 100% di y=0, 0% di y=1740 -->
-<svg class="rail" width="120" height="1776" viewBox="0 -16 120 1776" font-family="Bahnschrift,Arial,sans-serif">
+<svg class="rail" width="120" height="1776" viewBox="0 -16 120 1776" font-family="Raleway,sans-serif">
   <rect x="62" y="348" width="30" height="348" fill="#2d8fc0" opacity=".28"/>
   <path d="M62 0 V1740" stroke="#12301f" stroke-width="4"/>
   <g stroke="#12301f" stroke-width="3" fill="#12301f" font-size="22">
@@ -74,7 +75,7 @@ h2{width:940px!important;font-size:54px;line-height:1.08;font-weight:700;color:v
   <g stroke="#12301f" stroke-width="3">
     <path d="M42 0H62M42 174H62M42 348H62M42 522H62M42 696H62M42 870H62M42 1044H62M42 1218H62M42 1392H62M42 1566H62M42 1740H62"/>
   </g>
-  <g font-size="24" fill="#12301f" text-anchor="end" font-weight="600">
+  <g font-size="21" fill="#12301f" text-anchor="end" font-weight="600" transform="translate(2 0)">
     <text x="36" y="8">100</text><text x="36" y="182">90</text>
     <text x="36" y="356" fill="#1f6f99">80</text><text x="36" y="530">70</text><text x="36" y="704" fill="#1f6f99">60</text>
     <text x="36" y="878">50</text><text x="36" y="1052">40</text><text x="36" y="1226">30</text>
@@ -87,13 +88,13 @@ h2{width:940px!important;font-size:54px;line-height:1.08;font-weight:700;color:v
 
 <div class="blk prob d">
   <h2>Disiram menurut kira-kira, bukan menurut kebutuhan tanah</h2>
-  <p style="font-family:Constantia,Georgia,serif">Penyiraman manual memboros&shy;kan air, dan kelembapan tanah naik-turun tak menentu.</p>
-  <div class="big"><span class="n">60–80%</span><span class="t" style="font-family:Constantia,Georgia,serif">kelembapan tanah yang dibutuhkan tanaman vanili agar tumbuh baik</span></div>
+  <p style="font-family:Raleway,sans-serif">Penyiraman manual memboros&shy;kan air, dan kelembapan tanah naik-turun tak menentu.</p>
+  <div class="big"><span class="n">60–80%</span><span class="t" style="font-family:Raleway,sans-serif">kelembapan tanah yang dibutuhkan tanaman vanili agar tumbuh baik</span></div>
 </div>
 
 <div class="blk how d">
   <h2>Sensor membaca tanah, ESP32 memutuskan, pompa menyiram</h2>
-  <svg width="870" height="520" viewBox="0 0 940 560" font-family="Bahnschrift,Arial,sans-serif">
+  <svg width="870" height="520" viewBox="0 0 940 560" font-family="Raleway,sans-serif">
     <defs><marker id="a" markerWidth="12" markerHeight="12" refX="10" refY="6" orient="auto"><path d="M0 0L12 6L0 12z" fill="#12301f"/></marker></defs>
     <!-- baris atas: baca & kirim -->
     <g stroke="#12301f" stroke-width="5" fill="none" marker-end="url(#a)">
@@ -116,13 +117,13 @@ h2{width:940px!important;font-size:54px;line-height:1.08;font-weight:700;color:v
     </g>
     <g text-anchor="middle" font-weight="600">
       <text x="116" y="64" font-size="32" fill="#12301f">6 sensor</text><text x="116" y="98" font-size="25" fill="#12301f">kelembapan tanah</text>
-      <text x="116" y="170" font-size="30" fill="#12301f">DHT11 (udara)</text><text x="116" y="184" font-size="0"></text>
+      <text x="116" y="170" font-size="30" fill="#12301f">DHT11 (udara)</text>
       <text x="410" y="108" font-size="52" font-weight="700" fill="#f3ecd8">ESP32</text><text x="410" y="152" font-size="28" font-weight="400" fill="#f3ecd8">mikrokontroler</text>
       <text x="760" y="104" font-size="52" font-weight="700" fill="#fff">MQTT</text><text x="760" y="148" font-size="28" font-weight="400" fill="#fff">Mosquitto, lewat Wi-Fi</text>
-      <text x="760" y="300" font-size="34" fill="#f3ecd8">Backend dan database</text><text x="760" y="338" font-size="28" font-weight="400" fill="#f3ecd8">Node.js, PostgreSQL</text>
-      <text x="760" y="480" font-size="44" font-weight="700" fill="#12301f">Dashboard web</text>
+      <text x="760" y="300" font-size="29" fill="#f3ecd8">Backend dan database</text><text x="760" y="338" font-size="28" font-weight="400" fill="#f3ecd8">Node.js, PostgreSQL</text>
+      <text x="760" y="480" font-size="37" font-weight="700" fill="#12301f">Dashboard web</text>
       <text x="410" y="378" font-size="44" font-weight="700" fill="#f3ecd8">Relay</text><text x="410" y="416" font-size="26" font-weight="400" fill="#f3ecd8">saklar pompa</text>
-      <text x="116" y="364" font-size="40" font-weight="700" fill="#12301f">Pompa 5 V</text><text x="116" y="400" font-size="26" font-weight="400" fill="#12301f">ke selang tetes</text>
+      <text x="116" y="364" font-size="36" font-weight="700" fill="#12301f">Pompa 5 V</text><text x="116" y="400" font-size="26" font-weight="400" fill="#12301f">ke selang tetes</text>
     </g>
     <text x="0" y="548" font-size="27" font-weight="600" fill="#12301f">Tanah di bawah 60%: pompa menyala. Tanah mencapai 80%: pompa mati.</text>
   </svg>
@@ -130,7 +131,7 @@ h2{width:940px!important;font-size:54px;line-height:1.08;font-weight:700;color:v
 
 <div class="blk dash d">
   <h2>Semua titik tanah terpantau di layar</h2>
-  <svg width="940" height="420" viewBox="0 0 940 420" font-family="Bahnschrift,Arial,sans-serif">
+  <svg width="940" height="420" viewBox="0 0 940 420" font-family="Raleway,sans-serif">
     <rect width="940" height="420" rx="10" fill="#12301f"/>
     <!-- area grafik: 0% di y=360, 100% di y=70 (2.9 px/%) -->
     <rect x="30" y="127.6" width="620" height="58" fill="#2d8fc0" opacity=".35"/>
@@ -158,9 +159,9 @@ h2{width:940px!important;font-size:54px;line-height:1.08;font-weight:700;color:v
     <g fill="#1f4a31"><rect x="710" y="30" width="200" height="104" rx="6"/><rect x="710" y="150" width="200" height="104" rx="6"/><rect x="710" y="270" width="200" height="120" rx="6"/></g>
     <g fill="#f3ecd8" font-size="22"><text x="728" y="62">Suhu udara</text><text x="728" y="182">Kelembapan udara</text><text x="728" y="302">Pompa</text></g>
     <g fill="#fff" font-size="52" font-weight="700"><text x="728" y="116">29 °C</text><text x="728" y="236">68%</text></g>
-    <text x="728" y="364" font-size="52" font-weight="700" fill="#6fe39a">Menyala</text>
+    <text x="728" y="364" font-size="40" font-weight="700" fill="#6fe39a">Menyala</text>
   </svg>
-  <div style="font-size:21px;opacity:.65;margin-top:10px;text-align:right;font-family:Constantia,Georgia,serif">Ilustrasi tampilan dashboard dengan data contoh</div>
+  <div style="font-size:21px;opacity:.65;margin-top:10px;text-align:right;font-family:Raleway,sans-serif">Ilustrasi tampilan dashboard dengan data contoh</div>
 </div>
 
 <div class="sec tgt d">
