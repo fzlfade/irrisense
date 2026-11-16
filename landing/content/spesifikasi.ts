@@ -11,9 +11,9 @@ export const firmware = {
   sensorIntervalMs: 5000,
   bufferCapacity: 100,
   drainPerTick: 10,
-  soilPins: [36, 39, 34, 35, 32, 33],
+  soilPins: [39, 36, 34, 35, 32, 33],
   dhtPin: 4,
-  relayPin: 26,
+  relayPin: 27,
   relayActiveLow: true,
   i2cSda: 21,
   i2cScl: 22,
@@ -22,7 +22,7 @@ export const firmware = {
 } as const;
 
 /** Label baris di board untuk sensor tanah S1 sampai S6, dari docs/hardware/perkabelan.md. */
-export const soilBoardLabels = ["VP", "VN", "D34", "D35", "D32", "D33"] as const;
+export const soilBoardLabels = ["VN", "VP", "D34", "D35", "D32", "D33"] as const;
 
 export type Komponen = { nama: string; keterangan: string };
 
