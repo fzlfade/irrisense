@@ -292,7 +292,7 @@ export default function Spesifikasi() {
       <Bagian
         id="api"
         sumber={["backend/src/app.js", "backend/src/index.js", "backend/src/stats.js"]}
-        pengantar={<p>Backend (Express) menyajikan halaman ini, dashboard, dan alamat berikut untuk dashboard.</p>}
+        pengantar={<p>Backend (Express) yang berjalan di laptop menyajikan dashboard dan alamat berikut untuk dashboard.</p>}
       >
         <table className={s.table} aria-labelledby="api-judul">
           <thead>
