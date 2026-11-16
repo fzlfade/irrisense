@@ -36,7 +36,12 @@ Semua melewati 4,5:1 untuk teks dan 3:1 untuk garis grafik. Tombol aktif (`.seg 
 
 ## Tipografi
 - Dashboard: tetap font sistem (`system-ui`), karena padat data dan tanpa unduhan font.
-- Landing: **Fraunces** (serif, judul) dan **Instrument Sans** (isi dan label), dimuat lewat `next/font/google`, yang mengunduh saat build dan menyimpannya sebagai file lokal di `out/`, jadi halaman jalan offline saat pameran. Alasan merek: banner memakai serif hangat (Constantia) untuk judul dan sans teknis (Bahnschrift) untuk label; dua font ini membawa pembagian yang sama tanpa bergantung pada font bawaan Windows. Bukan Inter/Geist.
+- Landing: **Raleway**, satu keluarga untuk judul dan isi (variabel, sumbu bobot), dimuat lewat `next/font/google`, yang mengunduh saat build dan menyimpannya sebagai file lokal di `out/`, jadi halaman jalan offline saat pameran. Sebelumnya Fraunces (serif, judul) dan Instrument Sans (isi); diganti atas permintaan tim. Satu keluarga berarti perbedaan judul dan isi hanya lewat bobot dan ukuran: judul, tombol, dan label 600, isi 500. Paling tebal 600 dan tinggi baris judul minimal 1,1 (skill typography VectorLab, 2026-11-11; sebelumnya judul 700 dengan tinggi baris 0,95). Bukan Inter/Geist.
+  - **Angka.** Raleway memakai angka gaya lama (naik-turun) secara bawaan. Halaman ini penuh angka (60–80 %, target, tabel), jadi `body` memakai `font-variant-numeric: lining-nums` (diuji: lebar angka berubah, berarti fiturnya ada). Fitur `tabular-nums` tidak ada di Raleway ini (lebar "1111" dan "0000" tetap beda), jadi kolom angka yang harus sejajar (GPIO, label pin, topik) memakai monospace.
+  - **Bobot isi 500, bukan 400.** Raleway 400 tipis di ukuran kecil (keterangan 0,85 rem berwarna `--muted`).
+  - **Lebar judul dalam em, bukan ch.** Satuan `ch` mengikuti lebar angka "0", yang di Raleway lebar, sehingga judul Cara kerja sempat pecah jadi tiga baris. `.h2` dan `.h2Light` memakai `max-width: 15em`.
+  - Dashboard tetap font sistem.
+  - Kode (halaman Spesifikasi) tetap monospace bawaan sistem.
 
 Skala judul landing memakai token fluid di `design/tokens.css` (dipakai di `landing/components/sections.module.css`). Judul dibuat besar supaya tiap layar punya satu titik fokus yang terbaca dari jarak meja pameran; teks isi tetap 1 rem.
 
@@ -67,7 +72,7 @@ Judul Cara kerja berdiri di atas grid langkah (bukan di kolom kiri yang sempit) 
 - Kontras terukur di atas `--daun-900`: tautan nav #c9c6b4 8,32:1; wordmark dan tombol Menu 12,12:1; tautan lewati (tinta di atas kertas) 12,72:1; hover menu (kertas di atas `--daun-700`) 8,55:1.
 
 ## Dial dan Design Read (landing)
-Reading this as: landing pameran capstone untuk pengunjung pameran dan dosen penguji, bahasa visual editorial hangat (Fraunces + Instrument Sans, hijau tua + krem, satu aksen vanili), dial ENERGY 3 / RHYTHM 2 / MOTION 3.
+Reading this as: landing pameran capstone untuk pengunjung pameran dan dosen penguji, bahasa visual editorial hangat (Raleway satu keluarga, hijau tua + krem, satu aksen vanili), dial ENERGY 3 / RHYTHM 2 / MOTION 3.
 
 Dial: ENERGY 3 / RHYTHM 2 / MOTION 3
 
@@ -82,10 +87,9 @@ Sumber salinan: `landing/components/reactbits/` (diambil dari registry resmi, va
 
 | Komponen | Tempat | Alasan |
 |---|---|---|
-| `SplitText` | judul hero | Judul masuk sekali saat halaman dibuka, tidak berulang |
-| `ScrollReveal` (mode `enter`) | judul section masalah | Kalimat kunci muncul kata demi kata sekali, saat terlihat |
-| `CountUp` | tiga target | Angka naik sekali saat terlihat; HTML awal memuat angka akhir |
-| `Magnet` | tombol "Lihat cara kerja" | Satu tombol, tarikan kecil (maks 14 px), diabaikan di layar sentuh |
+| `SplitText` | judul hero | Judul masuk sekali saat halaman dibuka, tidak berulang; 0,3 detik per huruf, jeda 25 ms (total jeda 200 ms) |
+| `ScrollReveal` (mode `enter`) | judul section masalah | Kalimat kunci muncul kata demi kata sekali, saat terlihat; 0,3 detik per kata, jeda 30 ms |
+| `Magnet` | tombol "Lihat cara kerja" | Satu tombol, tarikan kecil (maks 14 px), diabaikan di layar sentuh; redaman kritis (27) supaya kembali tanpa memantul |
 
 **Model 3D yang berputar mengikuti scroll (landing):** dua gambar prototipe (hero dan cara kerja) diganti `Spin3D`, yaitu iframe ke `/prototipe/?embed=1` yang kameranya diputar 270° sesuai posisi elemen di layar (nilai 0 sampai 1 dikirim lewat `postMessage`, satu asal). Gerak ini punya tujuan (memperlihatkan alat dari semua sisi), tidak berulang sendiri, dan berhenti saat elemen di luar layar. Gambar poster (WebP) tetap dipakai sebagai cadangan: bila `prefers-reduced-motion`, WebGL tidak ada, atau halaman prototipe tidak tersedia.
 
@@ -96,15 +100,15 @@ Sumber salinan: `landing/components/reactbits/` (diambil dari registry resmi, va
 **Panggung cerita Cara kerja (desktop):** di layar minimal 1024 × 576 px tanpa "kurangi gerak", bagian Cara kerja menjadi pembungkus setinggi 450vh dengan panggung satu layar yang menempel (`position: sticky`): daftar empat langkah di kiri, model 3D di kanan (`CaraStory.tsx`). Satu ScrollTrigger mengubah posisi gulir di pembungkus itu menjadi progres 0 sampai 1, dan progres yang sama menggerakkan tiga hal:
 - **Perakitan model.** Bagian model turun lurus dari atas ke tempatnya dan mendarat tepat saat kamera tiba di langkah yang membahasnya. Kelompoknya mengikuti langkah: bedeng, tanaman, dan enam sensor (langkah 1); casing, ESP32, relay, kabel duct, dan kabel sensor (langkah 2); tandon, pompa, selang, emitter, dan adaptor (langkah 3); tutup ber-LCD dan DHT11 (langkah 4). Kelompok langkah 2 sampai 4 baru muncul saat gilirannya, supaya tidak melayang di depan kamera atau membuat bayangan lebih dulu. Tujuannya memperlihatkan bahwa alat ini tersusun dari komponen yang disebut di teks, satu kelompok per langkah.
 - **Kamera.** Kamera mulai dari pandangan papan dasar dengan bedeng dan sensor yang masih melayang, lalu berhenti di tiap langkah pada progres 0,15 / 0,40 / 0,65 / 0,90 (diam ±0,05 di sekitar tiap titik): sensor di bedeng, ESP32 dan relay di casing yang belum bertutup, pompa dan tandon dengan pompa menyala, lalu model utuh dengan LCD dan DHT11 disorot.
-- **Daftar langkah.** Langkah yang sedang dibahas memakai warna tinta penuh dan bergeser 0,75 rem ke kanan; langkah lain memakai `--muted`, yang tetap 5,8:1 di atas `--surface`. Versi sebelumnya meredupkan dengan opacity 0,4 sehingga kontrasnya turun ke sekitar 2,4:1. Peralihannya mengikuti gulir (timeline GSAP dengan `scrub`), bersamaan dengan kamera terbang.
+- **Daftar langkah.** Langkah yang sedang dibahas memakai warna tinta penuh dan bergeser 0,75 rem ke kanan; langkah lain diredupkan dengan opacity 0,7, yang tetap 5,5:1 di atas `--surface` (diukur di `fase5-story.mjs`). Sejak 2026-11-11 yang dianimasikan opacity, bukan warna (skill motion VectorLab: hanya transform dan opacity); versi sebelumnya mencampur warna ke `--muted`, dan versi pertama memakai opacity 0,4 yang kontrasnya hanya sekitar 2,4:1. Peralihannya mengikuti gulir (timeline GSAP dengan `scrub`), bersamaan dengan kamera terbang.
 
 Di bawah 1280 px kedua kolom dibuat sama lebar agar keempat langkah tetap muat dalam satu layar (diuji sampai 1024 × 576). Tidak ada gerak yang jalan sendiri: semuanya mengikuti gulir, dan tetesan air di langkah 3 berhenti 5 detik setelah pompa menyala. Di bawah 1024 × 576 px, dengan "kurangi gerak", atau tanpa JavaScript, tampilannya kembali ke daftar biasa dengan gambar atau putaran sederhana. Progres dikirim ke model lewat `postMessage` (`irri-progress`). Titik langkah (`WAYPOINTS`) ditulis di `landing/lib/storyProgress.ts` dan `backend/prototipe/scene.js`; tes `backend/test/story.test.js` gagal bila keduanya berbeda.
 
-**Tiga gerak gulir tambahan (`ScrollMotion.tsx` dan `CaraStory.tsx`):** semuanya mengikuti gulir dan tidak ada yang jalan sendiri. Hanya `clip-path` dan `transform` yang diubah, jadi tata letak tidak dihitung ulang. Gerak hero dan angka dipasang lewat `gsap.matchMedia()` dengan syarat lebar minimal 48rem dan tanpa "kurangi gerak", sehingga dibongkar otomatis bila syarat itu tidak lagi terpenuhi. Penanda progres hanya ada di panggung cerita (minimal 1024 × 576).
-- **Hero ke Masalah (`clip-path`).** Saat pita hijau hero ditinggalkan, sisi kiri dan kanannya menyempit 3 % dan sudut bawahnya membulat sampai 14 px (`--radius`). Tujuannya menandai pergantian bab dari produk (pita gelap) ke masalah (kertas terang), seperti halaman yang dibalik, dan mengarahkan mata ke angka 60–80 % di bawahnya.
+**Dua gerak gulir tambahan (`ScrollMotion.tsx` dan `CaraStory.tsx`):** keduanya mengikuti gulir dan tidak ada yang jalan sendiri. Hanya `transform` yang diubah, jadi tata letak tidak dihitung ulang. Gerak angka dipasang lewat `gsap.matchMedia()` dengan syarat lebar minimal 48rem dan tanpa "kurangi gerak", sehingga dibongkar otomatis bila syarat itu tidak lagi terpenuhi. Penanda progres hanya ada di panggung cerita (minimal 1024 × 576).
+- **Hero ke Masalah: dihapus 2026-11-11.** Pita hero dulu menyempit 3 % dan membulat lewat `clip-path` saat ditinggalkan. Skill motion VectorLab hanya membolehkan transform dan opacity, jadi efek ini dibuang.
 - **Angka 60–80 % (`transform`).** Angka bergeser mendatar paling jauh 2vw ke kiri dan ke kanan selama bagian Masalah lewat (paralaks tipis). Tujuannya memisahkan angka kunci dari kalimat di sebelahnya dan menarik mata ke angka itu lebih dulu. Gerak ini tidak dipasang di ponsel, karena angka besar itu hampir selebar layar.
 - **Penanda progres panggung cerita.** Garis tegak 2 px di sisi kiri layar terisi hijau (`--green`) mengikuti progres panggung, dengan empat tanda di titik langkah (`WAYPOINTS`). Tujuannya menjawab "masih berapa lama bagian ini": panggung setinggi 4,5 layar, dan tanpa penanda pengunjung tidak tahu sedang di langkah mana dan kapan bagian ini selesai. Penanda ini disembunyikan dari pembaca layar (`aria-hidden`), karena daftar langkah sudah memuat isinya.
-- **Beban gulir** diukur sebelum dan sesudah lewat CDP `Performance.getMetrics`. Syaratnya dua: total waktu kerja main thread per langkah gulir tidak boleh naik lebih dari 25 %, dan tata letak tidak boleh bertambah. Hasilnya: waktu naik 14,8 %, dan tata letak tetap 0.
+- **Beban gulir** diukur sebelum dan sesudah lewat CDP `Performance.getMetrics`. Syaratnya dua: total waktu kerja main thread per langkah gulir tidak boleh naik lebih dari 25 %, dan tata letak tidak boleh bertambah. Hasilnya: waktu naik 14,8 %, dan tata letak tetap 0. Setelah efek hero dibuang (2026-11-11), waktu main thread 0,74 kali baseline.
   - Jumlah hitungan gaya (RecalcStyleCount) hanya dicatat, tidak dinilai. Setiap frame animasi apa pun dihitung satu kali, baik animasi gulir CSS murni maupun satu transisi 0,6 detik (88 hitungan). Jadi angka itu mengukur lama beranimasi, bukan beratnya.
   - Tambahan waktu hitung gaya sekitar 3 ms per langkah gulir 300 px.
 
@@ -116,14 +120,26 @@ Di bawah 1280 px kedua kolom dibuat sama lebar agar keempat langkah tetap muat d
 - **Air** naik lewat `transform: scaleY()` dengan peralihan 0,6 detik, bukan `height`, jadi tidak memicu tata letak ulang.
 - **Kata "IrriSense"** baru muncul saat hurufnya siap, supaya tidak berganti dari huruf cadangan di depan mata. Di atas air biru kontrasnya 3,1:1; cukup karena hurufnya besar (minimal 48 px) dan hanya hiasan (`aria-hidden`); judul halaman yang sebenarnya ada di hero.
 - **Teks progres dan tombol "Lewati"** ada di baris atas yang tidak terendam air, karena teks kecil di atas `--air-600` hanya 3,1:1, sedangkan di atas hijau tua 12,1:1. Teksnya `role="status"`, jadi pembaca layar membacakannya tanpa memotong. Cincin fokus tombol "Lewati" berwarna krem (12,1:1), bukan `--blue` yang hanya 2,6:1 di atas hijau tua.
-- **Aturan lama tetap:** diputar **sekali per kunjungan** (`sessionStorage`), bisa dilewati (tombol "Lewati", Esc, atau klik), tidak diputar bila "kurangi gerak" atau tanpa JavaScript, dan halaman sudah ada di HTML sejak awal (penutup hanya menutupinya). Skrip kecil di `<head>` menentukan putar atau lewati sebelum halaman tergambar agar tidak berkedip, gulir halus berhenti selama penutup tampil, dan animasi huruf judul hero baru dimulai setelah penutup hilang.
+- **Aturan lama tetap:** diputar **sekali per kunjungan** (`sessionStorage`), bisa dilewati (tombol "Lewati", Esc, atau klik), tidak diputar bila "kurangi gerak" atau tanpa JavaScript, dan halaman sudah ada di HTML sejak awal (penutup hanya menutupinya). Skrip kecil di `<head>` menentukan putar atau lewati sebelum halaman tergambar agar tidak berkedip, gulir halus berhenti selama penutup tampil, dan animasi huruf judul hero baru dimulai setelah penutup hilang. Selama penutup tampil, isi halaman di belakangnya diberi `inert` (audit UX 2026-11-11), jadi Tab tidak pindah ke tautan yang tertutup penutup; `inert` dilepas saat penutup hilang atau dilewati.
 
 **Tidak dipakai:** `ScrollStack` (mengambil alih scroll, bayangan tebal dan radius 28 px bertentangan dengan aturan bentuk di atas, dan bentrok dengan gambar sticky). Latar WebGL (`Silk`, `Aurora`, `Galaxy`, dan sejenisnya) tidak dipakai karena halaman tidak punya alasan untuk itu.
 
-**Perubahan pada kode salinan:** `CountUp` menampilkan angka akhir di HTML awal. `SplitText` menyembunyikan teks sampai JavaScript siap, jadi `layout.tsx` memuat `<noscript>` yang menampilkannya kembali.
+**Perubahan pada kode salinan:** `CountUp` dihapus 2026-11-11; tiga target kini angka statis, karena menghitung naik mengubah teks, bukan transform atau opacity, dan tidak muat dalam batas 300 ms. `SplitText` menyembunyikan teks sampai JavaScript siap, jadi `layout.tsx` memuat `<noscript>` yang menampilkannya kembali.
+
+## Penerapan skill VectorLab (2026-11-11)
+- **Beranda:** tipe rute marketing Home. CTA hero diulang di akhir bagian Target ("Buka dashboard" dan "Baca spesifikasi").
+- **Spasi:** padding dan margin kontrol memakai kelipatan 4 px (0,25 / 0,5 / 0,75 rem). Lebar teks isi paling banyak 70ch.
+- **Gerak:** durasi animasi yang berjalan sendiri paling lama 300 ms dengan easing keluar. Gerak yang mengikuti gulir (`scrub`) tidak punya durasi, jadi batas itu tidak berlaku untuknya.
+- **Pengecualian yang masih terbuka:** layar muat intro menutup seluruh halaman, padahal skill loaders melarang layar muat satu halaman penuh. Layar ini disetujui sebagai bagian dari rencana (Fase 6), jadi menunggu keputusan tim: dibuang, atau dipertahankan sebagai pengecualian tercatat. Durasi intro (air 0,6 detik, tetesan 0,7 detik) ikut keputusan itu.
+
+## Retheme Storytelling-Driven (2026-11-15)
+Di data skill ui-ux-pro-max, "Storytelling-Driven" adalah pola halaman (pembuka, bab masalah, bab perjalanan, bab solusi, CTA penutup), bukan gaya visual, jadi palet dan huruf tidak berganti.
+- **Nomor bab** sebagai teks biasa `--muted` (di pita gelap `--ink-on-dark-muted`): "Bab 1 · Masalah", "Bab 2 · Cara kerja", "Bab 3 · Target". Tanpa pil atau titik; isinya urutan cerita, yang tidak tertulis di judul.
+- **CTA kecil per bab:** bab Masalah ditutup tautan "Lihat cara kerjanya"; bab Cara kerja sudah punya tautan prototipe 3D; bab Target memuat CTA penutup.
+- **Token baru** di `tokens.css`: `--accent-hover`, `--ink-on-dark-muted`, `--line-on-dark`, `--dur-1..4`, `--ease-out`, `--ease-in`, `--section-pad`. CSS landing tidak lagi memuat warna hex langsung.
 
 ## Halaman Spesifikasi (`/spesifikasi/`)
-Reading this as: halaman rujukan untuk dosen penguji dan pengunjung yang ingin tahu detail teknis, bukan halaman promosi. Pola halaman: detail atau rujukan. Dial lokal ENERGY 2 / RHYTHM 1 / MOTION 1: tenang dan mudah dipindai, tanpa animasi. Tujuannya membuktikan alat ini dirancang dengan angka yang jelas dan bisa dicek.
+Reading this as: halaman rujukan untuk dosen penguji dan pengunjung yang ingin tahu detail teknis, bukan halaman promosi. Pola halaman: detail atau rujukan (tipe rute marketing di skill page-patterns: Case study). Dial lokal ENERGY 2 / RHYTHM 1 / MOTION 1: tenang dan mudah dipindai, tanpa animasi. Tujuannya membuktikan alat ini dirancang dengan angka yang jelas dan bisa dicek.
 
 - **Isi hanya dari repo.** Setiap bagian menulis sumbernya di baris "Sumber" kecil, supaya penguji bisa mencocokkan sendiri:
   - aturan pompa, interval, buffer, pin, dan topik MQTT dari `firmware/src/config.h`, `controller.cpp`, `main.cpp`, dan `display.cpp`;
@@ -133,7 +149,7 @@ Reading this as: halaman rujukan untuk dosen penguji dan pengunjung yang ingin t
   - mode firmware dari `firmware/platformio.ini`.
 - **Satu sumber data dan tes anti-melenceng.** Datanya ada di `landing/content/spesifikasi.ts`. Tes `backend/test/content.test.js` gagal bila data itu berbeda dengan sumbernya. Angka di teks halaman diambil dari data itu, bukan diketik ulang.
 - **Tata letak.** Pita judul hijau tua menyambung dari header dan berisi h1 (`--step-section`), ringkasan, dan daftar isi berupa tautan anchor. Isi halaman di latar terang `--bg`, dengan tiap bagian dipisah garis tipis `--line`. Di layar minimal 64rem, judul bagian dan penjelasan ada di kolom kiri dan tabel di kolom kanan; di bawahnya satu kolom.
-- **Tabel.** Paling banyak tiga kolom, dan teks boleh turun baris, jadi tidak ada gulir mendatar (diuji di 320, 375, 768, dan 1280 px). Kolom pertama memakai `th scope="row"` dan angka memakai `tabular-nums`. Nilai yang harus diketik persis (GPIO, topik, alamat API, nama env) memakai huruf monospace bawaan sistem, tanpa unduhan font baru.
+- **Tabel.** Paling banyak tiga kolom, dan teks boleh turun baris, jadi tidak ada gulir mendatar (diuji di 320, 375, 768, dan 1280 px). Kolom pertama memakai `th scope="row"` dan angka memakai `tabular-nums`. Nilai yang harus diketik persis (GPIO, topik, alamat API, nama env) memakai huruf monospace bawaan sistem, tanpa unduhan font baru. Tabel dan daftar aturan memakai bidang L1 (audit UX 2026-11-11): latar `--surface` satu tingkat di atas `--bg`, garis tepi `--line`, dan radius 14 px, supaya terbaca sebagai satu blok data, bukan teks lepas di atas halaman.
   - Kode dipotong dengan `overflow-wrap: break-word`, bukan `anywhere`. Dengan `anywhere`, tabel menganggap kode boleh dipotong per huruf, sehingga kolomnya menyempit dan "esp32dev_cal" pecah di tengah.
   - Topik MQTT boleh turun baris setelah tiap garis miring (`<wbr>`), supaya di ponsel kolom "Isi" tidak tinggal 105 px.
   - Alamat API dan parameternya tidak dipecah (`nowrap`), supaya "?" tidak tertinggal sendirian di satu baris.

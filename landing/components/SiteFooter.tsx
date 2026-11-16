@@ -2,7 +2,7 @@ import Image from "next/image";
 import s from "./sections.module.css";
 
 const team = [
-  "Faizal Deshta Nugraha (ketua)",
+  "Faizal Deshta Nugraha",
   "Muhamad Rifa'i",
   "Fahmi Aulia Mustofa",
   "Vincensius A. M. Prabaswara",

@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Fraunces, Instrument_Sans } from "next/font/google";
+import { Raleway } from "next/font/google";
 import Intro from "@/components/Intro";
 import SiteFooter from "@/components/SiteFooter";
 import SiteHeader from "@/components/SiteHeader";
@@ -7,14 +7,9 @@ import SmoothScroll from "@/components/SmoothScroll";
 import "./tokens.css";
 import "./globals.css";
 
-const display = Fraunces({
-  variable: "--font-display",
-  subsets: ["latin"],
-  axes: ["opsz"],
-});
-
-const body = Instrument_Sans({
-  variable: "--font-body",
+// Satu keluarga untuk judul dan isi; bedanya lewat bobot dan ukuran. Variabel (sumbu bobot) agar satu berkas cukup.
+const sans = Raleway({
+  variable: "--font-sans",
   subsets: ["latin"],
 });
 
@@ -40,7 +35,7 @@ const INTRO_SCRIPT = [
 
 export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
-    <html lang="id" className={`${display.variable} ${body.variable}`} suppressHydrationWarning>
+    <html lang="id" className={sans.variable} suppressHydrationWarning>
       <head>
         <script dangerouslySetInnerHTML={{ __html: INTRO_SCRIPT }} />
       </head>

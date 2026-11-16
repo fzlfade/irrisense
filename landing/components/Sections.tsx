@@ -1,6 +1,5 @@
 import Spin3D from "./Spin3D";
 import CaraStory from "./CaraStory";
-import CountUp from "./reactbits/CountUp";
 import Magnet from "./reactbits/Magnet";
 import ScrollReveal from "./reactbits/ScrollReveal";
 import HeroTitle from "./HeroTitle";
@@ -8,8 +7,7 @@ import s from "./sections.module.css";
 
 export function Hero() {
   return (
-    // data-motion: sasaran gerak gulir di ScrollMotion.tsx (hero menyempit saat ditinggalkan).
-    <section className={s.hero} data-motion="hero">
+    <section className={s.hero}>
       <div className={s.wrap}>
         <p className={s.meta}>Capstone Design 2026 · Universitas Tidar</p>
         <HeroTitle />
@@ -21,7 +19,8 @@ export function Hero() {
           IoT-Based Automatic Drip Irrigation System for Vanilla Plantations
         </p>
         <div className={s.ctaRow}>
-          <Magnet padding={60} magnetStrength={3} maxOffset={14}>
+          {/* Redaman 27 = kritis untuk kekakuan 170 (2·√170), jadi tombol kembali tanpa memantul (skill motion). */}
+          <Magnet padding={60} magnetStrength={3} maxOffset={14} spring={{ stiffness: 170, damping: 27, mass: 1 }}>
             <a className={s.cta} href="#cara-kerja">
               Lihat cara kerja
             </a>
@@ -52,6 +51,11 @@ export function Hero() {
 export function Masalah() {
   return (
     <section className={s.masalah} aria-label="Masalah penyiraman manual">
+      {/* Nomor bab: urutan cerita beranda (pola Storytelling-Driven), bukan isi judul. Di atas grid supaya
+          tetap membuka bab di ponsel, tempat angka 60–80 % tampil lebih dulu. */}
+      <div className={s.wrap}>
+        <p className={s.chapter}>Bab 1 · Masalah</p>
+      </div>
       <div className={`${s.wrap} ${s.masalahGrid}`}>
         <div className={s.bigNumber} aria-label="60 sampai 80 persen">
           <span className={s.bigValue} data-motion="drift">
@@ -67,8 +71,8 @@ export function Masalah() {
             baseRotation={0}
             enableBlur={false}
             baseOpacity={0.15}
-            stagger={0.05}
-            duration={0.7}
+            stagger={0.03}
+            duration={0.3}
             containerClassName={s.reveal}
             textClassName={s.revealText}
           >
@@ -78,6 +82,9 @@ export function Masalah() {
             Penyiraman manual memboroskan air, dan kelembapan tanah naik-turun tak menentu.
             IrriSense mengukur tanahnya langsung, lalu menyiram hanya saat tanah memang kering.
           </p>
+          <a className={s.link} href="#cara-kerja">
+            Lihat cara kerjanya
+          </a>
         </div>
       </div>
     </section>
@@ -107,6 +114,7 @@ export function CaraKerja() {
   return (
     <section id="cara-kerja" className={s.cara} aria-labelledby="cara-judul">
       <div className={`${s.wrap} ${s.caraHead}`}>
+        <p className={s.chapter}>Bab 2 · Cara kerja</p>
         <h2 id="cara-judul" className={s.h2}>
           Sensor membaca, ESP32 memutuskan, pompa menyiram
         </h2>
@@ -117,15 +125,16 @@ export function CaraKerja() {
 }
 
 const targets = [
-  { prefix: "< ", to: 2, suffix: " detik", label: "delay monitoring" },
-  { prefix: "± ", to: 5, suffix: " %", label: "akurasi sensor" },
-  { prefix: "", to: 30, suffix: " %", label: "target hemat air" },
+  { value: "< 2 detik", label: "delay monitoring" },
+  { value: "± 5 %", label: "akurasi sensor" },
+  { value: "30 %", label: "target hemat air" },
 ];
 
 export function Target() {
   return (
     <section className={s.target} aria-labelledby="target-judul">
       <div className={s.wrap}>
+        <p className={s.chapter}>Bab 3 · Target</p>
         <h2 id="target-judul" className={s.h2Light}>
           Tiga target yang akan diuji
         </h2>
@@ -134,7 +143,7 @@ export function Target() {
             <div key={t.label} className={s.targetItem}>
               <dt className={s.targetLabel}>{t.label}</dt>
               <dd className={s.targetValue}>
-                <CountUp to={t.to} prefix={t.prefix} suffix={t.suffix} duration={1.6} easing="expo" />
+                {t.value}
               </dd>
             </div>
           ))}
@@ -143,6 +152,15 @@ export function Target() {
           Ini target dari rancangan proyek, belum hasil pengukuran. Hasil pengujian ditulis di sini
           setelah data terkumpul.
         </p>
+        {/* CTA hero diulang di dekat akhir halaman (pola marketing Home di skill page-patterns). */}
+        <div className={s.ctaRow}>
+          <a className={s.cta} href="/dashboard/">
+            Buka dashboard
+          </a>
+          <a className={s.secondary} href="/spesifikasi/">
+            Baca spesifikasi
+          </a>
+        </div>
       </div>
     </section>
   );

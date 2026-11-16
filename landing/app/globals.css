@@ -13,7 +13,11 @@ body {
   margin: 0;
   background: var(--bg);
   color: var(--ink);
-  font-family: var(--font-body), system-ui, sans-serif;
+  font-family: var(--font-sans), system-ui, sans-serif;
+  /* Raleway memakai angka gaya lama (naik-turun) secara bawaan; halaman ini penuh angka, jadi dipaksa sejajar. */
+  font-variant-numeric: lining-nums;
+  /* Raleway 400 tipis di ukuran kecil (keterangan 0,85 rem berwarna --muted); 500 tetap terbaca dari jarak meja pameran. */
+  font-weight: 500;
   font-size: 1rem;
   line-height: 1.6;
   -webkit-font-smoothing: antialiased;
@@ -22,11 +26,16 @@ body {
 h1,
 h2,
 h3 {
-  font-family: var(--font-display), Georgia, serif;
+  font-family: var(--font-sans), system-ui, sans-serif;
   font-weight: 600;
   line-height: 1.1;
   letter-spacing: -0.01em;
   margin: 0;
+}
+/* Paling tebal 600 di seluruh situs (skill typography); bawaan browser untuk strong adalah 700. */
+strong,
+b {
+  font-weight: 600;
 }
 
 /* Semua kontrol menampilkan kursor tangan, kontrol nonaktif menampilkan larangan (R-39). Ditulis sekali di sini. */
@@ -122,10 +131,11 @@ button:focus-visible {
   display: flex;
   align-items: center;
   justify-content: center;
-  font-family: var(--font-display), Georgia, serif;
+  font-family: var(--font-sans), system-ui, sans-serif;
+  font-weight: 600;
   font-size: clamp(3rem, 12vw, 8rem);
   opacity: 0;
-  transition: opacity 0.4s ease-out;
+  transition: opacity var(--dur-4) var(--ease-out);
 }
 /* Kata muncul saat hurufnya siap, supaya tidak berganti dari huruf cadangan di depan mata. */
 .intro[data-fonts] .intro__word {
@@ -133,8 +143,8 @@ button:focus-visible {
 }
 .intro__skip {
   min-height: 44px;
-  padding: 0.45rem 0.9rem;
-  border: 1px solid rgb(243 236 216 / 0.45);
+  padding: 0.5rem 1rem;
+  border: 1px solid var(--line-on-dark);
   border-radius: var(--radius-sm);
   background: var(--daun-900);
   color: var(--kertas-100);

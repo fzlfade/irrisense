@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32">
+  <!-- Favicon IrriSense: daun hijau muda (#8fc79a) di atas hijau tua merek daun-900 (#12301f), dari tokens.css. -->
+  <rect width="32" height="32" rx="7" fill="#12301f"/>
+  <path d="M7 25C7 13 14 7 26 6c0 12-7 19-19 19z" fill="#8fc79a"/>
+  <path d="M8.5 23.5 20.5 11.5" stroke="#12301f" stroke-width="1.8" stroke-linecap="round"/>
+  <path d="M7 25 4.5 27.5" stroke="#8fc79a" stroke-width="2.2" stroke-linecap="round"/>
+</svg>

@@ -23,8 +23,8 @@ export default function HeroTitle() {
       splitType="chars"
       effect="rise"
       trigger="load"
-      delay={55}
-      duration={0.9}
+      delay={25}
+      duration={0.3}
     />
   );
 }

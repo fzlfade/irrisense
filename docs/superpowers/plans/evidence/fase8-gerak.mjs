@@ -4,7 +4,7 @@
 // --metrics-only: hanya ukur beban gulir (baseline sebelum Fase 8). --baseline: bandingkan dengan hasil itu.
 // Yang diuji: jumlah ScrollTrigger; beban gulir (Performance.getMetrics): total waktu main thread per langkah naik
 // paling banyak 25 % dari baseline dan LayoutCount tidak bertambah (jumlah RecalcStyleCount hanya dicatat: setiap frame
-// animasi apa pun dihitung satu, jadi angka itu mengukur lama beranimasi, bukan beratnya; diputuskan 2026-11-09); (a) clip-path hero menyempit dan membulat saat ditinggalkan; (b) angka 60–80 %
+// animasi apa pun dihitung satu, jadi angka itu mengukur lama beranimasi, bukan beratnya; diputuskan 2026-11-09); (a) clip-path hero dihapus 2026-11-11 (skill motion: hanya transform/opacity); (b) angka 60–80 %
 // bergeser mendatar mengikuti gulir; (c) penanda progres panggung cerita mengikuti progres; "kurangi gerak": nol efek;
 // layar sentuh 375 px tanpa efek dan tanpa overflow; 768 px; efek dibongkar dan dipasang lagi saat lebar berganti.
 import { execFileSync, spawn } from 'node:child_process';
@@ -108,21 +108,17 @@ const TRIGGERS = 'window.__st ? window.__st.getAll().length : null';
 
 // Keadaan efek dibaca dari DOM: gaya inline yang dipasang GSAP (bukan dari CSS).
 const EFFECTS = `(() => {
-  const hero = document.querySelector('[data-motion="hero"]');
   const drift = document.querySelector('[data-motion="drift"]');
   const fill = document.querySelector('[data-motion="story-fill"]');
   const scaleY = (el) => { if (!el) return null; const t = getComputedStyle(el).transform; if (!t || t === 'none') return 1; const m = t.match(/matrix\\(([^)]+)\\)/); return m ? +Number(m[1].split(',')[3]).toFixed(3) : null; };
   const tx = (el) => { if (!el) return null; const t = getComputedStyle(el).transform; if (!t || t === 'none') return 0; const m = t.match(/matrix\\(([^)]+)\\)/); return m ? +Number(m[1].split(',')[4]).toFixed(1) : null; };
   return {
-    heroInline: hero ? hero.style.clipPath || null : 'tidak ada', heroClip: hero ? getComputedStyle(hero).clipPath : null,
     driftInline: drift ? drift.style.transform || null : 'tidak ada', driftX: tx(drift),
     storyBar: !!document.querySelector('[data-motion="story-bar"]'), storyFill: scaleY(fill),
     ticks: document.querySelectorAll('[data-motion="story-tick"]').length,
     overflowPx: document.documentElement.scrollWidth - innerWidth,
   };
 })()`;
-// inset(a b c d round r1 r2 r3 r4) -> angka-angkanya.
-const insetNums = (s) => (s && s.startsWith('inset(') ? s.match(/-?[\d.]+/g).map(Number) : null);
 
 async function scrollLoad(c) {
   await c.send('Performance.enable');
@@ -168,7 +164,7 @@ try {
 
   // 1. Beban gulir di 1280 × 800. Pengukuran baru dimulai setelah kedua model 3D siap dan halaman diam 2 detik
   // (bila model masih bersiap, angkanya ikut naik dan berbeda jauh antar-run). Tiga lintasan turun lalu naik; lintasan
-  // pertama memuat kerja sekali jalan (teks muncul, angka menghitung), jadi pembanding utamanya median lintasan 2 dan 3.
+  // pertama memuat kerja sekali jalan (teks muncul), jadi pembanding utamanya median lintasan 2 dan 3.
   {
     const c = await tab();
     await metrics(c, 1280, 800);
@@ -199,15 +195,6 @@ try {
       await load(c, url);
       await waitFor(c, FIND_ST, 15000);
       const d = { triggers: await c.evaluate(TRIGGERS), awal: await c.evaluate(EFFECTS) };
-      // (a) hero: saat tepi bawahnya di tengah layar (separuh jalan) dan di atas layar (selesai).
-      const heroBottom = await c.evaluate(`(() => { const r = document.querySelector('[data-motion="hero"]').getBoundingClientRect(); return Math.round(r.bottom + scrollY); })()`);
-      await c.evaluate(`window.scrollTo(0, ${heroBottom - 400})`);
-      await sleep(900);
-      d.heroSeparuh = insetNums(await c.evaluate(`getComputedStyle(document.querySelector('[data-motion="hero"]')).clipPath`));
-      await shot(c, 'hero-peralihan.jpg');
-      await c.evaluate(`window.scrollTo(0, ${heroBottom})`);
-      await sleep(900);
-      d.heroSelesai = insetNums(await c.evaluate(`getComputedStyle(document.querySelector('[data-motion="hero"]')).clipPath`));
       // (b) angka 60–80 %: posisi mendatar saat bagian Masalah masuk dan saat hampir keluar.
       const sec = await c.evaluate(`(() => { const s = document.querySelector('[data-motion="drift"]').closest('section').getBoundingClientRect(); return { top: Math.round(s.top + scrollY), h: Math.round(s.height) }; })()`);
       await c.evaluate(`window.scrollTo(0, ${sec.top - 600})`);
@@ -236,15 +223,14 @@ try {
       await closeTab(c);
     }
 
-    // 3. Tablet 768: hero dan angka aktif, panggung cerita tidak (butuh 1024 px).
+    // 3. Tablet 768: angka aktif, panggung cerita tidak (butuh 1024 px).
     {
       const c = await tab();
       await metrics(c, 768, 1024);
       await load(c, url);
-      const heroBottom = await c.evaluate(`(() => { const r = document.querySelector('[data-motion="hero"]').getBoundingClientRect(); return Math.round(r.bottom + scrollY); })()`);
-      await c.evaluate(`window.scrollTo(0, ${heroBottom - 400})`);
+      await c.evaluate(`window.scrollTo(0, 400)`);
       await sleep(900);
-      R.tablet = { ...(await c.evaluate(EFFECTS)), heroSeparuh: insetNums(await c.evaluate(`getComputedStyle(document.querySelector('[data-motion="hero"]')).clipPath`)) };
+      R.tablet = await c.evaluate(EFFECTS);
       await closeTab(c);
     }
 
@@ -254,8 +240,7 @@ try {
       await metrics(c, 1280, 800);
       await c.send('Emulation.setEmulatedMedia', { media: '', features: [{ name: 'prefers-reduced-motion', value: 'reduce' }] });
       await load(c, url);
-      const heroBottom = await c.evaluate(`(() => { const r = document.querySelector('[data-motion="hero"]').getBoundingClientRect(); return Math.round(r.bottom + scrollY); })()`);
-      await c.evaluate(`window.scrollTo(0, ${heroBottom - 400})`);
+      await c.evaluate(`window.scrollTo(0, 400)`);
       await sleep(800);
       R.kurangiGerak = await c.evaluate(EFFECTS);
       await closeTab(c);
@@ -300,16 +285,15 @@ if (metricsOnly) {
       }
     : null;
   const d = R.desktop ?? {};
-  const noEffect = (e) => !!e && (e.heroInline === null || e.heroInline === '') && (e.driftInline === null || e.driftInline === '') && e.storyBar === false;
+  const noEffect = (e) => !!e && (e.driftInline === null || e.driftInline === '') && e.storyBar === false;
   R.cek = {
     bebanGulir: within('taskMs') && within('layoutPerLangkah'),
-    scrollTriggerTercatat: typeof R.scrollTrigger === 'number' && (!base || R.scrollTrigger === base.scrollTrigger + 2),
-    heroMenyempit: !!d.heroSeparuh && !!d.heroSelesai && d.heroSeparuh[1] > 0 && d.heroSeparuh[1] < d.heroSelesai[1] && d.heroSelesai[1] <= 3.01 && d.heroSelesai[0] === 0,
+    scrollTriggerTercatat: typeof R.scrollTrigger === 'number' && (!base || R.scrollTrigger === base.scrollTrigger + 1),
     angkaBergeser: typeof d.angkaMasuk === 'number' && typeof d.angkaKeluar === 'number' && d.angkaKeluar - d.angkaMasuk > 10 && Math.abs(d.angkaMasuk) <= 1280 * 0.025 + 1 && Math.abs(d.angkaKeluar) <= 1280 * 0.025 + 1,
     penandaCerita: d.cerita?.bar === true && Math.abs(d.cerita.isi - 0.5) <= 0.05 && d.cerita.ticks === 4,
-    // Di 700 px dua gerak Fase 8 dibongkar, dan panggung cerita juga mati (butuh 1024 px): ScrollTrigger turun 3.
-    gantiLebar: noEffect(d.lebar700) && d.lebar700?.triggers === d.triggers - 3 && d.lebar1280Lagi?.triggers === d.triggers && !!d.lebar1280Lagi?.heroInline && d.lebar1280Lagi?.overflowPx <= 0,
-    tablet: !!R.tablet?.heroInline && !!R.tablet?.driftInline && R.tablet?.storyBar === false && R.tablet?.overflowPx <= 0 && R.tablet?.heroSeparuh?.[1] > 0,
+    // Di 700 px gerak angka dibongkar, dan panggung cerita juga mati (butuh 1024 px): ScrollTrigger turun 2.
+    gantiLebar: noEffect(d.lebar700) && d.lebar700?.triggers === d.triggers - 2 && d.lebar1280Lagi?.triggers === d.triggers && !!d.lebar1280Lagi?.driftInline && d.lebar1280Lagi?.overflowPx <= 0,
+    tablet: !!R.tablet?.driftInline && R.tablet?.storyBar === false && R.tablet?.overflowPx <= 0,
     kurangiGerak: noEffect(R.kurangiGerak),
     sentuh375: noEffect(R.sentuh375) && R.sentuh375?.overflowPx <= 0,
     konsolBersih: errors.length === 0,

@@ -14,11 +14,11 @@
 .meta {
   margin: 0 0 clamp(2.5rem, 8vw, 6rem);
   font-size: 0.9rem;
-  color: #c9c6b4;
+  color: var(--ink-on-dark-muted);
 }
 .heroTitle {
   font-size: var(--step-hero);
-  line-height: 0.95;
+  line-height: 1.1;
   letter-spacing: -0.03em;
 }
 .lead {
@@ -30,11 +30,11 @@
 .en {
   margin: 0.75rem 0 0;
   font-size: 0.9rem;
-  color: #c9c6b4;
+  color: var(--ink-on-dark-muted);
 }
 .cta {
   display: inline-block;
-  padding: 0.85rem 1.4rem;
+  padding: 0.75rem 1.5rem;
   background: var(--vanili-600);
   color: var(--tinta-900);
   border-radius: var(--radius-sm);
@@ -43,22 +43,24 @@
 }
 /* Status kontrol tidak hanya lewat warna: hover menambah garis bawah, tekan menurunkan 1 px. */
 .cta:hover {
-  background: #c99a38;
+  background: var(--accent-hover);
   text-decoration: underline;
   text-underline-offset: 0.2em;
 }
 .cta:active {
   transform: translateY(1px);
 }
+/* Lebar model hero dibatasi 80rem (1280 px, lebar desktop yang diuji); di layar lebih lebar model tidak ikut membesar. */
 .heroFigure {
-  margin: clamp(2rem, 6vw, 4rem) 0 0;
+  max-width: 80rem;
+  margin: clamp(2rem, 6vw, 4rem) auto 0;
 }
 .caption {
   max-width: 72rem;
   margin: 0 auto;
   padding: 0.75rem clamp(1rem, 5vw, 3rem) 1rem;
   font-size: 0.85rem;
-  color: #c9c6b4;
+  color: var(--ink-on-dark-muted);
 }
 
 /* Masalah */
@@ -75,10 +77,10 @@
   flex-direction: column;
 }
 .bigValue {
-  font-family: var(--font-display), Georgia, serif;
+  font-family: var(--font-sans), system-ui, sans-serif;
   font-size: clamp(4rem, 14vw, 9rem);
   font-weight: 600;
-  line-height: 0.95;
+  line-height: 1.1;
   letter-spacing: -0.03em;
   color: var(--green);
   white-space: nowrap;
@@ -94,7 +96,7 @@
   margin: 0;
 }
 .masalahGrid .revealText {
-  font-family: var(--font-display), Georgia, serif;
+  font-family: var(--font-sans), system-ui, sans-serif;
   font-size: var(--step-section);
   font-weight: 600;
   line-height: 1.1;
@@ -112,7 +114,7 @@
   color: var(--kertas-100);
   text-decoration: underline;
   text-underline-offset: 0.25em;
-  padding-block: 0.85rem;
+  padding-block: 0.75rem;
 }
 .secondary:hover {
   color: var(--vanili-600);
@@ -127,6 +129,9 @@
   padding-block: clamp(3rem, 8vw, 6rem);
   background: var(--surface);
   border-block: 1px solid var(--line);
+  /* 100vw di model yang menjorok ikut menghitung lebar scrollbar; clip (bukan hidden) memotong sisanya tanpa
+     mematikan position: sticky panggung cerita. */
+  overflow-x: clip;
 }
 /* Judul di atas kedua kolom agar memakai lebar penuh (di kolom sempit judul besar pecah jadi 6 baris). */
 .caraHead {
@@ -153,25 +158,37 @@
   content: counter(langkah);
   position: absolute;
   left: 0;
-  top: -0.1rem;
-  font-family: var(--font-display), Georgia, serif;
+  top: -0.125rem;
+  font-family: var(--font-sans), system-ui, sans-serif;
   font-size: 2rem;
-  line-height: 1;
+  font-weight: 600;
+  line-height: 1.1;
   color: var(--green);
 }
 .caraFigure {
   margin: 0;
   align-self: start;
 }
+/* Model tanpa bingkai: latarnya (bg=fbf8ee) sama dengan --surface, jadi menyatu dengan section.
+   Ponsel dan tablet: dari tepi kiri sampai kanan layar. Desktop: menjorok sampai tepi kanan (lihat @media 64rem). */
 .caraFrame {
-  border-radius: var(--radius);
-  border: 1px solid var(--line);
   overflow: hidden;
+  margin-inline: calc(50% - 50vw);
+}
+/* Nomor bab cerita: teks biasa tanpa pil atau titik; di pita gelap Target memakai krem redup. */
+.chapter {
+  margin: 0 0 0.75rem;
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: var(--muted);
+}
+.target .chapter {
+  color: var(--ink-on-dark-muted);
 }
 .link {
   display: inline-block;
   margin-top: 0.75rem;
-  padding-block: 0.4rem;
+  padding-block: 0.75rem; /* tinggi 50 px: target sentuh minimal di .ux-profile.md */
   color: var(--green);
   font-weight: 600;
   text-underline-offset: 0.25em;
@@ -184,7 +201,7 @@
   transform: translateY(1px);
 }
 .captionDark {
-  margin-top: 0.6rem;
+  margin-top: 0.5rem;
   font-size: 0.85rem;
   color: var(--muted);
 }
@@ -220,9 +237,9 @@
   align-self: center;
 }
 /* --lit (0..1) digerakkan timeline GSAP yang mengikuti gulir: langkah aktif bertinta penuh dan bergeser 0,75 rem.
-   Langkah lain memakai --muted (5,8:1 di atas --surface), bukan opacity, supaya kontrasnya tetap lolos. */
+   Langkah lain bertinta 70% lewat opacity (5,5:1 di atas --surface, lolos AA); hanya opacity yang dianimasikan, bukan warna. */
 .story[data-story="on"] .step {
-  color: color-mix(in srgb, var(--ink) calc(var(--lit, 1) * 100%), var(--muted));
+  opacity: calc(0.7 + var(--lit, 1) * 0.3);
   transform: translateX(calc(var(--lit, 0) * 0.75rem));
 }
 
@@ -230,7 +247,7 @@
 .target {
   background: var(--daun-900);
   color: var(--kertas-100);
-  padding-block: clamp(3.5rem, 9vw, 6rem);
+  padding-block: var(--section-pad);
 }
 .targets {
   display: grid;
@@ -245,10 +262,10 @@
 }
 .targetValue {
   margin: 0;
-  font-family: var(--font-display), Georgia, serif;
+  font-family: var(--font-sans), system-ui, sans-serif;
   font-size: var(--step-figure);
   font-weight: 600;
-  line-height: 1;
+  line-height: 1.1;
   color: var(--vanili-600);
 }
 .targetLabel {
@@ -256,15 +273,15 @@
   color: var(--kertas-100);
 }
 .targetNote {
-  max-width: 36rem;
+  max-width: 70ch;
   margin: 2rem 0 0;
   font-size: 0.9rem;
-  color: #c9c6b4;
+  color: var(--ink-on-dark-muted);
 }
 
 /* Tim */
 .tim {
-  padding-block: clamp(3.5rem, 9vw, 6rem);
+  padding-block: var(--section-pad);
 }
 .timGrid {
   display: grid;
@@ -284,13 +301,15 @@
 }
 
 /* Tipografi umum */
+/* Batas lebar dalam em (bukan ch): satuan ch mengikuti lebar angka "0", yang di Raleway lebar, jadi judul panjang
+   sempat pecah jadi tiga baris. 15em memberi dua baris untuk judul Cara kerja di lebar desktop. */
 .h2 {
   font-size: var(--step-section);
-  max-width: 24ch;
+  max-width: 15em;
 }
 .h2Light {
   font-size: var(--step-section);
-  max-width: 24ch;
+  max-width: 15em;
   color: var(--kertas-100);
 }
 .h3 {
@@ -299,7 +318,7 @@
 }
 .body {
   margin: 1rem 0 0;
-  max-width: 38rem;
+  max-width: 70ch;
 }
 .step .body {
   margin-top: 0.25rem;
@@ -330,5 +349,18 @@
   .caraGrid {
     max-width: 84rem;
     grid-template-columns: 0.8fr 1.2fr;
+  }
+  /* Half-bleed: tepi kanan model sampai tepi kanan layar. Jaraknya = sisa di luar grid 84rem + padding 3rem
+     (.wrap memakai 3rem sejak lebar 60rem). Tinggi tetap setinggi kolom (100cqw / rasio), jadi model tidak
+     membesar melewati layar di panggung cerita; yang bertambah hanya lebarnya. */
+  .caraFigure {
+    container-type: inline-size;
+  }
+  .caraFrame {
+    margin-inline: 0 calc(-1 * (max(0px, (100vw - 84rem) / 2) + 3rem));
+  }
+  .caraFigure .caraFrame > * {
+    aspect-ratio: auto;
+    height: calc(100cqw / (var(--ar)));
   }
 }

@@ -98,12 +98,13 @@ const FIND_ST = `(()=>{if(window.__st)return true;const el=document.querySelecto
 const TRIGGERS = 'window.__st ? window.__st.getAll().length : null';
 const scrollToP = (p) => `(()=>{const w=document.querySelector('${STAGE}');const top=w.getBoundingClientRect().top+scrollY;window.scrollTo(0,Math.round(top+${p}*(w.offsetHeight-innerHeight)));return true})()`;
 const STEPS = "Array.from(document.querySelectorAll('#cara-langkah > li'))";
-// Kontras WCAG warna teks langkah terhadap latar section (--surface), dibaca dari gaya terhitung.
+// Kontras WCAG warna teks langkah terhadap latar section (--surface), dibaca dari gaya terhitung; opacity langkah
+// (langkah redup 0,7 sejak 2026-11-11) dicampurkan ke warnanya dulu.
 const CONTRAST = `(()=>{
   const parse=(s)=>{const m=s.match(/[\\d.]+/g).map(Number);return /^color\\(/.test(s)?m.slice(0,3).map(v=>v*255):m.slice(0,3)};
   const lum=(c)=>{const [r,g,b]=c.map(v=>{v/=255;return v<=0.03928?v/12.92:((v+0.055)/1.055)**2.4});return 0.2126*r+0.7152*g+0.0722*b};
   const bg=parse(getComputedStyle(document.getElementById('cara-kerja')).backgroundColor);
-  return ${STEPS}.map(li=>{const a=lum(parse(getComputedStyle(li).color)),b=lum(bg);return +((Math.max(a,b)+0.05)/(Math.min(a,b)+0.05)).toFixed(2)});
+  return ${STEPS}.map(li=>{const st=getComputedStyle(li),o=+st.opacity,a=lum(parse(st.color).map((v,i)=>v*o+bg[i]*(1-o))),b=lum(bg);return +((Math.max(a,b)+0.05)/(Math.min(a,b)+0.05)).toFixed(2)});
 })()`;
 
 const R = { url, waktu: new Date().toISOString() };

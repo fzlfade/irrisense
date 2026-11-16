@@ -40,6 +40,22 @@
   --red: #a93226;
   --red-soft: #f6ddd6;
   --accent: var(--vanili-600);     /* hanya untuk momen kunci di landing page, bukan teks kecil */
+  --accent-hover: #c99a38;         /* hover tombol isi --accent (teks --tinta-900 di atasnya) */
+
+  /* Pita gelap (--daun-900) tetap gelap di kedua tema, jadi token ini tidak diganti di tema gelap. */
+  --ink-on-dark-muted: #c9c6b4;    /* teks redup di atas pita gelap, 8,3:1 */
+  --line-on-dark: rgb(243 236 216 / 0.45); /* tepi tombol garis di atas pita gelap */
+
+  /* Gerak (skill motion VectorLab): durasi dan easing bersama. */
+  --dur-1: 100ms;
+  --dur-2: 150ms;
+  --dur-3: 200ms;
+  --dur-4: 300ms;
+  --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-in: cubic-bezier(0.7, 0, 0.84, 0);
+
+  /* Jarak atas-bawah bab cerita yang berdiri sendiri (Target, Tim). */
+  --section-pad: clamp(3.5rem, 9vw, 6rem);
 }
 
 /* Terang adalah bawaan dan satu-satunya yang aktif. Gelap hanya bila <html data-theme="dark"> dipasang (belum ada tombolnya). */

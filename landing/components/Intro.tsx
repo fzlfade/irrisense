@@ -32,7 +32,14 @@ export default function Intro() {
     const root = document.documentElement;
     if (root.dataset.intro !== "play") return undefined;
     let finished = false;
+    // Selama penutup tampil, isi halaman di belakangnya inert: Tab tidak pindah ke tautan yang tertutup penutup.
+    let blocked: Element[] = [];
+    const release = () => {
+      blocked.forEach((n) => n.removeAttribute("inert"));
+      blocked = [];
+    };
     const finish = () => {
+      release();
       if (finished) return;
       finished = true;
       try {
@@ -67,6 +74,9 @@ export default function Intro() {
       return undefined;
     }
 
+    blocked = [...document.body.children].filter((n) => n !== el && !n.hasAttribute("inert"));
+    blocked.forEach((n) => n.setAttribute("inert", ""));
+
     void (document.fonts?.ready ?? Promise.resolve()).then(() => markLoaded("fonts"));
 
     let leaveTimer = 0;
@@ -97,6 +107,7 @@ export default function Intro() {
     // Jaring pengaman bila event animasi tidak datang; pudar di CSS sudah selesai 3,5 detik setelah penutup tampil.
     const fallback = window.setTimeout(finish, 4000);
     return () => {
+      release();
       stopWatching();
       window.clearTimeout(leaveTimer);
       window.clearTimeout(fallback);
