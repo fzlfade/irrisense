@@ -7,8 +7,8 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint",
-    "predev": "node scripts/sync-tokens.mjs",
-    "prebuild": "node scripts/sync-tokens.mjs",
+    "predev": "node scripts/sync-tokens.mjs && node scripts/copy-prototipe.mjs",
+    "prebuild": "node scripts/sync-tokens.mjs && node scripts/copy-prototipe.mjs",
     "sync:tokens": "node scripts/sync-tokens.mjs",
     "serve": "npx --yes serve@14 out"
   },
@@ -27,6 +27,7 @@
     "@types/react-dom": "^19",
     "eslint": "^9",
     "eslint-config-next": "16.4.5",
+    "three": "0.160.0",
     "typescript": "^5"
   }
 }
