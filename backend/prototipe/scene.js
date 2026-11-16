@@ -1,5 +1,6 @@
 import * as THREE from 'three';
 import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+import { mergeGeometries } from 'three/addons/utils/BufferGeometryUtils.js';
 import { createStrokedToon, setToonOutline } from './stroked-toon.js';
 import * as Sim from './sim.js';
 
@@ -59,6 +60,24 @@ function tube(points, r, mat, parent, seg = 80) {
   return add(new THREE.Mesh(new THREE.TubeGeometry(new THREE.CatmullRomCurve3(points, false, 'centripetal'), seg, r, 10), mat), parent);
 }
 function group(x, y, z) { const g = new THREE.Group(); g.position.set(x, y, z); return add(g); }
+// Mesh diam di bawah `root` yang berbagi material digabung menjadi satu mesh per material: tampak sama, tetapi tiap mesh
+// digambar tiga kali per frame (bayangan, warna, garis tepi), jadi ratusan potongan kecil membuat gulir landing berat.
+// Hanya untuk bagian yang tidak pernah digerakkan atau disorot sendiri; mesh hotspot (userData.hot) dilewati. Mesh berskala
+// (daun) juga dilewati: garis tepi OutlineEffect dihitung dari normal di ruang objek, jadi bentuknya berubah bila skala dipanggang.
+const unscaled = (m) => m.scale.x === 1 && m.scale.y === 1 && m.scale.z === 1;
+function mergeStatic(root) {
+  root.updateWorldMatrix(true, true);
+  const inv = root.matrixWorld.clone().invert(), byMat = new Map();
+  root.traverse((m) => { if (m.isMesh && !m.isInstancedMesh && !m.userData.hot && unscaled(m)) byMat.set(m.material, [...(byMat.get(m.material) || []), m]); });
+  for (const [mat, bits] of byMat) {
+    if (bits.length < 2) continue;
+    const geo = mergeGeometries(bits.map((m) => m.geometry.clone().applyMatrix4(inv.clone().multiply(m.matrixWorld))));
+    if (!geo) continue;   // atribut geometri tidak cocok: biarkan terpisah
+    const one = new THREE.Mesh(geo, mat); one.castShadow = bits[0].castShadow; one.receiveShadow = bits[0].receiveShadow;
+    bits.forEach((m) => { m.removeFromParent(); m.geometry.dispose(); });
+    root.add(one);
+  }
+}
 
 // ---------- hotspot (bagian yang bisa diklik) ----------
 const hot = {};            // key -> { title, meshes, text, live, acts }
@@ -115,6 +134,7 @@ for (const x of TRUSS) {
   joint(V(x, H, 0));
 }
 for (let i = 0; i < TRUSS.length - 1; i++) pipe(V(TRUSS[i], H, 0), V(TRUSS[i + 1], H, 0));
+mergeStatic(frame);
 
 // ---------- 6 polybag vanili, sensor tanah, dripper ----------
 const POTS = []; for (const x of [-0.375, -0.125, 0.125]) for (const z of [-0.15, 0.15]) POTS.push([x, z]);
@@ -168,6 +188,7 @@ POTS.forEach(([px, pz], i) => {
       { label: 'Rusak / pulih', act: 'sensor-toggle', arg: i },
     ],
   });
+  mergeStatic(g);   // polybag, ajir, sulur, dan 7 daun; tanah (hotspot, warnanya berubah) tetap terpisah
 });
 // kabel sensor: menyusuri rel melintang di sebelah polybag, melompati selang di rel tengah, masuk duct
 part('sensor');
@@ -667,7 +688,10 @@ if (embed) {
   });
 }
 
-let lcdKey = '', pumpSince = -1, flowStill = reduceMotion;
+let lcdKey = '', pumpSince = -1, flowStill = reduceMotion, lastSig = '', lastContent = '';
+keyLight.shadow.autoUpdate = false;
+// Pendekatan bertahap berhenti tepat di tujuan, supaya adegan benar-benar diam dan frame berikutnya boleh dilewati.
+const ease = (now, goal, k) => (Math.abs(goal - now) < 1e-4 ? goal : now + (goal - now) * k);
 renderer.setAnimationLoop(() => {
   if (paused) return;
   const flowing = sim.pump && sim.tank > 0, now = performance.now() / 1000;
@@ -687,17 +711,17 @@ renderer.setAnimationLoop(() => {
     dummy.position.set(drips[k][0], SOIL_Y + 0.03 - ph * 0.03, drips[k][1]); dummy.scale.setScalar(flowing ? 1 : 0.0001); dummy.updateMatrix(); drops.setMatrixAt(i, dummy.matrix);
   }
   drops.instanceMatrix.needsUpdate = true;
-  Object.values(buttons).forEach((b) => { b.userData.press *= 0.86; b.position.y = b.userData.baseY - 0.9 * b.userData.press; });
+  Object.values(buttons).forEach((b) => { b.userData.press = b.userData.press < 1e-3 ? 0 : b.userData.press * 0.86; b.position.y = b.userData.baseY - 0.9 * b.userData.press; });
 
-  const ty = open ? 1.9 : 0; lidGroup.rotation.y = reduceMotion ? ty : lidGroup.rotation.y + (ty - lidGroup.rotation.y) * 0.12;
+  const ty = open ? 1.9 : 0; lidGroup.rotation.y = ease(lidGroup.rotation.y, ty, reduceMotion ? 1 : 0.12);
   if (spin) { const a = 0.004, p = camera.position.clone().sub(controls.target); camera.position.set(controls.target.x + p.x * Math.cos(a) - p.z * Math.sin(a), p.y + controls.target.y, controls.target.z + p.x * Math.sin(a) + p.z * Math.cos(a)); }
 
   const key = Sim.lcdLines(sim).join('|'); if (key !== lcdKey) { lcdKey = key; drawLcd(); }
   if (embed) {
     // Setelah dilepas 1,5 detik, putaran manual perlahan kembali agar model menghadap depan lagi.
-    if (!dragging && (reduceMotion || performance.now() - dragIdleAt > 1500)) dragAngle *= reduceMotion ? 0 : 0.93;
+    if (!dragging && (reduceMotion || performance.now() - dragIdleAt > 1500)) dragAngle = ease(dragAngle, 0, reduceMotion ? 1 : 0.07);
     if (story) {
-      storyNow += (storyGoal - storyNow) * (reduceMotion ? 1 : 0.15);
+      storyNow = ease(storyNow, storyGoal, reduceMotion ? 1 : 0.15);
       assemble(storyNow);
       const idx = stepAt(storyNow);
       if (idx !== storyIdx) {                                   // langkah berganti: casing, sorotan, dan pompa
@@ -710,12 +734,24 @@ renderer.setAnimationLoop(() => {
       camera.position.set(tgt[0] + ox * c + oz * sn, cam[1], tgt[2] - ox * sn + oz * c);
       camera.lookAt(tgt[0], tgt[1], tgt[2]);
     } else {
-      orbitNow += (orbitGoal - orbitNow) * (reduceMotion ? 1 : 0.12);
+      orbitNow = ease(orbitNow, orbitGoal, reduceMotion ? 1 : 0.12);
       const th = th0 + orbitAngle(orbitNow) + dragAngle;
       camera.position.set(controls.target.x + r0 * Math.sin(th), controls.target.y + h0, controls.target.z + r0 * Math.cos(th));
       camera.lookAt(controls.target);
     }
   } else controls.update();
+  // Rangka paralon punya ratusan mesh (tiap mesh digambar untuk bayangan, warna, dan garis tepi), jadi frame yang
+  // sama persis dengan frame sebelumnya tidak digambar ulang. Kunci ini memuat semua yang mengubah gambar.
+  const s = sim.sensors.map((x) => `${x.valid}${x.pct.toFixed(1)}`).join();
+  // Isi adegan (tanpa kamera): bila sama, peta bayangan dari frame lalu masih benar dan tidak perlu dihitung ulang.
+  const content = sim.pump && !flowStill ? '' : [story && ASSEMBLY.map((a) => a.group.position.y + '' + a.group.visible), lidGroup.rotation.y, lcdKey, flowing, sim.pump, sim.tank.toFixed(1), s, hovered?.id,
+    storyIdx, labelSprites[0]?.visible, Object.values(buttons).map((b) => b.userData.press + b.userData.label)].join();
+  // Kamera dibulatkan ke 0,01 cm dan 1e-5: ekor easing yang bergeser di bawah 1/10 piksel tidak digambar ulang.
+  const cam = [...camera.position.toArray().map((v) => v.toFixed(2)), ...camera.quaternion.toArray().map((v) => v.toFixed(5))];
+  const sig = content && !spin ? [content, cam, renderer.domElement.width, renderer.domElement.height].join() : '';
+  if (sig && sig === lastSig) return;
+  lastSig = sig;
+  if (!content || content !== lastContent) { lastContent = content; keyLight.shadow.needsUpdate = true; }
   look.render(scene, camera); window.__ready = true;
   sendReady();
 });
