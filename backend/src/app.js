@@ -1,4 +1,5 @@
 import compression from 'compression';
+import { timingSafeEqual } from 'node:crypto';
 import express from 'express';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -10,7 +11,7 @@ const threeDir = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../
 
 const num = (v) => (v === undefined ? undefined : /^-?\d+$/.test(String(v)) ? Number(v) : NaN);
 
-export function createApp({ db, bridge, bus, nodeId, staticDir, landingDir, prototypeDir, flowMlPerMin = 100 }) {
+export function createApp({ db, bridge, bus, nodeId, staticDir, landingDir, prototypeDir, flowMlPerMin = 100, password }) {
   const app = express();
   // Kompresi semua respons kecuali SSE: compression menahan data SSE di buffer (README compression,
   // bagian Server-Sent Events), jadi /api/stream dikecualikan agar event tetap langsung terkirim.
@@ -18,6 +19,20 @@ export function createApp({ db, bridge, bus, nodeId, staticDir, landingDir, prot
   app.use(express.json());
 
   app.get('/api/health', (_req, res) => res.json({ ok: true, mqtt: !!bridge.connected() }));
+
+  // Saat dibuka ke internet, dashboard dan API (termasuk perintah pompa) butuh password; username bebas.
+  // Didaftarkan sesudah /api/health agar pemantau uptime tetap bisa memanggilnya.
+  if (password) {
+    const want = Buffer.from(password);
+    app.use(['/api', '/dashboard'], (req, res, next) => {
+      const [scheme, b64 = ''] = (req.headers.authorization ?? '').split(' ');
+      const decoded = Buffer.from(b64, 'base64').toString();
+      const got = Buffer.from(decoded.slice(decoded.indexOf(':') + 1));
+      const ok = scheme === 'Basic' && decoded.includes(':') && got.length === want.length && timingSafeEqual(got, want);
+      if (ok) return next();
+      res.set('WWW-Authenticate', 'Basic realm="IrriSense", charset="UTF-8"').status(401).json({ error: 'butuh password' });
+    });
+  }
 
   // Handler async: error database -> 500, tidak menjatuhkan proses.
   const h = (fn) => (req, res) => fn(req, res).catch((e) => {

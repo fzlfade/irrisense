@@ -17,6 +17,8 @@ Bila `landing/out/` belum ada, backend tetap jalan dan `/` diarahkan ke dashboar
 
 Variabel opsional: `DATABASE_URL` (default `postgres://postgres@localhost:5432/irrisense`; tambahkan password bila Postgres Anda memakainya), `MQTT_URL` (default `mqtt://localhost:1883`), `NODE_ID` (`node1`), `PORT` (`3000`), `FLOW_ML_PER_MIN` (`100`).
 
+`DASHBOARD_PASSWORD`: bila diisi, `/dashboard` dan `/api/*` meminta password (username bebas); `/api/health`, landing, dan prototipe tetap terbuka. Kosongkan untuk dev lokal, **wajib** diisi selama backend dibuka ke internet (misalnya lewat Tailscale Funnel), karena dashboard bisa menyalakan pompa.
+
 ## Tes
 `npm test` (26 tes). Tes database memakai PostgreSQL asli (`irrisense_test`, schema acak per tes yang dibuang setelahnya); ubah lewat `TEST_DATABASE_URL`. Postgres harus menyala.
 
