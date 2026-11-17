@@ -126,8 +126,10 @@ function pipe(a, b) { // pipa + selongsong fitting di kedua ujung
   for (const [p, s] of [[a, 1], [b, -1]]) rod(p.clone().addScaledVector(dir, s * 0.004), p.clone().addScaledVector(dir, s * 0.034), R * 1.26, C.fit, frame, 18);
 }
 const joint = (p) => { add(new THREE.Mesh(new THREE.SphereGeometry(R * 1.45, 18, 12), C.fit), frame).position.copy(p); };
-const XS = [-0.5, -0.25, 0, 0.25, 0.5], ZS = [-W / 2, 0, W / 2], TRUSS = [-0.5, 0, 0.5];
-for (const z of ZS) for (let i = 0; i < XS.length - 1; i++) pipe(V(XS[i], BY, z), V(XS[i + 1], BY, z));
+// Alas 3 × 2 kotak (~33 × 30 cm). Rel depan dan belakang disambung tee di x = 0, tempat tiang kuda-kuda tengah berdiri.
+const XS = [-0.5, -1 / 6, 1 / 6, 0.5], ZS = [-W / 2, 0, W / 2], TRUSS = [-0.5, 0, 0.5];
+for (const z of ZS) { const xs = z ? [-0.5, -1 / 6, 0, 1 / 6, 0.5] : XS; for (let i = 0; i < xs.length - 1; i++) pipe(V(xs[i], BY, z), V(xs[i + 1], BY, z)); }
+for (const z of [-W / 2, W / 2]) joint(V(0, BY, z));
 for (const x of XS) { pipe(V(x, BY, -W / 2), V(x, BY, 0)); pipe(V(x, BY, 0), V(x, BY, W / 2)); for (const z of ZS) joint(V(x, BY, z)); }
 for (const x of TRUSS) {
   for (const z of [-W / 2, W / 2]) { pipe(V(x, BY, z), V(x, POST, z)); pipe(V(x, POST, z), V(x, H, 0)); joint(V(x, POST, z)); }
@@ -137,7 +139,7 @@ for (let i = 0; i < TRUSS.length - 1; i++) pipe(V(TRUSS[i], H, 0), V(TRUSS[i + 1
 mergeStatic(frame);
 
 // ---------- 6 polybag vanili, sensor tanah, dripper ----------
-const POTS = []; for (const x of [-0.375, -0.125, 0.125]) for (const z of [-0.15, 0.15]) POTS.push([x, z]);
+const POTS = []; for (const x of [-1 / 3, 0, 1 / 3]) for (const z of [-0.15, 0.15]) POTS.push([x, z]);
 const xs = POTS.map(([x]) => x * 100);   // posisi tanaman dalam cm (dipakai label)
 const patches = [], leds = [], drips = [];
 const dryColor = new THREE.Color(0x8a6a48), wetColor = new THREE.Color(0x2a1a10);
@@ -194,7 +196,7 @@ POTS.forEach(([px, pz], i) => {
 part('sensor');
 const DUCT_Y = 0.0125, DUCT_Z = PZ + 0.03;
 POTS.forEach(([px, pz]) => {
-  const rx = px - 0.125, sx = px - 0.05, y = BY + R + 0.0028, pts = [V(sx, SOIL_Y + 0.057, pz), V(sx - 0.012, SOIL_Y + 0.07, pz), V(px - POT_R - 0.004, 0.214, pz), V(px - 0.115, 0.1, pz), V(rx, y + 0.004, pz)];
+  const rx = px - 1 / 6, sx = px - 0.05, y = BY + R + 0.0028, pts = [V(sx, SOIL_Y + 0.057, pz), V(sx - 0.012, SOIL_Y + 0.07, pz), V(px - POT_R - 0.004, 0.214, pz), V(px - 0.115, 0.1, pz), V(rx, y + 0.004, pz)];
   if (pz < 0) pts.push(V(rx, y, -0.05), V(rx, HY + 0.014, -0.012), V(rx, HY + 0.014, 0.012), V(rx, y, 0.05));
   pts.push(V(rx, y, PZ - 0.045), V(rx + 0.03, y + 0.002, PZ - 0.035), V(rx + 0.03, BY + R + 0.0058, PZ), V(rx + 0.03, 0.0265, DUCT_Z));
   tube(pts, 0.0026, C.cable, world, 90);
@@ -203,12 +205,12 @@ POTS.forEach(([px, pz]) => {
 // ---------- selang utama, klip, cabang, galon, pompa celup ----------
 part('air');
 const hoses = [];
-const hoseEnd = 0.2;
+const hoseEnd = 0.42;
 hoses.push(tube([V(GX, 0.045, 0), V(GX, 0.3, 0), V(GX, 0.49, 0), V(GX + 0.045, 0.53, 0), V(GX + 0.12, 0.47, 0), V(GX + 0.16, 0.42, 0),
   V(GX + 0.175, 0.2, 0), V(GX + 0.2, 0.012, 0), V(-0.6, 0.009, 0), V(-0.545, 0.02, 0), V(-0.5, HY, 0)], 0.008, C.hose, world, 160));
 hoses.push(rod(V(-0.5, HY, 0), V(hoseEnd, HY, 0), 0.008, C.hose));
 rod(V(hoseEnd - 0.004, HY, 0), V(hoseEnd + 0.016, HY, 0), 0.0095, C.cap);
-for (const x of [-0.44, -0.19, 0.06]) box(0.01, HY - BY - R, 0.022, C.black, x, (BY + R + HY) / 2, 0);
+for (const x of [-0.42, -0.09, 0.24]) box(0.01, HY - BY - R, 0.022, C.black, x, (BY + R + HY) / 2, 0);
 POTS.forEach(([px, pz]) => {
   const s = Math.sign(pz);
   cyl(0.005, 0.016, C.conn, px, HY + 0.012, 0);
